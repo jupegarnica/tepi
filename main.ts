@@ -14,8 +14,7 @@ if (import.meta.main) {
     await runFetch(args, abortController.signal);
 }
 
-async function runFetch(args: Args, signal: AbortSignal): Promise<void> {
-    console.log("runFetch", args);
+async function runFetch(args: Args, signal: AbortSignal | null = null): Promise<void> {
 
     const url = new URL(`${args._.join("?")}`);
 
@@ -24,8 +23,6 @@ async function runFetch(args: Args, signal: AbortSignal): Promise<void> {
     const header = args.header ? Array.isArray(args.header) ? args.header : [args.header] : [];
 
     for (const txt of header) {
-        console.log(txt);
-
         const [key, value] = txt.replace(":", "<<::>>").split("<<::>>");
         headers.set(key.trim(), value.trim());
     }
@@ -49,11 +46,11 @@ async function runFetch(args: Args, signal: AbortSignal): Promise<void> {
 
     // Run:
     try {
-        console.log(await castRequestToHttpText(request));
+        console.info(await castRequestToHttpText(request));
         const response = await fetch(request);
-        console.log(await castResponseToHttpText(response));
+        console.info(await castResponseToHttpText(response));
     } catch (error) {
-        console.log(error);
+        console.error(error);
     }
 }
 
