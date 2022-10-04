@@ -58,33 +58,38 @@ function extractBody(re: Response | Request): unknown {
     if (!re.bodyUsed) return "";
 
     const contentType = re.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-        return re.json();
-    } else if (contentType && contentType.includes("text/html")) {
+
+    if (!contentType) {
         return re.text();
-    } else if (contentType && contentType.includes("text/plain")) {
-        return re.text();
-    } else if (contentType && contentType.includes("application/octet-stream")) {
-        return re.arrayBuffer();
-    } else if (
-        contentType && contentType.includes("application/x-www-form-urlencoded")
-    ) {
-        return re.formData();
-    } else {
-        return re.blob();
     }
+    if (contentType.includes("application/json")) {
+        return re.json();
+    }
+    if (contentType.includes("text/")) {
+        return re.text();
+    }
+    if (contentType.includes("application/octet-stream")) {
+        return re.arrayBuffer();
+    }
+    if (contentType.includes("multipart/form-data")) {
+        return re.formData();
+    }
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+        return re.formData();
+    }
+    return re.blob();
 }
 
 async function castResponseToHttpText(response: Response): Promise<string> {
     const body = await extractBody(response);
 
     const statusColor = response.status >= 200 && response.status < 300
-    ?    colors.green
-    :    response.status >= 300 && response.status < 400
-    ?    colors.yellow
-    :    response.status >= 400 && response.status < 500
-    ?    colors.red
-    :    colors.bgRed;
+        ? colors.green
+        : response.status >= 300 && response.status < 400
+            ? colors.yellow
+            : response.status >= 400 && response.status < 500
+                ? colors.red
+                : colors.bgRed;
 
 
 
@@ -126,7 +131,7 @@ function headerToString(headers: Headers): string {
         maxLengthValue = Math.max(maxLengthValue, value.length);
     }
     for (const [key, value] of headers.entries()) {
-        result +=(`${colors.blue(`${key}:`.padEnd(maxLengthKey+1))} ${colors.white(value.padEnd(maxLengthValue+1))}\n`)
+        result += (`${colors.blue(`${key}:`.padEnd(maxLengthKey + 1))} ${colors.white(value.padEnd(maxLengthValue + 1))}\n`)
     }
 
     return result;
