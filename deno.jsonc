@@ -1,5 +1,7 @@
 {
     "tasks": {
+        "test":"deno test -A --unstable --no-check",
+        "test-watch":"FORCE_COLOR=1 deno test -A --unstable --no-check --watch .",
         "dev": "deno run --allow-net --watch main.ts https://faker.deno.dev/pong status=407 --header 'Location: https://faker.deno.dev/image/cats'"
     }
 }

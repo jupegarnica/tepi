@@ -3,3 +3,7 @@ GET https://httpbin.org/html
 ###
 
 GET https://httpbin.org/status/204
+
+
+GET https://httpbin.org/gzip
+GET https://httpbin.org/brotli

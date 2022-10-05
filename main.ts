@@ -1,5 +1,8 @@
 import { type Args, parse } from "https://deno.land/std@0.126.0/flags/mod.ts";
 import * as colors from "https://deno.land/std@0.126.0/fmt/colors.ts";
+import { highlight } from "npm:cli-highlight";
+import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
+import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
 
 if (import.meta.main) {
@@ -20,7 +23,7 @@ if (import.meta.main) {
             body: null,
             cache: "default",
             credentials: "same-origin",
-            redirect: "follow",
+            redirect: "follow", // "manual" | "follow" | "error"
             referrer: "client",
             referrerPolicy: "no-referrer",
             integrity: "",
@@ -31,6 +34,7 @@ if (import.meta.main) {
             hideHeaders: false,
             hideResponse: false,
             hideRequest: false,
+
 
         }
     });
@@ -86,10 +90,12 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
 
         const response = await promise;
 
+        // if (response.headers.get("content-encoding")) {
+        //     throw new Error("content-encoding is not supported " + response.headers.get("content-encoding"));
+        // }
         hideResponse || console.info(responseToText(response));
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
         hideResponse || hideBody || console.info(await bodyToText(response));
-
 
         if (!response.bodyUsed) {
             await response.body?.cancel();
@@ -100,29 +106,32 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
     }
 }
 
+
 function extractBody(re: Response | Request): Promise<unknown> {
 
-    const contentType = re.headers.get("content-type");
+    const contentType = re.headers.get("content-type") || "";
+
+    const includes = (ct: string) => contentType.includes(ct)
 
     if (!contentType) {
-        return re.text();
+        return Promise.resolve('');
     }
-    if (contentType.includes("application/json")) {
-        return re.json();
-    }
-    if (contentType.includes("text/")) {
-        return re.text();
-    }
-    if (contentType.includes("application/octet-stream")) {
+    if (mimesToArrayBuffer.some(includes)) {
         return re.arrayBuffer();
     }
-    if (contentType.includes("multipart/form-data")) {
+    if (mimesToText.some(includes)) {
+        return re.text();
+    }
+    if (mimesToJSON.some(includes)) {
+        return re.json();
+    }
+    if (mimesToBlob.some(includes)) {
+        return re.blob();
+    }
+    if (mimesToFormData.some(includes)) {
         return re.formData();
     }
-    if (contentType.includes("application/x-www-form-urlencoded")) {
-        return re.formData();
-    }
-    return re.blob();
+    throw new Error("Unknown content type " + contentType);
 }
 
 function requestToText(request: Request): string {
@@ -168,10 +177,61 @@ function headersToText(headers: Headers): string {
 
 }
 
+
+
 async function bodyToText(re: Response | Request): Promise<string> {
+    const contentType = re.headers.get("content-type") || "";
+    if (!contentType) return ''
     const body = await extractBody(re);
     const bodyStr = typeof body === "string"
         ? body
         : JSON.stringify(body, null, 2);
-    return bodyStr;
+
+
+
+    const includes = (ct: string) => contentType.includes(ct)
+
+    if (mimesToArrayBuffer.some(includes)) {
+        return imageToText(body as ArrayBuffer);
+
+    }
+    if (mimesToBlob.some(includes)) {
+        return `${Deno.inspect(body)}`;
+    }
+
+
+    let { language } = contentTypeToLanguage(contentType);
+
+    if (language) {
+        language = language !== 'plain' ? language : 'text';
+        try {
+            return highlight(bodyStr, { language, ignoreIllegals: true, languageSubset: ['text'] });
+        } catch (error) {
+            console.error(error.message);
+            console.log(typeof body);
+            throw error;
+        }
+    }
+    if (mimesToText.some(includes)) {
+        return bodyStr;
+    }
+
+
+    throw new Error("Unknown content type " + contentType);
+
+}
+
+
+function contentTypeToLanguage(contentType: string): { language: string; mime: string; type: string } {
+    const [mime] = contentType.split(";");
+    let [type, language] = mime.split("/");
+    language = language.replace(/\+.*/, '');
+    return { type, language, mime }
+
+}
+
+async function imageToText(body: ArrayBuffer): Promise<string> {
+    const rawFile = new Uint8Array(body);
+    const options = { rawFile }
+    return [...await getImageStrings(options)].join('');
 }
