@@ -99,7 +99,7 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
         // }
         hideResponse || console.info(responseToText(response));
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
-        hideResponse || hideBody || console.info(await bodyToText(await extractBody(response)), '\n');
+        hideBody || console.info(await bodyToText(await extractBody(response)), '\n');
 
         if (!response.bodyUsed) {
             await response.body?.cancel();

@@ -197,7 +197,7 @@ Deno.test("runFetch body image/svg",
 
 
 Deno.test("runFetch request body json",
-    { only: true },
+    // { only: true },
     async () => {
         await runFetch({
             _: ["https://httpbin.org/post"],
@@ -206,3 +206,15 @@ Deno.test("runFetch request body json",
             body: JSON.stringify({ hello: "world" }),
         });
     });
+
+
+Deno.test("runFetch request body text",
+// { only: true },
+async () => {
+    await runFetch({
+        _: ["https://httpbin.org/post"],
+        method: "POST",
+        headers: ["Content-Type: text/plain"],
+        body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec auctor, nisl eget aliquam ultricies, nunc nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Donec auctor, nisl eget aliquam ultricies, nunc nisl aliquam nisl, eget aliquam nisl nisl eget nisl',
+    });
+});
