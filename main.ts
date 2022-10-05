@@ -232,7 +232,6 @@ async function extractBody(re: Response | Request): Promise<BodyExtracted> {
     throw new Error("Unknown content type " + contentType);
 }
 
-
 function contentTypeToLanguage(contentType: string): { language: string; mime: string; type: string } {
     const [mime] = contentType.split(";");
     let [type, language] = mime.split("/");
