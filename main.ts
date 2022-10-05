@@ -1,5 +1,6 @@
 import { type Args, parse } from "https://deno.land/std@0.126.0/flags/mod.ts";
 import * as colors from "https://deno.land/std@0.126.0/fmt/colors.ts";
+// @ts-ignore: it has a highlight named export
 import { highlight } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
@@ -52,12 +53,23 @@ if (import.meta.main) {
 
 export async function runFetch(args: Args, signal: AbortSignal | null = null): Promise<void> {
 
-    const url = new URL(`${args._.join("?")}`);
+    let url = '';
 
-    // create headers
+    if (args._.length === 0) {
+        console.log(colors.red("Error: URL is required"));
+        Deno.exit(1);
+    } else {
+        // has protocol?
+        url = `${args._[0]}`
+        if (!url.match(/^https?:\/\//))  {
+            url = `http://${url}`
+        }
+    }
+
+
+
     const headers = new Headers();
     const headersInput = args.headers ? Array.isArray(args.headers) ? args.headers : [args.headers] : [];
-
     for (const txt of headersInput) {
         const [key, value] = txt.replace(":", "<<::>>").split("<<::>>");
         headers.set(key, value);
@@ -86,6 +98,7 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
         const requestBody = mimesToJSON.some((ct) => contentType.includes(ct))
             ? JSON.parse(init.body as string)
             : init.body;
+
         const promise = fetch(request);
 
         hideRequest || console.info(requestToText(request));
@@ -94,9 +107,6 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
 
         const response = await promise;
 
-        // if (response.headers.get("content-encoding")) {
-        //     throw new Error("content-encoding is not supported " + response.headers.get("content-encoding"));
-        // }
         hideResponse || console.info(responseToText(response));
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
         hideBody || console.info(await bodyToText(await extractBody(response)), '\n');

@@ -1,0 +1,24 @@
+services:
+  httpbin:
+    image: kennethreitz/httpbin
+    ports:
+      - "80:80"
+    networks:
+      - httpbin
+
+  test:
+    networks:
+      - httpbin
+    image: denoland/deno
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - HOST=http://httpbin:80
+    command: deno task test
+    depends_on:
+      - httpbin
+
+networks:
+  httpbin:
+    driver: bridge
