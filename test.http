@@ -1,0 +1,5 @@
+GET https://httpbin.org/html
+
+###
+
+GET https://httpbin.org/status/204
