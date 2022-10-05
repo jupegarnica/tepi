@@ -5,6 +5,7 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
 
+
 if (import.meta.main) {
     const args: Args = parse(Deno.args, {
         alias: {
@@ -81,12 +82,15 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
     try {
         const request: Request = new Request(url, init);
         const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
-
+        const contentType = request.headers.get("content-type") || "";
+        const requestBody = mimesToJSON.some((ct) => contentType.includes(ct))
+            ? JSON.parse(init.body as string)
+            : init.body;
         const promise = fetch(request);
 
         hideRequest || console.info(requestToText(request));
-        hideHeaders || console.info(headersToText(request.headers));
-        hideBody || console.info(await bodyToText(request));
+        hideRequest || hideHeaders || console.info(headersToText(request.headers));
+        hideRequest || hideBody || console.info(await bodyToText({ body: requestBody, contentType: request.headers.get("content-type") || '' }), '\n');
 
         const response = await promise;
 
@@ -95,7 +99,7 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
         // }
         hideResponse || console.info(responseToText(response));
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
-        hideResponse || hideBody || console.info(await bodyToText(response));
+        hideResponse || hideBody || console.info(await bodyToText(await extractBody(response)), '\n');
 
         if (!response.bodyUsed) {
             await response.body?.cancel();
@@ -107,32 +111,6 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
 }
 
 
-function extractBody(re: Response | Request): Promise<unknown> {
-
-    const contentType = re.headers.get("content-type") || "";
-
-    const includes = (ct: string) => contentType.includes(ct)
-
-    if (!contentType) {
-        return Promise.resolve('');
-    }
-    if (mimesToArrayBuffer.some(includes)) {
-        return re.arrayBuffer();
-    }
-    if (mimesToText.some(includes)) {
-        return re.text();
-    }
-    if (mimesToJSON.some(includes)) {
-        return re.json();
-    }
-    if (mimesToBlob.some(includes)) {
-        return re.blob();
-    }
-    if (mimesToFormData.some(includes)) {
-        return re.formData();
-    }
-    throw new Error("Unknown content type " + contentType);
-}
 
 function requestToText(request: Request): string {
     const method = request.method;
@@ -177,22 +155,17 @@ function headersToText(headers: Headers): string {
 
 }
 
+type BodyExtracted = { body?: BodyInit; contentType: string }
 
 
-async function bodyToText(re: Response | Request): Promise<string> {
-    const contentType = re.headers.get("content-type") || "";
+async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
     if (!contentType) return ''
-    const body = await extractBody(re);
-    const bodyStr = typeof body === "string"
-        ? body
-        : JSON.stringify(body, null, 2);
-
 
 
     const includes = (ct: string) => contentType.includes(ct)
 
     if (mimesToArrayBuffer.some(includes)) {
-        return imageToText(body as ArrayBuffer);
+        return await imageToText(body as ArrayBuffer);
 
     }
     if (mimesToBlob.some(includes)) {
@@ -200,6 +173,7 @@ async function bodyToText(re: Response | Request): Promise<string> {
     }
 
 
+    const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
     let { language } = contentTypeToLanguage(contentType);
 
     if (language) {
@@ -219,6 +193,33 @@ async function bodyToText(re: Response | Request): Promise<string> {
 
     throw new Error("Unknown content type " + contentType);
 
+}
+
+async function extractBody(re: Response | Request): Promise<BodyExtracted> {
+
+    const contentType = re.headers.get("content-type") || "";
+
+    const includes = (ct: string) => contentType.includes(ct)
+
+    if (!contentType) {
+        return { body: await Promise.resolve(''), contentType };
+    }
+    if (mimesToArrayBuffer.some(includes)) {
+        return { body: await re.arrayBuffer(), contentType };
+    }
+    if (mimesToText.some(includes)) {
+        return { body: await re.text(), contentType };
+    }
+    if (mimesToJSON.some(includes)) {
+        return { body: await re.json(), contentType };
+    }
+    if (mimesToBlob.some(includes)) {
+        return { body: await re.blob(), contentType };
+    }
+    if (mimesToFormData.some(includes)) {
+        return { body: await re.formData(), contentType };
+    }
+    throw new Error("Unknown content type " + contentType);
 }
 
 

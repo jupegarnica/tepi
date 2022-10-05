@@ -117,11 +117,12 @@ Deno.test("runFetch body brotli",
 
 
 Deno.test("runFetch body deflate",
-    // { ignore: true }, // TODO: fix this test
+    { ignore: true }, // TODO: fix this test
     async () => {
         await runFetch({
             _: ["https://httpbin.org/deflate"],
             redirect: "error",
+            headers: ["Accept-Encoding: gzip, br"],
         });
     });
 
@@ -190,4 +191,18 @@ Deno.test("runFetch body image/svg",
             redirect: "error",
         });
         consoleSize.restore()
+    });
+
+
+
+
+Deno.test("runFetch request body json",
+    { only: true },
+    async () => {
+        await runFetch({
+            _: ["https://httpbin.org/post"],
+            method: "POST",
+            headers: ["Content-Type: application/json"],
+            body: JSON.stringify({ hello: "world" }),
+        });
     });
