@@ -183,7 +183,6 @@ Deno.test("[parseHttp] response with body ",
 
     `);
         assertEquals(await response?.text(), 'hola mundo');
-        assertEquals(response?.bodyExtracted, 'hola mundo');
 
     })
 
@@ -200,7 +199,6 @@ HTTP/1.1 200 OK
 x-foo: bar
 `);
         assertEquals(await response?.text(), '');
-        assertEquals(response?.bodyExtracted, undefined);
     })
 
 
@@ -226,6 +224,5 @@ mundo
 
     `);
         assertEquals(await response?.text(), 'hola\n\nmundo');
-        assertEquals(response?.bodyExtracted, 'hola\n\nmundo');
 
     })
