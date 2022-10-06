@@ -7,7 +7,7 @@ import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormD
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 
-import type { RequestUnused, Meta, ResponseUsed, BodyExtracted } from "./types.ts";
+import type { _Request, Meta, _Response, BodyExtracted } from "./types.ts";
 import { assert } from "https://deno.land/std@0.158.0/_util/assert.ts";
 
 
@@ -54,7 +54,7 @@ if (import.meta.main) {
     await runFetch(args, abortController.signal);
 }
 
-export function runFetch(args: Args, signal: AbortSignal | null = null): Promise<ResponseUsed> {
+export function runFetch(args: Args, signal: AbortSignal | null = null): Promise<_Response> {
 
     let url = '';
 
@@ -88,14 +88,8 @@ export function runFetch(args: Args, signal: AbortSignal | null = null): Promise
         mode: args.mode,
         signal,
     };
-    const request: RequestUnused = new Request(url, init);
-    const contentType = request.headers.get("content-type") || "";
-    const requestBodyRaw = mimesToJSON.some((ct) => contentType.includes(ct))
-        ? JSON.parse(init.body as string)
-        : init.body;
-    if (requestBodyRaw) {
-        request.bodyRaw = requestBodyRaw;
-    }
+    const request: _Request = new Request(url, init);
+    request.bodyRaw = args.body;
     const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
 
     const meta: Meta = { hideBody, hideHeaders, hideRequest, hideResponse }
@@ -110,10 +104,10 @@ export function runFetch(args: Args, signal: AbortSignal | null = null): Promise
 
 
 export async function fetchRequest(
-    request: RequestUnused,
+    request: _Request,
     meta: Meta = {},
-    expectedResponse?: ResponseUsed
-): Promise<ResponseUsed> {
+    expectedResponse?: _Response
+): Promise<_Response> {
     try {
         const {
             hideBody = false,
@@ -121,30 +115,32 @@ export async function fetchRequest(
             hideRequest = false,
             hideResponse = false,
         } = meta;
-        const requestBodyRaw = request.bodyRaw;
+        // const requestBodyRaw = request.bodyRaw;
 
         const promise = fetch(request);
 
-        hideRequest || console.info(requestToText(request));
-        hideRequest || hideHeaders || console.info(headersToText(request.headers));
-        hideRequest || hideBody || console.info(await bodyToText({ body: requestBodyRaw, contentType: request.headers.get("content-type") || '' }), '\n');
+        if (!hideRequest) {
+            console.info(requestToText(request));
+            hideHeaders || console.info(headersToText(request.headers));
+            hideBody || await printBody(request);
 
-        const response: ResponseUsed = await promise;
+            // console.info(await bodyToText({ body: requestBodyRaw, contentType: request.headers.get("content-type") || '' }), '\n');
+        }
+
+        const response: _Response = await promise;
 
         hideResponse || console.info(responseToText(response));
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
 
         if (!hideBody) {
-            const bodyExtracted = await extractBody(response);
-            response.bodyExtracted = bodyExtracted.body;
-
-            console.info(await bodyToText(bodyExtracted), '\n');
+            await printBody(response);
         }
 
         if (!response.bodyUsed) {
             await response.body?.cancel();
         }
         if (typeof expectedResponse === 'object') {
+            await extractBody(expectedResponse);
             assertExpectedResponse(response, expectedResponse);
         }
         return response;
@@ -200,7 +196,14 @@ function headersToText(headers: Headers): string {
 
 }
 
+async function printBody(re: _Response | _Request): Promise<void> {
+    const { body, contentType } = await extractBody(re);
+    // console.log('re.constructor.name', re.constructor.name);
+    // console.log('re.bodyExtracted', re.bodyExtracted);
+    // console.log('re. bodyRaw', re.bodyRaw);
+    console.info(await bodyToText({ body, contentType }), '\n');
 
+}
 
 async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
     if (!contentType || !body) return ''
@@ -238,29 +241,52 @@ async function bodyToText({ body, contentType }: BodyExtracted): Promise<string>
 
 }
 
-async function extractBody(re: Response | Request): Promise<BodyExtracted> {
+export async function extractBody(re: _Response | _Request): Promise<BodyExtracted> {
 
     const contentType = re.headers.get("content-type") || "";
-
     const includes = (ct: string) => contentType.includes(ct)
 
+    if (re.bodyUsed) {
+        const requestExtracted =
+            mimesToJSON.some((ct) => contentType.includes(ct))
+                ? JSON.parse(re.bodyRaw as string)
+                : re.bodyRaw;
+
+        if (requestExtracted) {
+            re.bodyExtracted = requestExtracted;
+        }
+        return { body: re.bodyExtracted, contentType };
+    }
     if (!contentType) {
-        return { body: await Promise.resolve(undefined), contentType };
+
+        const body = undefined;
+        re.bodyExtracted = body;
+        return { body, contentType };
     }
     if (mimesToArrayBuffer.some(includes)) {
-        return { body: await re.arrayBuffer(), contentType };
+        const body = await re.arrayBuffer();
+        re.bodyExtracted = body;
+        return { body, contentType };
     }
     if (mimesToText.some(includes)) {
-        return { body: await re.text(), contentType };
+        const body = await re.text();
+        re.bodyExtracted = body;
+        return { body, contentType };
     }
     if (mimesToJSON.some(includes)) {
-        return { body: await re.json(), contentType };
+        const body = await re.json();
+        re.bodyExtracted = body;
+        return { body, contentType };
     }
     if (mimesToBlob.some(includes)) {
-        return { body: await re.blob(), contentType };
+        const body = await re.blob();
+        re.bodyExtracted = body;
+        return { body, contentType };
     }
     if (mimesToFormData.some(includes)) {
-        return { body: await re.formData(), contentType };
+        const body = await re.formData();
+        re.bodyExtracted = body;
+        return { body, contentType };
     }
     throw new Error("Unknown content type " + contentType);
 }
@@ -285,29 +311,25 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
 }
 
 
-function assertExpectedResponse(response: ResponseUsed, expectedResponse: ResponseUsed) {
+function assertExpectedResponse(response: _Response, expectedResponse: _Response) {
     try {
-        console.log('assertExpectedResponse', {
-            headers: expectedResponse.headers,
-            body: expectedResponse.bodyExtracted ,
-            status: expectedResponse.status,
-            statusText: expectedResponse.statusText,
 
-        });
 
-        if (expectedResponse.status) assertEquals(expectedResponse.status, expectedResponse.status);
-        if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, expectedResponse.statusText);
+
+        if (expectedResponse.status) assertEquals(expectedResponse.status, response.status);
+        if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, response.statusText);
         if (expectedResponse.bodyExtracted) {
             if (typeof expectedResponse.bodyExtracted === 'object') {
-                // assertObjectMatch(response.bodyExtracted as Record<string,unknown>, expectedResponse.bodyExtracted as Record<string,unknown>);
-                assert(response.bodyExtracted instanceof expectedResponse.bodyExtracted.constructor);
+                assertObjectMatch(
+                    response.bodyExtracted as Record<string, unknown>,
+                    expectedResponse.bodyExtracted as Record<string, unknown>,
+                );
             } else {
                 assertEquals(response.bodyExtracted, expectedResponse.bodyExtracted);
             }
 
         }
         if (expectedResponse.headers) {
-            console.log('expectedResponse.headers', expectedResponse.headers);
 
             for (const [key, value] of expectedResponse.headers.entries()) {
                 assertEquals(response.headers.get(key), value);

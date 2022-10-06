@@ -6,19 +6,21 @@ export type Meta = {
     hideResponse?: boolean;
 }
 
-export interface RequestUnused extends Request {
-    bodyRaw?: BodyInit;
-}
-
-export interface ResponseUsed extends Response {
+export interface _Request extends Request {
+    bodyRaw?: BodyInit | null ;
     bodyExtracted?: unknown;
 }
 
-export type BodyExtracted = { body?: BodyInit; contentType: string }
+export interface _Response extends Response {
+    bodyRaw?: BodyInit | null ;
+    bodyExtracted?: unknown;
+}
+
+export type BodyExtracted = { body: unknown; contentType: string }
 
 
 export type Block = {
-    request: RequestUnused;
-    response?: ResponseUsed;
+    request: _Request;
+    response?: _Response;
     meta?: Meta;
 };

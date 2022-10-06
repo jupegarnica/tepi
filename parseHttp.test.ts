@@ -1,5 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 import { parseHttp } from "./http.ts";
+import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
+Deno.env.get('NO_LOG') && stub(console, 'info')
 
 // const http = String.raw
 Deno.test("parseHttp", () => {
@@ -63,10 +65,20 @@ Deno.test("[parseHttp] with body no headers", async () => {
         hola mundo`);
     const body = await request.text()
     assertEquals(request.headers.get('Content-Type'), 'text/plain;charset=UTF-8');
-
     assertEquals(body, 'hola mundo');
 
 })
+
+Deno.test("[parseHttp] with body raw", () => {
+    const { request } = parseHttp(
+        `POST faker.deno.dev
+
+        hola mundo`);
+    const body = request.bodyRaw;
+    assertEquals(body, 'hola mundo');
+
+})
+
 
 Deno.test("[parseHttp] with comments and body",
     // { only: true },
@@ -188,7 +200,7 @@ HTTP/1.1 200 OK
 x-foo: bar
 `);
         assertEquals(await response?.text(), '');
-        assertEquals(response?.bodyExtracted, null);
+        assertEquals(response?.bodyExtracted, undefined);
     })
 
 

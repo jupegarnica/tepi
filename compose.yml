@@ -1,24 +1,31 @@
 services:
+  faker:
+    image: jupegarnica/faker.deno.dev
+    ports:
+      - 80:8000
+    networks:
+      - fetch-net
   httpbin:
     image: kennethreitz/httpbin
     ports:
-      - "80:80"
+      - "81:80"
     networks:
-      - httpbin
+      - fetch-net
 
   test:
     networks:
-      - httpbin
+      - fetch-net
     image: denoland/deno
     volumes:
       - .:/app
     working_dir: /app
     environment:
-      - HOST=http://httpbin:80
-    command: deno task test
+      - HOST=http://faker:80
+    # command: deno task test
+    command: deno task test-watch
     depends_on:
-      - httpbin
+      - faker
 
 networks:
-  httpbin:
+  fetch-net:
     driver: bridge

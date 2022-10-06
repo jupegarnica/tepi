@@ -1,5 +1,5 @@
 import { fetchRequest } from "./fetch.ts";
-import { Block, ResponseUsed } from "./types.ts";
+import { Block, _Request, _Response } from "./types.ts";
 
 const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
@@ -29,9 +29,9 @@ export function parseHttp(txt: string): Block {
         if (trimmed.startsWith('HTTP/')) {
             // console.log(i, 'status'.padEnd(17), trimmed);
             responseInit ??= {};
-            const data = trimmed.split(' ')
-            responseInit.status = parseInt(data[1]);
-            responseInit.statusText = data[2];
+            const [,status, ...statusText] = trimmed.split(' ');
+            responseInit.status = parseInt(status);
+            responseInit.statusText = statusText.join(' ');
             thisLineMayBeResponseHeader = true;
             thisLineMayBeBody = false;
             thisLineMayBeResponseBody = false;
@@ -112,7 +112,9 @@ export function parseHttp(txt: string): Block {
         init.body = init.body.trim();
         init.body ||= null;
     }
-    const request = new Request(url, init);
+    const request: _Request = new Request(url, init);
+    request.bodyRaw = init.body;
+
     const block: Block = { request };
     if (responseInit) {
         if (typeof responseBody === 'string') {
@@ -120,15 +122,15 @@ export function parseHttp(txt: string): Block {
             responseBody ||= null;
         }
 
-        const response: ResponseUsed = new Response(responseBody, responseInit);
-        response.bodyExtracted = responseBody;
+        const response: _Response = new Response(responseBody, responseInit);
+        response.bodyRaw = responseBody;
         block.response = response
     }
     return block;
 }
 
 
-export async function runHttp(txt: string): Promise<ResponseUsed> {
+export async function runHttp(txt: string): Promise<_Response> {
 
     const block = parseHttp(txt);
     const response = await fetchRequest(block.request, block.meta, block.response);

@@ -1,8 +1,7 @@
 import { runFetch, fetchRequest } from "./fetch.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 import { assertEquals, assertRejects } from "https://deno.land/std/testing/asserts.ts";
-import { RequestUnused, ResponseUsed } from "./types.ts";
-import { assertThrows } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { _Request, _Response } from "./types.ts";
 
 
 Deno.env.get('NO_LOG') && stub(console, 'info')
@@ -307,15 +306,15 @@ Deno.test("[fetchRequest] must work with meta and expectedResponse",
     async () => {
 
         const body = JSON.stringify({ hello: "world" });
-        const request: RequestUnused = new Request(HOST + "/anything", {
+        const request: _Request = new Request(HOST + "/anything", {
             method: "POST",
             body: body,
         })
         request.bodyRaw = body;
 
-        const expectedResponse: ResponseUsed = new Response(body, {
+        const expectedResponse: _Response = new Response(body, {
             status: 200,
-            statusText: "ok",
+            statusText: "OK",
             headers: {
                 "content-type": "application/json",
             }
@@ -339,12 +338,12 @@ Deno.test("[fetchRequest] must throw and expectedResponse",
     async () => {
 
         const body = JSON.stringify({ hello: "world" });
-        const request: RequestUnused = new Request(HOST + "/anything", {
+        const request: _Request = new Request(HOST + "/anything", {
             method: "POST",
             body: body,
         })
         request.bodyRaw = body;
-        const expectedResponse: ResponseUsed = new Response(body, {
+        const expectedResponse: _Response = new Response(body, {
             status: 200,
             statusText: "ok",
             headers: {
