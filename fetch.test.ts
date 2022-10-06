@@ -1,5 +1,5 @@
-import { runFetch } from "./main.ts";
-import { stub } from "https://deno.land/std/testing/mock.ts";
+import { runFetch } from "./fetch.ts";
+import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 
 
 Deno.env.get('NO_LOG') && stub(console, 'info')

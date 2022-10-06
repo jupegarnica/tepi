@@ -2,7 +2,6 @@
     "tasks": {
         "test":"NO_LOG=1 deno test -A --unstable",
         "test-watch":"FORCE_COLOR=1 deno test -A --unstable --no-check --watch .",
-        "dev": "deno run --allow-net --watch main.ts https://faker.deno.dev/pong status=407 --header 'Location: https://faker.deno.dev/image/cats'",
-        "install":"deno install -A --unstable --name fetch ./main.ts"
+        "install":"deno install -A --unstable --name fetch ./fetch.ts"
     }
 }

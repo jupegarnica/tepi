@@ -1,10 +1,20 @@
-import { type Args, parse } from "https://deno.land/std@0.126.0/flags/mod.ts";
-import * as colors from "https://deno.land/std@0.126.0/fmt/colors.ts";
+import { type Args, parse } from "https://deno.land/std@0.158.0/flags/mod.ts";
+import * as colors from "https://deno.land/std@0.158.0/fmt/colors.ts";
 // @ts-ignore: it has a highlight named export
 import { highlight } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
+import { assertObjectMatch } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+
+
+type Meta = {
+    hideBody: boolean;
+    hideHeaders: boolean;
+    hideRequest: boolean;
+    hideResponse: boolean;
+    requestBodyRaw?: BodyInit;
+}
 
 
 if (import.meta.main) {
@@ -51,22 +61,18 @@ if (import.meta.main) {
     await runFetch(args, abortController.signal);
 }
 
-export async function runFetch(args: Args, signal: AbortSignal | null = null): Promise<void> {
+export function runFetch(args: Args, signal: AbortSignal | null = null): Promise<Response> {
 
     let url = '';
 
     if (args._.length === 0) {
-        console.log(colors.red("Error: URL is required"));
-        Deno.exit(1);
+        throw new Error("Error: URL is required");
     } else {
-        // has protocol?
         url = `${args._[0]}`
-        if (!url.match(/^https?:\/\//))  {
+        if (!url.match(/^https?:\/\//)) {
             url = `http://${url}`
         }
     }
-
-
 
     const headers = new Headers();
     const headersInput = args.headers ? Array.isArray(args.headers) ? args.headers : [args.headers] : [];
@@ -89,21 +95,34 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
         mode: args.mode,
         signal,
     };
+    const request: Request = new Request(url, init);
+    const contentType = request.headers.get("content-type") || "";
+    const requestBodyRaw = mimesToJSON.some((ct) => contentType.includes(ct))
+        ? JSON.parse(init.body as string)
+        : init.body;
+
+    const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
+
+    const meta: Meta = { hideBody, hideHeaders, hideRequest, hideResponse, requestBodyRaw }
+
+    return fetchRequest(request, meta, undefined);
 
 
+
+
+}
+
+
+async function fetchRequest(request: Request, meta: Meta, expectedResponse?: Response): Promise<Response> {
     try {
-        const request: Request = new Request(url, init);
-        const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
-        const contentType = request.headers.get("content-type") || "";
-        const requestBody = mimesToJSON.some((ct) => contentType.includes(ct))
-            ? JSON.parse(init.body as string)
-            : init.body;
+
+        const { hideBody, hideHeaders, hideRequest, hideResponse, requestBodyRaw } = meta;
 
         const promise = fetch(request);
 
         hideRequest || console.info(requestToText(request));
         hideRequest || hideHeaders || console.info(headersToText(request.headers));
-        hideRequest || hideBody || console.info(await bodyToText({ body: requestBody, contentType: request.headers.get("content-type") || '' }), '\n');
+        hideRequest || hideBody || console.info(await bodyToText({ body: requestBodyRaw, contentType: request.headers.get("content-type") || '' }), '\n');
 
         const response = await promise;
 
@@ -114,12 +133,18 @@ export async function runFetch(args: Args, signal: AbortSignal | null = null): P
         if (!response.bodyUsed) {
             await response.body?.cancel();
         }
+        if (typeof expectedResponse === 'object') {
+            // @ts-ignore maybe?
+            assertObjectMatch(response, expectedResponse);
+        }
+        return response;
     } catch (error) {
         console.error(error);
         throw error;
+
+
     }
 }
-
 
 
 function requestToText(request: Request): string {
