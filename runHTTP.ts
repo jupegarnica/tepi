@@ -1,10 +1,8 @@
+import { Block } from "./types.ts";
 
 const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
-type Block = {
-    request: Request;
-    response?: Response;
-};
+
 
 export function parseHttp(txt: string): Block {
     const lines: string[] = txt.replaceAll('\r', '\n').split("\n");

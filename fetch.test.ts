@@ -295,7 +295,7 @@ Deno.test("[fetchRequest] must work with meta",
 
         }
         const response = await fetchRequest(request, meta);
-        const body = response.bodyParsed as Record<string, unknown>;
+        const body = response.bodyExtracted as Record<string, unknown>;
         assertEquals(response.status, 200);
         assertEquals(body.json, { hello: "world" });
 
@@ -304,17 +304,16 @@ Deno.test("[fetchRequest] must work with meta",
 
 
 Deno.test("[fetchRequest] must work with meta and expectedResponse",
-    { only: true },
     async () => {
 
-        const bodyParsed = JSON.stringify({ hello: "world" });
+        const body = JSON.stringify({ hello: "world" });
         const request: RequestUnused = new Request(HOST + "/anything", {
             method: "POST",
-            body: bodyParsed,
+            body: body,
         })
-        request.bodyParsed = bodyParsed;
+        request.bodyRaw = body;
 
-        const expectedResponse: ResponseUsed = new Response(bodyParsed, {
+        const expectedResponse: ResponseUsed = new Response(body, {
             status: 200,
             statusText: "ok",
             headers: {
@@ -322,7 +321,7 @@ Deno.test("[fetchRequest] must work with meta and expectedResponse",
             }
 
         })
-        expectedResponse.bodyParsed = { data: bodyParsed };
+        expectedResponse.bodyExtracted = { data: body };
 
         const meta = {
             hideRequest: true,
@@ -337,17 +336,15 @@ Deno.test("[fetchRequest] must work with meta and expectedResponse",
 
 
 Deno.test("[fetchRequest] must throw and expectedResponse",
-    { only: true },
     async () => {
 
-        const bodyParsed = JSON.stringify({ hello: "world" });
+        const body = JSON.stringify({ hello: "world" });
         const request: RequestUnused = new Request(HOST + "/anything", {
             method: "POST",
-            body: bodyParsed,
+            body: body,
         })
-        request.bodyParsed = bodyParsed;
-
-        const expectedResponse: ResponseUsed = new Response(bodyParsed, {
+        request.bodyRaw = body;
+        const expectedResponse: ResponseUsed = new Response(body, {
             status: 200,
             statusText: "ok",
             headers: {
@@ -355,7 +352,7 @@ Deno.test("[fetchRequest] must throw and expectedResponse",
             }
 
         })
-        expectedResponse.bodyParsed = { data: bodyParsed };
+        expectedResponse.bodyExtracted = { data: body };
 
         const meta = {
             hideRequest: true,

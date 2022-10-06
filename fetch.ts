@@ -8,6 +8,7 @@ import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.158.0/t
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 
 import type { RequestUnused, Meta, ResponseUsed, BodyExtracted } from "./types.ts";
+import { assert } from "https://deno.land/std@0.158.0/_util/assert.ts";
 
 
 if (import.meta.main) {
@@ -53,7 +54,7 @@ if (import.meta.main) {
     await runFetch(args, abortController.signal);
 }
 
-export function runFetch(args: Args, signal: AbortSignal | null = null): Promise<Response> {
+export function runFetch(args: Args, signal: AbortSignal | null = null): Promise<ResponseUsed> {
 
     let url = '';
 
@@ -93,7 +94,7 @@ export function runFetch(args: Args, signal: AbortSignal | null = null): Promise
         ? JSON.parse(init.body as string)
         : init.body;
     if (requestBodyRaw) {
-        request.bodyParsed = requestBodyRaw;
+        request.bodyRaw = requestBodyRaw;
     }
     const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
 
@@ -120,7 +121,7 @@ export async function fetchRequest(
             hideRequest = false,
             hideResponse = false,
         } = meta;
-        const requestBodyRaw = request.bodyParsed;
+        const requestBodyRaw = request.bodyRaw;
 
         const promise = fetch(request);
 
@@ -135,7 +136,7 @@ export async function fetchRequest(
 
         if (!hideBody) {
             const bodyExtracted = await extractBody(response) ;
-            response.bodyParsed = bodyExtracted.body;
+            response.bodyExtracted = bodyExtracted.body;
 
             console.info(await bodyToText(bodyExtracted), '\n');
         }
@@ -287,12 +288,14 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
 function assertExpectedResponse(response: ResponseUsed, expectedResponse: ResponseUsed) {
     if (expectedResponse.status) assertEquals(expectedResponse.status, expectedResponse.status);
     if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, expectedResponse.statusText);
-    if (expectedResponse.bodyParsed) {
-        if (typeof expectedResponse.bodyParsed === 'object') {
-            assertObjectMatch(response.bodyParsed as Record<string, unknown>, expectedResponse.bodyParsed as Record<string, unknown>);
+    if (expectedResponse.bodyExtracted) {
+        if (typeof expectedResponse.bodyExtracted === 'object') {
+            // assertObjectMatch(response.bodyExtracted as Record<string,unknown>, expectedResponse.bodyExtracted as Record<string,unknown>);
+            assert( response.bodyExtracted instanceof expectedResponse.bodyExtracted.constructor);
         } else {
-            assertEquals(response.bodyParsed, expectedResponse.bodyParsed);
+            assertEquals(response.bodyExtracted, expectedResponse.bodyExtracted);
         }
+
     }
     if (expectedResponse.headers) {
         for (const [key, value] of expectedResponse.headers.entries()) {
