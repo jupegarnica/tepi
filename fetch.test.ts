@@ -1,14 +1,17 @@
-import { runFetch } from "./fetch.ts";
+import { runFetch, fetchRequest } from "./fetch.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
+import { assertEquals, assertRejects } from "https://deno.land/std/testing/asserts.ts";
+import { RequestUnused, ResponseUsed } from "./types.ts";
+import { assertThrows } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 
 
 Deno.env.get('NO_LOG') && stub(console, 'info')
 
 const HOST = Deno.env.get('HOST') || 'https://httpbin.org'
 
-console.log('HOST', HOST);
+// console.log('HOST', HOST);
 
-Deno.test("runFetch no protocol",
+Deno.test("[runFetch] no protocol",
     async () => {
         await runFetch({
             _: ["httpbin.org/get"],
@@ -16,7 +19,7 @@ Deno.test("runFetch no protocol",
         });
     })
 
-Deno.test("runFetch status/307",
+Deno.test("[runFetch] status/307",
     async () => {
         await runFetch({
             _: [HOST + "/status/307"],
@@ -25,7 +28,7 @@ Deno.test("runFetch status/307",
     })
 
 
-Deno.test("runFetch status/307 follow",
+Deno.test("[runFetch] status/307 follow",
     async () => {
         await runFetch({
             _: [HOST + "/status/307"],
@@ -33,82 +36,82 @@ Deno.test("runFetch status/307 follow",
         });
     })
 
-Deno.test("runFetch status/400", async () => {
+Deno.test("[runFetch] status/400", async () => {
     await runFetch({
         _: [HOST + "/status/400"],
         redirect: "manual",
     });
 })
 
-Deno.test("runFetch status/500", async () => {
+Deno.test("[runFetch] status/500", async () => {
     await runFetch({
         _: [HOST + "/status/500"],
         redirect: "manual",
     });
 })
 
-Deno.test("runFetch hideHeaders", async () => {
+Deno.test("[runFetch] hideHeaders", async () => {
     await runFetch({
         _: [HOST + "/status/500"],
         hideHeaders: true,
     });
 })
 
-Deno.test("runFetch hideBody", async () => {
+Deno.test("[runFetch] hideBody", async () => {
     await runFetch({
         _: [HOST + "/json"],
         hideBody: true,
     });
 })
 
-Deno.test("runFetch hideResponse", async () => {
+Deno.test("[runFetch] hideResponse", async () => {
     await runFetch({
         _: [HOST + "/json"],
         hideResponse: true,
     });
 })
 
-Deno.test("runFetch hideRequest", async () => {
+Deno.test("[runFetch] hideRequest", async () => {
     await runFetch({
         _: [HOST + "/json"],
         hideRequest: true,
     });
 });
 
-Deno.test("runFetch body json", async () => {
+Deno.test("[runFetch] body json", async () => {
     await runFetch({
         _: [HOST + "/json"],
     });
 });
 
 
-Deno.test("runFetch body html", async () => {
+Deno.test("[runFetch] body html", async () => {
     await runFetch({
         _: [HOST + "/html"],
     });
 });
 
-Deno.test("runFetch body xml", async () => {
+Deno.test("[runFetch] body xml", async () => {
     await runFetch({
         _: [HOST + "/xml"],
     });
 });
 
 
-Deno.test("runFetch body plain", async () => {
+Deno.test("[runFetch] body plain", async () => {
     await runFetch({
         _: [HOST + "/robots.txt"],
     });
 });
 
 
-Deno.test("runFetch body deny", async () => {
+Deno.test("[runFetch] body deny", async () => {
     await runFetch({
         _: [HOST + "/deny"],
         redirect: "error",
     });
 });
-Deno.test("runFetch body gzip",
+Deno.test("[runFetch] body gzip",
     async () => {
         await runFetch({
             _: [HOST + "/gzip"],
@@ -116,7 +119,7 @@ Deno.test("runFetch body gzip",
         });
     });
 
-Deno.test("runFetch body encoding/utf8",
+Deno.test("[runFetch] body encoding/utf8",
     async () => {
         await runFetch({
             _: [HOST + "/encoding/utf8"],
@@ -125,7 +128,7 @@ Deno.test("runFetch body encoding/utf8",
     });
 
 
-Deno.test("runFetch body brotli",
+Deno.test("[runFetch] body brotli",
 
     async () => {
         await runFetch({
@@ -135,7 +138,7 @@ Deno.test("runFetch body brotli",
     });
 
 
-Deno.test("runFetch body deflate",
+Deno.test("[runFetch] body deflate",
     { ignore: true }, // TODO: fix this test
     async () => {
         await runFetch({
@@ -149,7 +152,7 @@ Deno.test("runFetch body deflate",
 
 
 
-Deno.test("runFetch body bytes/8",
+Deno.test("[runFetch] body bytes/8",
     async () => {
         await runFetch({
             _: [HOST + "/bytes/8"],
@@ -159,7 +162,7 @@ Deno.test("runFetch body bytes/8",
 
 
 
-Deno.test("runFetch body drip",
+Deno.test("[runFetch] body drip",
     async () => {
         await runFetch({
             _: [HOST + "/drip"],
@@ -168,7 +171,7 @@ Deno.test("runFetch body drip",
     });
 
 
-Deno.test("runFetch body drip",
+Deno.test("[runFetch] body drip",
     async () => {
         await runFetch({
             _: [HOST + "/drip"],
@@ -180,7 +183,7 @@ Deno.test("runFetch body drip",
 const columns = 30;
 const rows = 30;
 
-Deno.test("runFetch body image/png",
+Deno.test("[runFetch] body image/png",
     async () => {
         const consoleSize = stub(Deno, "consoleSize", () => ({ columns, rows }));
         await runFetch({
@@ -191,7 +194,7 @@ Deno.test("runFetch body image/png",
     });
 
 
-Deno.test("runFetch body image/jpeg",
+Deno.test("[runFetch] body image/jpeg",
     async () => {
         const consoleSize = stub(Deno, "consoleSize", () => ({ columns, rows }));
         await runFetch({
@@ -202,7 +205,7 @@ Deno.test("runFetch body image/jpeg",
     });
 
 
-Deno.test("runFetch body image/svg",
+Deno.test("[runFetch] body image/svg",
     async () => {
         const consoleSize = stub(Deno, "consoleSize", () => ({ columns, rows }));
         await runFetch({
@@ -215,7 +218,7 @@ Deno.test("runFetch body image/svg",
 
 
 
-Deno.test("runFetch request body json",
+Deno.test("[runFetch] request body json",
     async () => {
         await runFetch({
             _: [HOST + "/post"],
@@ -226,7 +229,7 @@ Deno.test("runFetch request body json",
     });
 
 
-Deno.test("runFetch request body text",
+Deno.test("[runFetch] request body text",
     async () => {
         await runFetch({
             _: [HOST + "/post"],
@@ -235,3 +238,143 @@ Deno.test("runFetch request body text",
             body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec auctor, nisl eget aliquam ultricies, nunc nisl aliquam nisl, eget aliquam nisl nisl eget nisl. Donec auctor, nisl eget aliquam ultricies, nunc nisl aliquam nisl, eget aliquam nisl nisl eget nisl',
         });
     });
+
+
+Deno.test("[runFetch] request body text",
+    async () => {
+        await runFetch({
+            _: [HOST + "/post"],
+            method: "POST",
+            headers: ["Content-Type: application/typescript"],
+            body: `
+import { hello } from "./hello.js";
+
+const req: Resquest = {
+    body: "hello world",
+    headers: {
+        "content-type": "text/plain",
+    },
+}
+
+if (true) {
+    console.info("hello world")
+}
+            `,
+        });
+    });
+
+
+
+Deno.test("[fetchRequest] must work",
+    async () => {
+        const request = new Request(HOST + "/post", {
+            method: "POST",
+
+        })
+        const response = await fetchRequest(request);
+        assertEquals(response.status, 200);
+    })
+
+
+
+
+Deno.test("[fetchRequest] must work with meta",
+    async () => {
+        const request = new Request(HOST + "/anything", {
+            method: "POST",
+            body: JSON.stringify({ hello: "world" }),
+            headers: {
+                "content-type": "application/json",
+            }
+        })
+        const meta = {
+            hideRequest: true,
+            hideResponse: true,
+            // hideBody: true,
+            hideHeaders: true,
+
+        }
+        const response = await fetchRequest(request, meta);
+        const body = response.bodyParsed as Record<string, unknown>;
+        assertEquals(response.status, 200);
+        assertEquals(body.json, { hello: "world" });
+
+    })
+
+
+
+Deno.test("[fetchRequest] must work with meta and expectedResponse",
+    { only: true },
+    async () => {
+
+        const bodyParsed = JSON.stringify({ hello: "world" });
+        const request: RequestUnused = new Request(HOST + "/anything", {
+            method: "POST",
+            body: bodyParsed,
+        })
+        request.bodyParsed = bodyParsed;
+
+        const expectedResponse: ResponseUsed = new Response(bodyParsed, {
+            status: 200,
+            statusText: "ok",
+            headers: {
+                "content-type": "application/json",
+            }
+
+        })
+        expectedResponse.bodyParsed = { data: bodyParsed };
+
+        const meta = {
+            hideRequest: true,
+            hideResponse: true,
+            hideBody: false,
+            hideHeaders: true,
+
+        }
+        const response = await fetchRequest(request, meta, expectedResponse);
+        assertEquals(response.status, 200);
+    })
+
+
+Deno.test("[fetchRequest] must throw and expectedResponse",
+    { only: true },
+    async () => {
+
+        const bodyParsed = JSON.stringify({ hello: "world" });
+        const request: RequestUnused = new Request(HOST + "/anything", {
+            method: "POST",
+            body: bodyParsed,
+        })
+        request.bodyParsed = bodyParsed;
+
+        const expectedResponse: ResponseUsed = new Response(bodyParsed, {
+            status: 200,
+            statusText: "ok",
+            headers: {
+                "content-type": "application/json",
+            }
+
+        })
+        expectedResponse.bodyParsed = { data: bodyParsed };
+
+        const meta = {
+            hideRequest: true,
+            hideResponse: true,
+            hideBody: true,
+            hideHeaders: true,
+
+        }
+        await assertRejects(async () => await fetchRequest(request, meta, expectedResponse));
+    })
+
+
+// import { extension, typeByExtension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
+
+
+// Deno.test("[runFetch] request body text",
+//     { only: true },
+//      () => {
+//         assertEquals(typeByExtension(".js"), "application/javascript");
+//         assertEquals(extension("application/typescript"), ".ts");
+
+//     });

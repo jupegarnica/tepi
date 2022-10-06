@@ -92,10 +92,10 @@ HTTP/1.1 200 OK
 
 
 Deno.test("parseHttp with response",
-// { only: true },
-() => {
-    const { response } = parseHttp(
-        `POST faker.deno.dev/pong
+    // { only: true },
+    () => {
+        const { response } = parseHttp(
+            `POST faker.deno.dev/pong
         Content-Type: text/plain
 
 hola mundo
@@ -107,7 +107,7 @@ hola mundo
 
     `);
 
-    assertEquals(response?.headers.get('x-foo'), 'bar');
-    assertEquals(response?.status, 200);
+        assertEquals(response?.headers.get('x-foo'), 'bar');
+        assertEquals(response?.status, 200);
 
-})
+    })

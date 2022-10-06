@@ -4,17 +4,10 @@ import * as colors from "https://deno.land/std@0.158.0/fmt/colors.ts";
 import { highlight } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
+import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 
-import { assertObjectMatch } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-
-
-type Meta = {
-    hideBody: boolean;
-    hideHeaders: boolean;
-    hideRequest: boolean;
-    hideResponse: boolean;
-    requestBodyRaw?: BodyInit;
-}
+import type { RequestUnused, Meta, ResponseUsed, BodyExtracted } from "./types.ts";
 
 
 if (import.meta.main) {
@@ -53,7 +46,6 @@ if (import.meta.main) {
 
     const abortController = new AbortController();
     Deno.addSignalListener("SIGINT", () => {
-        // console.log("ctrl +c");
         abortController.abort();
         Deno.exit(130);
     });
@@ -95,15 +87,17 @@ export function runFetch(args: Args, signal: AbortSignal | null = null): Promise
         mode: args.mode,
         signal,
     };
-    const request: Request = new Request(url, init);
+    const request: RequestUnused = new Request(url, init);
     const contentType = request.headers.get("content-type") || "";
     const requestBodyRaw = mimesToJSON.some((ct) => contentType.includes(ct))
         ? JSON.parse(init.body as string)
         : init.body;
-
+    if (requestBodyRaw) {
+        request.bodyParsed = requestBodyRaw;
+    }
     const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
 
-    const meta: Meta = { hideBody, hideHeaders, hideRequest, hideResponse, requestBodyRaw }
+    const meta: Meta = { hideBody, hideHeaders, hideRequest, hideResponse }
 
     return fetchRequest(request, meta, undefined);
 
@@ -113,10 +107,20 @@ export function runFetch(args: Args, signal: AbortSignal | null = null): Promise
 }
 
 
-async function fetchRequest(request: Request, meta: Meta, expectedResponse?: Response): Promise<Response> {
-    try {
 
-        const { hideBody, hideHeaders, hideRequest, hideResponse, requestBodyRaw } = meta;
+export async function fetchRequest(
+    request: RequestUnused,
+    meta: Meta = {},
+    expectedResponse?: ResponseUsed
+): Promise<ResponseUsed> {
+    try {
+        const {
+            hideBody = false,
+            hideHeaders = false,
+            hideRequest = false,
+            hideResponse = false,
+        } = meta;
+        const requestBodyRaw = request.bodyParsed;
 
         const promise = fetch(request);
 
@@ -124,22 +128,27 @@ async function fetchRequest(request: Request, meta: Meta, expectedResponse?: Res
         hideRequest || hideHeaders || console.info(headersToText(request.headers));
         hideRequest || hideBody || console.info(await bodyToText({ body: requestBodyRaw, contentType: request.headers.get("content-type") || '' }), '\n');
 
-        const response = await promise;
+        const response: ResponseUsed = await promise;
 
         hideResponse || console.info(responseToText(response));
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
-        hideBody || console.info(await bodyToText(await extractBody(response)), '\n');
+
+        if (!hideBody) {
+            const bodyExtracted = await extractBody(response) ;
+            response.bodyParsed = bodyExtracted.body;
+
+            console.info(await bodyToText(bodyExtracted), '\n');
+        }
 
         if (!response.bodyUsed) {
             await response.body?.cancel();
         }
         if (typeof expectedResponse === 'object') {
-            // @ts-ignore maybe?
-            assertObjectMatch(response, expectedResponse);
+            assertExpectedResponse(response, expectedResponse);
         }
         return response;
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         throw error;
 
 
@@ -190,11 +199,10 @@ function headersToText(headers: Headers): string {
 
 }
 
-type BodyExtracted = { body?: BodyInit; contentType: string }
 
 
 async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
-    if (!contentType) return ''
+    if (!contentType || !body) return ''
 
 
     const includes = (ct: string) => contentType.includes(ct)
@@ -209,15 +217,14 @@ async function bodyToText({ body, contentType }: BodyExtracted): Promise<string>
 
 
     const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
-    let { language } = contentTypeToLanguage(contentType);
+    const language = contentTypeToLanguage(contentType);
 
     if (language) {
-        language = language !== 'plain' ? language : 'text';
+
         try {
-            return highlight(bodyStr, { language, ignoreIllegals: true, languageSubset: ['text'] });
+            return highlight(bodyStr, { language, ignoreIllegals: true });
         } catch (error) {
-            console.error(error.message);
-            console.log(typeof body);
+            console.error(language, error.message);
             throw error;
         }
     }
@@ -237,7 +244,7 @@ async function extractBody(re: Response | Request): Promise<BodyExtracted> {
     const includes = (ct: string) => contentType.includes(ct)
 
     if (!contentType) {
-        return { body: await Promise.resolve(''), contentType };
+        return { body: await Promise.resolve(undefined), contentType };
     }
     if (mimesToArrayBuffer.some(includes)) {
         return { body: await re.arrayBuffer(), contentType };
@@ -257,11 +264,16 @@ async function extractBody(re: Response | Request): Promise<BodyExtracted> {
     throw new Error("Unknown content type " + contentType);
 }
 
-function contentTypeToLanguage(contentType: string): { language: string; mime: string; type: string } {
-    const [mime] = contentType.split(";");
-    let [type, language] = mime.split("/");
-    language = language.replace(/\+.*/, '');
-    return { type, language, mime }
+function contentTypeToLanguage(contentType: string): string {
+    let language = extension(contentType);
+    if (!language) {
+        const [mime] = contentType.split(";");
+        [, language] = mime.split("/");
+        language = language.replace(/\+.*/, '');
+    }
+    language ||= 'text';
+    language = language !== 'plain' ? language : 'text';
+    return language;
 
 }
 
@@ -269,4 +281,23 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
     const rawFile = new Uint8Array(body);
     const options = { rawFile }
     return [...await getImageStrings(options)].join('');
+}
+
+
+function assertExpectedResponse(response: ResponseUsed, expectedResponse: ResponseUsed) {
+    if (expectedResponse.status) assertEquals(expectedResponse.status, expectedResponse.status);
+    if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, expectedResponse.statusText);
+    if (expectedResponse.bodyParsed) {
+        if (typeof expectedResponse.bodyParsed === 'object') {
+            assertObjectMatch(response.bodyParsed as Record<string, unknown>, expectedResponse.bodyParsed as Record<string, unknown>);
+        } else {
+            assertEquals(response.bodyParsed, expectedResponse.bodyParsed);
+        }
+    }
+    if (expectedResponse.headers) {
+        for (const [key, value] of expectedResponse.headers.entries()) {
+            assertEquals(response.headers.get(key), value);
+        }
+    }
+
 }

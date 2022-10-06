@@ -8,7 +8,7 @@ GET https://httpbin.org/status/204
 GET https://httpbin.org/gzip
 
 ###
-POST https://httpbin.org/anything
+POST https://httpbin.org/status/400
 Content-Type: text/plain
 
 hola
