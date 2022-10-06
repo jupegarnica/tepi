@@ -1,4 +1,5 @@
-import { Block } from "./types.ts";
+import { fetchRequest } from "./fetch.ts";
+import { Block, ResponseUsed } from "./types.ts";
 
 const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
@@ -10,9 +11,10 @@ export function parseHttp(txt: string): Block {
     let url = '';
     const init: RequestInit = {
         method: 'GET',
+        body: '',
     };
-    let responseInit: ResponseInit | undefined ;
-    let responseBody = '';
+    let responseInit: ResponseInit | undefined;
+    let responseBody: BodyInit | null = '';
 
     init.headers = new Headers();
 
@@ -27,7 +29,9 @@ export function parseHttp(txt: string): Block {
         if (trimmed.startsWith('HTTP/')) {
             // console.log(i, 'status'.padEnd(17), trimmed);
             responseInit ??= {};
-            responseInit.status = parseInt(trimmed.split(' ')[1]);
+            const data = trimmed.split(' ')
+            responseInit.status = parseInt(data[1]);
+            responseInit.statusText = data[2];
             thisLineMayBeResponseHeader = true;
             thisLineMayBeBody = false;
             thisLineMayBeResponseBody = false;
@@ -35,31 +39,32 @@ export function parseHttp(txt: string): Block {
         }
         if (trimmed && thisLineMayBeResponseHeader) {
             // console.log(i, 'response header'.padEnd(17), trimmed);
-            responseInit ??= {};
-            responseInit.headers =
-            responseInit.headers instanceof Headers
-            ? responseInit.headers
-            : new Headers();
-
             const [key, value] = trimmed.replace(":", "<<::>>").split("<<::>>");
-            responseInit.headers.set(key, value);
-            thisLineMayBeResponseHeader = true;
-            continue;
+            try {
+                responseInit ??= {};
+                responseInit.headers =
+                    responseInit.headers instanceof Headers
+                        ? responseInit.headers
+                        : new Headers();
+
+                responseInit.headers.set(key, value);
+                thisLineMayBeResponseHeader = true;
+                continue;
+            } catch (error) {
+                console.error(error);
+                throw new Error(`Invalid header; key: ${key}, value: ${value}`);
+
+            }
         }
 
         if (thisLineMayBeResponseBody && !thisLineMayBeBody) {
             // console.log(i, 'response body'.padEnd(17), trimmed);
-            responseBody += line;
-            thisLineMayBeResponseHeader = false;
+            responseBody += '\n' + line;
             continue;
         }
         if (thisLineMayBeBody && !thisLineMayBeResponseBody) {
             // console.log(i, 'body'.padEnd(17), trimmed);
-            if (!init.body) {
-                init.body = '';
-            }
             init.body += '\n' + line;
-            thisLineMayBeBody = true;
             continue;
         }
 
@@ -101,13 +106,31 @@ export function parseHttp(txt: string): Block {
             continue;
         }
     }
+
+
     if (typeof init.body === 'string') {
-        init.body = init.body?.trim();
+        init.body = init.body.trim();
+        init.body ||= null;
     }
     const request = new Request(url, init);
     const block: Block = { request };
     if (responseInit) {
-        block.response = new Response(responseBody, responseInit);
+        if (typeof responseBody === 'string') {
+            responseBody = responseBody.trim();
+            responseBody ||= null;
+        }
+
+        const response: ResponseUsed = new Response(responseBody, responseInit);
+        response.bodyExtracted = responseBody;
+        block.response = response
     }
     return block;
+}
+
+
+export async function runHttp(txt: string): Promise<ResponseUsed> {
+
+    const block = parseHttp(txt);
+    const response = await fetchRequest(block.request, block.meta, block.response);
+    return response;
 }

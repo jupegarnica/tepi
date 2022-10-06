@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { parseHttp } from "./runHTTP.ts";
+import { parseHttp } from "./http.ts";
 
 // const http = String.raw
 Deno.test("parseHttp", () => {
@@ -11,7 +11,7 @@ Deno.test("parseHttp", () => {
 })
 
 
-Deno.test("parseHttp with headers", () => {
+Deno.test("[parseHttp] with headers", () => {
     const { request } = parseHttp(
         `POST http://faker.deno.dev HTTP/1.1
 Host: faker.deno.dev
@@ -24,7 +24,7 @@ x-foo: bar`);
 })
 
 
-Deno.test("parseHttp with headers and comments", () => {
+Deno.test("[parseHttp] with headers and comments", () => {
     const { request } = parseHttp(
         `POST http://faker.deno.dev HTTP/1.1
 Host: faker.deno.dev
@@ -38,14 +38,14 @@ x-foo: bar`);
 })
 
 
-Deno.test("parseHttp without protocol", () => {
+Deno.test("[parseHttp] without protocol", () => {
     const { request } = parseHttp(
         `GET faker.deno.dev`);
     assertEquals(request.url, "http://faker.deno.dev/");
 
 })
 
-Deno.test("parseHttp with body", async () => {
+Deno.test("[parseHttp] with body", async () => {
     const { request } = parseHttp(
         `POST faker.deno.dev
         Content-Type: text/plain
@@ -56,7 +56,7 @@ Deno.test("parseHttp with body", async () => {
 
 })
 
-Deno.test("parseHttp with body no headers", async () => {
+Deno.test("[parseHttp] with body no headers", async () => {
     const { request } = parseHttp(
         `POST faker.deno.dev
 
@@ -68,7 +68,7 @@ Deno.test("parseHttp with body no headers", async () => {
 
 })
 
-Deno.test("parseHttp with comments and body",
+Deno.test("[parseHttp] with comments and body",
     // { only: true },
     async () => {
         const { request } = parseHttp(
@@ -91,7 +91,7 @@ HTTP/1.1 200 OK
     })
 
 
-Deno.test("parseHttp with response",
+Deno.test("[parseHttp] response with status",
     // { only: true },
     () => {
         const { response } = parseHttp(
@@ -107,7 +107,113 @@ hola mundo
 
     `);
 
-        assertEquals(response?.headers.get('x-foo'), 'bar');
         assertEquals(response?.status, 200);
+
+    })
+
+
+Deno.test("[parseHttp] response with headers",
+    // { only: true },
+    () => {
+        const { response } = parseHttp(
+            `POST faker.deno.dev/pong
+    Content-Type: text/plain
+
+hola mundo
+
+HTTP/1.1 200 OK
+x-foo: bar
+
+hola mundo
+
+`);
+
+        assertEquals(response?.headers.get('x-foo'), 'bar');
+
+    })
+
+
+
+Deno.test("[parseHttp] response with statusText",
+    // { only: true },
+    () => {
+        const { response } = parseHttp(
+            `POST faker.deno.dev/pong
+    Content-Type: text/plain
+
+hola mundo
+
+HTTP/1.1 200 OK
+x-foo: bar
+
+hola mundo
+
+`);
+
+        assertEquals(response?.statusText, 'OK');
+
+    })
+
+Deno.test("[parseHttp] response with body ",
+    // { only: true },
+    async () => {
+        const { response } = parseHttp(
+            `POST faker.deno.dev/pong
+    Content-Type: text/plain
+
+    hola mundo
+
+    HTTP/1.1 200 OK
+    x-foo: bar
+
+
+    hola mundo
+
+    `);
+        assertEquals(await response?.text(), 'hola mundo');
+        assertEquals(response?.bodyExtracted, 'hola mundo');
+
+    })
+
+Deno.test("[parseHttp] response without body ",
+    // { only: true },
+    async () => {
+        const { response } = parseHttp(
+            `POST faker.deno.dev/pong
+Content-Type: text/plain
+
+hola mundo
+
+HTTP/1.1 200 OK
+x-foo: bar
+`);
+        assertEquals(await response?.text(), '');
+        assertEquals(response?.bodyExtracted, null);
+    })
+
+
+
+Deno.test("[parseHttp] response with body multiline ",
+    // { only: true },
+    async () => {
+        const { response } = parseHttp(
+            `POST faker.deno.dev/pong
+Content-Type: text/plain
+
+hello world
+
+HTTP/1.1 200 OK
+x-foo: bar
+Content-Type: text/plain
+
+
+hola
+
+mundo
+
+
+    `);
+        assertEquals(await response?.text(), 'hola\n\nmundo');
+        assertEquals(response?.bodyExtracted, 'hola\n\nmundo');
 
     })

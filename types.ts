@@ -20,4 +20,5 @@ export type BodyExtracted = { body?: BodyInit; contentType: string }
 export type Block = {
     request: RequestUnused;
     response?: ResponseUsed;
+    meta?: Meta;
 };

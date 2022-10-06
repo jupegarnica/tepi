@@ -135,7 +135,7 @@ export async function fetchRequest(
         hideResponse || hideHeaders || console.info(headersToText(response.headers));
 
         if (!hideBody) {
-            const bodyExtracted = await extractBody(response) ;
+            const bodyExtracted = await extractBody(response);
             response.bodyExtracted = bodyExtracted.body;
 
             console.info(await bodyToText(bodyExtracted), '\n');
@@ -286,21 +286,36 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
 
 
 function assertExpectedResponse(response: ResponseUsed, expectedResponse: ResponseUsed) {
-    if (expectedResponse.status) assertEquals(expectedResponse.status, expectedResponse.status);
-    if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, expectedResponse.statusText);
-    if (expectedResponse.bodyExtracted) {
-        if (typeof expectedResponse.bodyExtracted === 'object') {
-            // assertObjectMatch(response.bodyExtracted as Record<string,unknown>, expectedResponse.bodyExtracted as Record<string,unknown>);
-            assert( response.bodyExtracted instanceof expectedResponse.bodyExtracted.constructor);
-        } else {
-            assertEquals(response.bodyExtracted, expectedResponse.bodyExtracted);
-        }
+    try {
+        console.log('assertExpectedResponse', {
+            headers: expectedResponse.headers,
+            body: expectedResponse.bodyExtracted ,
+            status: expectedResponse.status,
+            statusText: expectedResponse.statusText,
 
-    }
-    if (expectedResponse.headers) {
-        for (const [key, value] of expectedResponse.headers.entries()) {
-            assertEquals(response.headers.get(key), value);
+        });
+
+        if (expectedResponse.status) assertEquals(expectedResponse.status, expectedResponse.status);
+        if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, expectedResponse.statusText);
+        if (expectedResponse.bodyExtracted) {
+            if (typeof expectedResponse.bodyExtracted === 'object') {
+                // assertObjectMatch(response.bodyExtracted as Record<string,unknown>, expectedResponse.bodyExtracted as Record<string,unknown>);
+                assert(response.bodyExtracted instanceof expectedResponse.bodyExtracted.constructor);
+            } else {
+                assertEquals(response.bodyExtracted, expectedResponse.bodyExtracted);
+            }
+
         }
+        if (expectedResponse.headers) {
+            console.log('expectedResponse.headers', expectedResponse.headers);
+
+            for (const [key, value] of expectedResponse.headers.entries()) {
+                assertEquals(response.headers.get(key), value);
+            }
+        }
+    } catch (error) {
+        throw new Error("Expected response does not match actual response: " + error.message);
+
     }
 
 }
