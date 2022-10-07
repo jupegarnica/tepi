@@ -133,6 +133,5 @@ export function parseHttp(txt: string): Block {
 export async function runHttp(txt: string): Promise<_Response> {
 
     const block = parseHttp(txt);
-    const response = await fetchRequest(block.request, block.meta, block.response);
-    return response;
+    return await fetchRequest(block.request, block.meta, block.response);
 }

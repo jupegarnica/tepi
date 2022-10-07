@@ -198,55 +198,21 @@ function headersToText(headers: Headers): string {
 
 async function printBody(re: _Response | _Request): Promise<void> {
     const { body, contentType } = await extractBody(re);
+
     // console.log('re.constructor.name', re.constructor.name);
     // console.log('re.bodyExtracted', re.bodyExtracted);
     // console.log('re. bodyRaw', re.bodyRaw);
     console.info(await bodyToText({ body, contentType }), '\n');
 
 }
-
-async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
-    if (!contentType || !body) return ''
-
-
-    const includes = (ct: string) => contentType.includes(ct)
-
-    if (mimesToArrayBuffer.some(includes)) {
-        return await imageToText(body as ArrayBuffer);
-
-    }
-    if (mimesToBlob.some(includes)) {
-        return `${Deno.inspect(body)}`;
-    }
-
-
-    const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
-    const language = contentTypeToLanguage(contentType);
-
-    if (language) {
-
-        try {
-            return highlight(bodyStr, { language, ignoreIllegals: true });
-        } catch (error) {
-            console.error(language, error.message);
-            throw error;
-        }
-    }
-    if (mimesToText.some(includes)) {
-        return bodyStr;
-    }
-
-
-    throw new Error("Unknown content type " + contentType);
-
-}
-
 export async function extractBody(re: _Response | _Request): Promise<BodyExtracted> {
 
     const contentType = re.headers.get("content-type") || "";
-    const includes = (ct: string) => contentType.includes(ct)
+    const includes = (ct: string) => contentType.includes(ct);
+
 
     if (re.bodyUsed) {
+
         const requestExtracted =
             mimesToJSON.some((ct) => contentType.includes(ct))
                 ? JSON.parse(re.bodyRaw as string)
@@ -291,6 +257,44 @@ export async function extractBody(re: _Response | _Request): Promise<BodyExtract
     throw new Error("Unknown content type " + contentType);
 }
 
+async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
+    if (!contentType || !body) return ''
+
+
+    const includes = (ct: string) => contentType.includes(ct)
+
+    if (mimesToArrayBuffer.some(includes)) {
+        return await imageToText(body as ArrayBuffer);
+
+    }
+    if (mimesToBlob.some(includes)) {
+        return `${Deno.inspect(body)}`;
+    }
+
+
+    const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
+    const language = contentTypeToLanguage(contentType);
+
+    if (language) {
+
+        try {
+            return highlight(bodyStr, { language, ignoreIllegals: true });
+        } catch (error) {
+            console.error(language, error.message);
+            throw error;
+        }
+    }
+    if (mimesToText.some(includes)) {
+        return bodyStr;
+    }
+
+
+    throw new Error("Unknown content type " + contentType);
+
+}
+
+
+
 function contentTypeToLanguage(contentType: string): string {
     let language = extension(contentType);
     if (!language) {
@@ -312,14 +316,23 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
 
 
 function assertExpectedResponse(response: _Response, expectedResponse: _Response) {
-    try {
+    // try {
 
+        // console.log('response', {
+        //     bodyExtracted: response.bodyExtracted,
+        //     // headers: response.headers
+
+        // });
+        // console.log('expected', {
+        //     bodyExtracted: expectedResponse.bodyExtracted,
+        //     // headers: expectedResponse.headers
+        // });
 
 
         if (expectedResponse.status) assertEquals(expectedResponse.status, response.status);
         if (expectedResponse.statusText) assertEquals(expectedResponse.statusText, response.statusText);
         if (expectedResponse.bodyExtracted) {
-            if (typeof expectedResponse.bodyExtracted === 'object') {
+            if (typeof expectedResponse.bodyExtracted === 'object' && typeof response.bodyExtracted === 'object') {
                 assertObjectMatch(
                     response.bodyExtracted as Record<string, unknown>,
                     expectedResponse.bodyExtracted as Record<string, unknown>,
@@ -335,9 +348,9 @@ function assertExpectedResponse(response: _Response, expectedResponse: _Response
                 assertEquals(response.headers.get(key), value);
             }
         }
-    } catch (error) {
-        throw new Error("Expected response does not match actual response: " + error.message);
+    // } catch (error) {
+    //     throw new Error("Expected response does not match actual response:\n" + error.message);
 
-    }
+    // }
 
 }

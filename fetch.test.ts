@@ -303,17 +303,17 @@ Deno.test("[fetchRequest] must work with meta",
 
 
 Deno.test("[fetchRequest] must work with meta and expectedResponse",
-    { ignore: true }, // TODO fix this test
     async () => {
 
         const bodyExtracted = { hello: "world" };
         const body = JSON.stringify(bodyExtracted);
-        const request: _Request = new Request(HOST + "/anything", {
+        const request: _Request = new Request("https://faker.deno.dev/pong", {
             method: "POST",
             body: body,
+            headers: {
+                "content-type": "application/json",
+            }
         })
-        // request.bodyExtracted = bodyExtracted;
-        // request.bodyRaw = body;
 
         const expectedResponse: _Response = new Response(body, {
             status: 200,
@@ -323,8 +323,6 @@ Deno.test("[fetchRequest] must work with meta and expectedResponse",
             }
 
         })
-        // expectedResponse.bodyExtracted = bodyExtracted;
-        // expectedResponse.bodyRaw = body;
 
         const meta = {
             hideRequest: true,
