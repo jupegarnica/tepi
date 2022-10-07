@@ -115,7 +115,6 @@ export async function fetchRequest(
             hideRequest = false,
             hideResponse = false,
         } = meta;
-        // const requestBodyRaw = request.bodyRaw;
 
         const promise = fetch(request);
 
@@ -123,8 +122,6 @@ export async function fetchRequest(
             console.info(requestToText(request));
             hideHeaders || console.info(headersToText(request.headers));
             hideBody || await printBody(request);
-
-            // console.info(await bodyToText({ body: requestBodyRaw, contentType: request.headers.get("content-type") || '' }), '\n');
         }
 
         const response: _Response = await promise;
