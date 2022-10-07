@@ -5,7 +5,7 @@ const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
 
 
 
-export function parseHttp(txt: string): Block {
+export function parseHttpBlock(txt: string): Block {
     const lines: string[] = txt.replaceAll('\r', '\n').split("\n");
 
     let url = '';
@@ -130,8 +130,8 @@ export function parseHttp(txt: string): Block {
 }
 
 
-export async function runHttp(txt: string): Promise<_Response> {
+export async function runHttpBlock(txt: string): Promise<_Response> {
 
-    const block = parseHttp(txt);
+    const block = parseHttpBlock(txt);
     return await fetchRequest(block.request, block.meta, block.response);
 }
