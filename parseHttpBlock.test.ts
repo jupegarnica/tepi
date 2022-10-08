@@ -4,12 +4,12 @@ import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
 
 // const http = String.raw
-Deno.test("parseHttpBlock", () => {
+Deno.test("[parseHttpBlock]", () => {
     const { request } = parseHttpBlock(`
     GET http://faker.deno.dev
     `);
-    assertEquals(request.method, "GET", 'invalid method');
-    assertEquals(request.url, "http://faker.deno.dev/");
+    assertEquals(request?.method, "GET", 'invalid method');
+    assertEquals(request?.url, "http://faker.deno.dev/");
 })
 
 
@@ -20,9 +20,9 @@ Host: faker.deno.dev
 User-Agent: curl/7.64.1
 
 x-foo: bar`);
-    assertEquals(request.headers.get('Host'), "faker.deno.dev");
-    assertEquals(request.headers.get('User-Agent'), "curl/7.64.1");
-    assertEquals(request.headers.get('x-foo'), null);
+    assertEquals(request?.headers.get('Host'), "faker.deno.dev");
+    assertEquals(request?.headers.get('User-Agent'), "curl/7.64.1");
+    assertEquals(request?.headers.get('x-foo'), null);
 })
 
 
@@ -34,16 +34,16 @@ Host: faker.deno.dev
 User-Agent: curl/7.64.1
 
 x-foo: bar`);
-    assertEquals(request.headers.get('Host'), "faker.deno.dev");
-    assertEquals(request.headers.get('User-Agent'), "curl/7.64.1");
-    assertEquals(request.headers.get('x-foo'), null);
+    assertEquals(request?.headers.get('Host'), "faker.deno.dev");
+    assertEquals(request?.headers.get('User-Agent'), "curl/7.64.1");
+    assertEquals(request?.headers.get('x-foo'), null);
 })
 
 
 Deno.test("[parseHttpBlock] without protocol", () => {
     const { request } = parseHttpBlock(
         `GET faker.deno.dev`);
-    assertEquals(request.url, "http://faker.deno.dev/");
+    assertEquals(request?.url, "http://faker.deno.dev/");
 
 })
 
@@ -53,7 +53,7 @@ Deno.test("[parseHttpBlock] with body", async () => {
         Content-Type: text/plain
 
         hola mundo`);
-    const body = await request.text()
+    const body = await request?.text()
     assertEquals(body, 'hola mundo');
 
 })
@@ -63,8 +63,8 @@ Deno.test("[parseHttpBlock] with body no headers", async () => {
         `POST faker.deno.dev
 
         hola mundo`);
-    const body = await request.text()
-    assertEquals(request.headers.get('Content-Type'), 'text/plain;charset=UTF-8');
+    const body = await request?.text()
+    assertEquals(request?.headers.get('Content-Type'), 'text/plain;charset=UTF-8');
     assertEquals(body, 'hola mundo');
 
 })
@@ -74,7 +74,7 @@ Deno.test("[parseHttpBlock] with body raw", () => {
         `POST faker.deno.dev
 
         hola mundo`);
-    const body = request.bodyRaw;
+    const body = request?.bodyRaw;
     assertEquals(body, 'hola mundo');
 
 })
@@ -96,8 +96,8 @@ hola
 HTTP/1.1 200 OK
         `);
 
-        const body = await request.text()
-        assertEquals(request.headers.get('x-foo'), null);
+        const body = await request?.text()
+        assertEquals(request?.headers.get('x-foo'), null);
         assertEquals(body, 'hola mundo\n\nhola');
 
     })

@@ -1,5 +1,8 @@
 import { fetchRequest } from "./fetch.ts";
-import { Block, _Request, _Response } from "./types.ts";
+import { Block, File, _Request, _Response } from "./types.ts";
+import { expandGlob } from "https://deno.land/std@0.159.0/fs/mod.ts";
+
+
 
 const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
@@ -29,7 +32,7 @@ export function parseHttpBlock(txt: string): Block {
         if (trimmed.startsWith('HTTP/')) {
             // console.log(i, 'status'.padEnd(17), trimmed);
             responseInit ??= {};
-            const [,status, ...statusText] = trimmed.split(' ');
+            const [, status, ...statusText] = trimmed.split(' ');
             responseInit.status = parseInt(status);
             responseInit.statusText = statusText.join(' ');
             thisLineMayBeResponseHeader = true;
@@ -112,10 +115,13 @@ export function parseHttpBlock(txt: string): Block {
         init.body = init.body.trim();
         init.body ||= null;
     }
-    const request: _Request = new Request(url, init);
-    request.bodyRaw = init.body;
+    const block: Block = {};
+    if (url) {
+        const request: _Request = new Request(url, init);
+        request.bodyRaw = init.body;
+        block.request = request;
+    }
 
-    const block: Block = { request };
     if (responseInit) {
         if (typeof responseBody === 'string') {
             responseBody = responseBody.trim();
@@ -130,8 +136,73 @@ export function parseHttpBlock(txt: string): Block {
 }
 
 
-export async function runHttpBlock(txt: string): Promise<_Response> {
+export async function runHttpBlock(txt: string): Promise<_Response | void> {
 
     const block = parseHttpBlock(txt);
-    return await fetchRequest(block.request, block.meta, block.response);
+    if (block.request) {
+        return await fetchRequest(block.request, block.meta, block.response);
+    }
+
+}
+
+
+
+
+export function parseHttpText(txt: string): Block[] {
+
+    const blocks: Block[] = [];
+    const lines = txt.replaceAll('\r', '\n').split("\n");
+    let currentBlockText = '';
+    let blockStartLine = 0;
+    let blockEndLine = NaN;
+    const blockSeparator = /^###/;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        currentBlockText += line + '\n';
+        if (blockSeparator.test(line)) {
+            blockEndLine = i;
+            blocks.push({
+                text: currentBlockText,
+                startLine: blockStartLine,
+                endLine: blockEndLine,
+            });
+            currentBlockText = '';
+            blockStartLine = i + 1;
+        }
+        // final block
+        if (i === lines.length - 1 && currentBlockText) {
+            blockEndLine = i;
+            blocks.push({
+                text: currentBlockText,
+                startLine: blockStartLine,
+                endLine: blockEndLine,
+            });
+        }
+    }
+    return blocks;
+
+}
+
+export async function runHttpFiles(inputText: string): Promise<File[]> {
+
+    const globs = inputText.split(' ');
+    const files: File[] = [];
+
+    for (const glob of globs) {
+
+        for await (const fileFound of expandGlob(glob)) {
+            if (fileFound.isFile) {
+                const fileContent = await Deno.readTextFile(fileFound.path);
+                const blocks = parseHttpText(fileContent);
+                files.push({ path: fileFound.path, blocks });
+            }
+        }
+    }
+console.log(files);
+
+
+    return files;
+
+
 }

@@ -97,6 +97,17 @@ Content-Type: application/json
 
 
 
+Deno.test("[runHttpBlock] run empty block",
+{ only: true },
+// { ignore: true },
+async () => {
+    const response = await runHttpBlock(``);
+    assertEquals(response, undefined);
+
+})
+
+
+
 
 
 Deno.test("[runHttpBlock] with response json body throws",

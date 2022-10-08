@@ -20,7 +20,16 @@ export type BodyExtracted = { body: unknown; contentType: string }
 
 
 export type Block = {
-    request: _Request;
+    text: string;
+    request?: _Request;
     response?: _Response;
     meta?: Meta;
+    startLine: number;
+    endLine: number;
 };
+
+
+export type File = {
+    path: string;
+    blocks: Block[];
+}
