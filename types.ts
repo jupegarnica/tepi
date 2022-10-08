@@ -20,12 +20,12 @@ export type BodyExtracted = { body: unknown; contentType: string }
 
 
 export type Block = {
-    text: string;
+    text?: string;
     request?: _Request;
     response?: _Response;
     meta?: Meta;
-    startLine: number;
-    endLine: number;
+    startLine?: number;
+    endLine?: number;
 };
 
 
