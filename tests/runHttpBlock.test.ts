@@ -1,5 +1,5 @@
 import { assertEquals, assertRejects } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { runHttpBlock } from "./http.ts";
+import { runHttpBlock } from "../http.ts";
 
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
@@ -98,7 +98,7 @@ Content-Type: application/json
 
 
 Deno.test("[runHttpBlock] run empty block",
-{ only: true },
+// { only: true },
 // { ignore: true },
 async () => {
     const response = await runHttpBlock(``);

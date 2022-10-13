@@ -1,7 +1,7 @@
-import { fetchRequest } from "./fetch.ts";
+import { fetchRequest } from "../fetch.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 import { assertEquals, assertRejects } from "https://deno.land/std/testing/asserts.ts";
-import { _Request, _Response } from "./types.ts";
+import { _Request, _Response } from "../types.ts";
 
 
 Deno.env.get('NO_LOG') && stub(console, 'info')
