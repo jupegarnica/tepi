@@ -1,13 +1,13 @@
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { parseHttpText } from "./http.ts";
+import { httpTextToBlocks } from "./http.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
 
 // const http = String.raw
-Deno.test("[parseHttpText]",
+Deno.test("[httpTextToBlocks]",
     // { only: true },
     () => {
-        const blocks = parseHttpText(
+        const blocks = httpTextToBlocks(
 `
 GET http://faker.deno.dev
 ###
@@ -23,8 +23,8 @@ GET http://faker.deno.dev
     })
 
 
-Deno.test("[parseHttpText]", () => {
-    const blocks = parseHttpText(`###`);
+Deno.test("[httpTextToBlocks]", () => {
+    const blocks = httpTextToBlocks(`###`);
     assertEquals(blocks.length, 1);
     assertEquals(blocks[0].startLine, 0);
     assertEquals(blocks[0].endLine, 0);

@@ -148,7 +148,7 @@ export async function runHttpBlock(txt: string): Promise<_Response | void> {
 
 
 
-export function parseHttpText(txt: string): Block[] {
+export function httpTextToBlocks(txt: string): Block[] {
 
     const blocks: Block[] = [];
     const lines = txt.replaceAll('\r', '\n').split("\n");
@@ -184,7 +184,7 @@ export function parseHttpText(txt: string): Block[] {
 
 }
 
-export async function runHttpFiles(inputText: string): Promise<File[]> {
+export async function globsToFiles(inputText: string): Promise<File[]> {
 
     const globs = inputText.split(' ');
     const files: File[] = [];
@@ -194,12 +194,12 @@ export async function runHttpFiles(inputText: string): Promise<File[]> {
         for await (const fileFound of expandGlob(glob)) {
             if (fileFound.isFile) {
                 const fileContent = await Deno.readTextFile(fileFound.path);
-                const blocks = parseHttpText(fileContent);
+                const blocks = httpTextToBlocks(fileContent);
                 files.push({ path: fileFound.path, blocks });
             }
         }
     }
-console.log(files);
+// console.log(files);
 
 
     return files;
