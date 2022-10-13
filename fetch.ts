@@ -1,4 +1,3 @@
-import { type Args, parse } from "https://deno.land/std@0.158.0/flags/mod.ts";
 import * as colors from "https://deno.land/std@0.158.0/fmt/colors.ts";
 // @ts-ignore: it has a highlight named export
 import { highlight } from "npm:cli-highlight";
@@ -8,98 +7,6 @@ import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.158.0/t
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 
 import type { _Request, Meta, _Response, BodyExtracted } from "./types.ts";
-import { assert } from "https://deno.land/std@0.158.0/_util/assert.ts";
-
-
-if (import.meta.main) {
-    const args: Args = parse(Deno.args, {
-        alias: {
-            headers: "h",
-            method: ["X", 'm'],
-            body: "b",
-            hideBody: "hide-body",
-            hideHeaders: "hide-headers",
-            hideRequest: "hide-request",
-            hideResponse: "hide-response",
-
-        },
-        boolean: ['hideRequest', 'hideResponse', 'hideBody', 'keepAlive'],
-        default: {
-            method: "GET",
-            body: null,
-            cache: "default",
-            credentials: "same-origin",
-            redirect: "follow", // "manual" | "follow" | "error"
-            referrer: "client",
-            referrerPolicy: "no-referrer",
-            integrity: "",
-            keepalive: false,
-            mode: "cors",
-
-            hideBody: false,
-            hideHeaders: false,
-            hideResponse: false,
-            hideRequest: false,
-
-
-        }
-    });
-
-    const abortController = new AbortController();
-    Deno.addSignalListener("SIGINT", () => {
-        abortController.abort();
-        Deno.exit(130);
-    });
-
-    await runFetch(args, abortController.signal);
-}
-
-export function runFetch(args: Args, signal: AbortSignal | null = null): Promise<_Response> {
-
-    let url = '';
-
-    if (args._.length === 0) {
-        throw new Error("Error: URL is required");
-    } else {
-        url = `${args._[0]}`
-        if (!url.match(/^https?:\/\//)) {
-            url = `http://${url}`
-        }
-    }
-
-    const headers = new Headers();
-    const headersInput = args.headers ? Array.isArray(args.headers) ? args.headers : [args.headers] : [];
-    for (const txt of headersInput) {
-        const [key, value] = txt.replace(":", "<<::>>").split("<<::>>");
-        headers.set(key, value);
-    }
-
-    const init: RequestInit = {
-        method: args.method,
-        headers,
-        body: args.body,
-        cache: args.cache,
-        credentials: args.credentials,
-        redirect: args.redirect,
-        referrer: args.referrer,
-        referrerPolicy: args.referrerPolicy,
-        integrity: args.integrity,
-        keepalive: args.keepalive,
-        mode: args.mode,
-        signal,
-    };
-    const request: _Request = new Request(url, init);
-    request.bodyRaw = args.body;
-    const { hideBody, hideHeaders, hideRequest, hideResponse } = args;
-
-    const meta: Meta = { hideBody, hideHeaders, hideRequest, hideResponse }
-
-    return fetchRequest(request, meta, undefined);
-
-
-
-
-}
 
 
 
