@@ -1,0 +1,14 @@
+GET https://httpbin.org/html
+
+
+###
+
+POST https://faker.deno.dev/pong?quite=true
+Content-Type: text/plain
+
+hola mundo
+
+HTTP/1.1 200 OK
+Content-Type: text/plain
+
+hola mundo

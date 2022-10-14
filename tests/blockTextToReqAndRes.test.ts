@@ -1,11 +1,11 @@
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { parseHttpBlock } from "../http.ts";
+import { blockTextToReqAndRes } from "../http.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
 
 // const http = String.raw
-Deno.test("[parseHttpBlock]", () => {
-    const { request } = parseHttpBlock(`
+Deno.test("[blockTextToReqAndRes]", () => {
+    const { request } = blockTextToReqAndRes(`
     GET http://faker.deno.dev
     `);
     assertEquals(request?.method, "GET", 'invalid method');
@@ -13,8 +13,8 @@ Deno.test("[parseHttpBlock]", () => {
 })
 
 
-Deno.test("[parseHttpBlock] with headers", () => {
-    const { request } = parseHttpBlock(
+Deno.test("[blockTextToReqAndRes] with headers", () => {
+    const { request } = blockTextToReqAndRes(
         `POST http://faker.deno.dev HTTP/1.1
 Host: faker.deno.dev
 User-Agent: curl/7.64.1
@@ -26,8 +26,8 @@ x-foo: bar`);
 })
 
 
-Deno.test("[parseHttpBlock] with headers and comments", () => {
-    const { request } = parseHttpBlock(
+Deno.test("[blockTextToReqAndRes] with headers and comments", () => {
+    const { request } = blockTextToReqAndRes(
         `POST http://faker.deno.dev HTTP/1.1
 Host: faker.deno.dev
 # x-foo: bar
@@ -40,15 +40,15 @@ x-foo: bar`);
 })
 
 
-Deno.test("[parseHttpBlock] without protocol", () => {
-    const { request } = parseHttpBlock(
+Deno.test("[blockTextToReqAndRes] without protocol", () => {
+    const { request } = blockTextToReqAndRes(
         `GET faker.deno.dev`);
     assertEquals(request?.url, "http://faker.deno.dev/");
 
 })
 
-Deno.test("[parseHttpBlock] with body", async () => {
-    const { request } = parseHttpBlock(
+Deno.test("[blockTextToReqAndRes] with body", async () => {
+    const { request } = blockTextToReqAndRes(
         `POST faker.deno.dev
         Content-Type: text/plain
 
@@ -58,8 +58,8 @@ Deno.test("[parseHttpBlock] with body", async () => {
 
 })
 
-Deno.test("[parseHttpBlock] with body no headers", async () => {
-    const { request } = parseHttpBlock(
+Deno.test("[blockTextToReqAndRes] with body no headers", async () => {
+    const { request } = blockTextToReqAndRes(
         `POST faker.deno.dev
 
         hola mundo`);
@@ -69,8 +69,8 @@ Deno.test("[parseHttpBlock] with body no headers", async () => {
 
 })
 
-Deno.test("[parseHttpBlock] with body raw", () => {
-    const { request } = parseHttpBlock(
+Deno.test("[blockTextToReqAndRes] with body raw", () => {
+    const { request } = blockTextToReqAndRes(
         `POST faker.deno.dev
 
         hola mundo`);
@@ -80,10 +80,10 @@ Deno.test("[parseHttpBlock] with body raw", () => {
 })
 
 
-Deno.test("[parseHttpBlock] with comments and body",
+Deno.test("[blockTextToReqAndRes] with comments and body",
     // { only: true },
     async () => {
-        const { request } = parseHttpBlock(
+        const { request } = blockTextToReqAndRes(
             `POST faker.deno.dev
             #  x-foo: bar
             Content-Type: text/plain
@@ -103,10 +103,10 @@ HTTP/1.1 200 OK
     })
 
 
-Deno.test("[parseHttpBlock] response with status",
+Deno.test("[blockTextToReqAndRes] response with status",
     // { only: true },
     () => {
-        const { response } = parseHttpBlock(
+        const { response } = blockTextToReqAndRes(
             `POST faker.deno.dev/pong
         Content-Type: text/plain
 
@@ -124,10 +124,10 @@ hola mundo
     })
 
 
-Deno.test("[parseHttpBlock] response with headers",
+Deno.test("[blockTextToReqAndRes] response with headers",
     // { only: true },
     () => {
-        const { response } = parseHttpBlock(
+        const { response } = blockTextToReqAndRes(
             `POST faker.deno.dev/pong
     Content-Type: text/plain
 
@@ -146,10 +146,10 @@ hola mundo
 
 
 
-Deno.test("[parseHttpBlock] response with statusText",
+Deno.test("[blockTextToReqAndRes] response with statusText",
     // { only: true },
     () => {
-        const { response } = parseHttpBlock(
+        const { response } = blockTextToReqAndRes(
             `POST faker.deno.dev/pong
     Content-Type: text/plain
 
@@ -166,10 +166,10 @@ hola mundo
 
     })
 
-Deno.test("[parseHttpBlock] response with body ",
+Deno.test("[blockTextToReqAndRes] response with body ",
     // { only: true },
     async () => {
-        const { response } = parseHttpBlock(
+        const { response } = blockTextToReqAndRes(
             `POST faker.deno.dev/pong
     Content-Type: text/plain
 
@@ -186,10 +186,10 @@ Deno.test("[parseHttpBlock] response with body ",
 
     })
 
-Deno.test("[parseHttpBlock] response without body ",
+Deno.test("[blockTextToReqAndRes] response without body ",
     // { only: true },
     async () => {
-        const { response } = parseHttpBlock(
+        const { response } = blockTextToReqAndRes(
             `POST faker.deno.dev/pong
 Content-Type: text/plain
 
@@ -203,10 +203,10 @@ x-foo: bar
 
 
 
-Deno.test("[parseHttpBlock] response with body multiline ",
+Deno.test("[blockTextToReqAndRes] response with body multiline ",
     // { only: true },
     async () => {
-        const { response } = parseHttpBlock(
+        const { response } = blockTextToReqAndRes(
             `POST faker.deno.dev/pong
 Content-Type: text/plain
 

@@ -4,18 +4,18 @@ import { globsToFiles } from "../http.ts";
 // Deno.env.get('NO_LOG') && stub(console, 'info')
 
 Deno.test("[globsToFiles] find one file", async () => {
-    const files = await globsToFiles(`test-data/test1.http`);
+    const files = await globsToFiles(`tests/data/test1.http`);
     assertEquals(files.length, 1);
 })
 
 
 Deno.test("[globsToFiles] find more file", async () => {
-    const files = await globsToFiles(`**/test1.http */test2.http`);
+    const files = await globsToFiles(`**/test1.http tests/*/test2.http`);
     assertEquals(files.length, 2);
 })
 
 Deno.test("[globsToFiles] find more file with a glob pattern", async () => {
-    const files = await globsToFiles(`../*/test-data/test*.http`);
+    const files = await globsToFiles(`../*/tests/data/test*.http`);
     assertEquals(files.length, 2);
 })
 

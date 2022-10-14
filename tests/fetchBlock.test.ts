@@ -1,16 +1,16 @@
 import { assertEquals, assertRejects } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { runHttpBlock } from "../http.ts";
+import { fetchBlock } from "../http.ts";
 
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
 
 
 
-Deno.test("[runHttpBlock] with response throws error checking status",
+Deno.test("[fetchBlock] with response throws error checking status",
     // { only: true },
     async () => {
         await assertRejects(async () => {
-            await runHttpBlock(
+            await fetchBlock(
                 `
 GET http://httpbin.org/status/400
 
@@ -22,11 +22,11 @@ HTTP/1.1 403 Forbidden
 
 
 
-Deno.test("[runHttpBlock] with response throws error checking statusText",
+Deno.test("[fetchBlock] with response throws error checking statusText",
     // { only: true },
     async () => {
         await assertRejects(async () => {
-            await runHttpBlock(
+            await fetchBlock(
                 `
 GET http://httpbin.org/status/400
 
@@ -37,10 +37,10 @@ HTTP/1.1 400 Forbidden
     })
 
 
-Deno.test("[runHttpBlock] with response not throws",
+Deno.test("[fetchBlock] with response not throws",
     // { only: true },
     async () => {
-        await runHttpBlock(
+        await fetchBlock(
             `
 GET http://httpbin.org/status/400
 
@@ -50,12 +50,12 @@ HTTP/1.1 400 Bad Request
     })
 
 
-Deno.test("[runHttpBlock] with response plain test body",
-    // { only: true },
+Deno.test("[fetchBlock] with response plain test body",
+    { ignore: true }, // TODO rethink this test
     async () => {
-        const response = await runHttpBlock(
+        const response = await fetchBlock(
             `
-POST https://faker.deno.dev/pong?quite=true
+POST http://httpbin.org/text
 Content-Type: text/plain
 
 hola mundo
@@ -72,11 +72,11 @@ hola mundo
 
 
 
-Deno.test("[runHttpBlock] with response json body",
+Deno.test("[fetchBlock] with response json body",
     // { only: true },
     // { ignore: true },
     async () => {
-        const response = await runHttpBlock(
+        const response = await fetchBlock(
             `
 POST https://faker.deno.dev/pong?quite=true
 Content-Type: application/json
@@ -97,11 +97,11 @@ Content-Type: application/json
 
 
 
-Deno.test("[runHttpBlock] run empty block",
+Deno.test("[fetchBlock] run empty block",
 // { only: true },
 // { ignore: true },
 async () => {
-    const response = await runHttpBlock(``);
+    const response = await fetchBlock(``);
     assertEquals(response, undefined);
 
 })
@@ -110,11 +110,11 @@ async () => {
 
 
 
-Deno.test("[runHttpBlock] with response json body throws",
+Deno.test("[fetchBlock] with response json body throws",
     // { only: true },
     async () => {
         await assertRejects(async () => {
-            await runHttpBlock(
+            await fetchBlock(
                 `
     POST https://faker.deno.dev/pong?quite=true
     Content-Type: application/json
@@ -132,11 +132,11 @@ Deno.test("[runHttpBlock] with response json body throws",
     })
 
 
-Deno.test("[runHttpBlock] with response json body contains",
+Deno.test("[fetchBlock] with response json body contains",
     // { only: true },
     // { ignore: true },
     async () => {
-        const response = await runHttpBlock(
+        const response = await fetchBlock(
             `
 POST https://faker.deno.dev/pong?quite=true
 Content-Type: application/json
@@ -154,11 +154,11 @@ Content-Type: application/json
     })
 
 
-Deno.test("[runHttpBlock] with response json body contains throws",
+Deno.test("[fetchBlock] with response json body contains throws",
     // { only: true },
     async () => {
         await assertRejects(async () => {
-            await runHttpBlock(
+            await fetchBlock(
                 `
 POST https://faker.deno.dev/pong?quite=true
 Content-Type: application/json

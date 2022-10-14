@@ -7,8 +7,7 @@ import { expandGlob } from "https://deno.land/std@0.159.0/fs/mod.ts";
 const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
 
 
-
-export function parseHttpBlock(txt: string): Block {
+export function blockTextToReqAndRes(txt: string): Block {
     const lines: string[] = txt.replaceAll('\r', '\n').split("\n");
 
     let url = '';
@@ -115,11 +114,11 @@ export function parseHttpBlock(txt: string): Block {
         init.body = init.body.trim();
         init.body ||= null;
     }
-    const block: Block = {};
+    const returned: Block = {};
     if (url) {
         const request: _Request = new Request(url, init);
         request.bodyRaw = init.body;
-        block.request = request;
+        returned.request = request;
     }
 
     if (responseInit) {
@@ -130,15 +129,15 @@ export function parseHttpBlock(txt: string): Block {
 
         const response: _Response = new Response(responseBody, responseInit);
         response.bodyRaw = responseBody;
-        block.response = response
+        returned.response = response
     }
-    return block;
+    return returned;
 }
 
 
-export async function runHttpBlock(txt: string): Promise<_Response | void> {
+export async function fetchBlock(txt: string): Promise<_Response | void> {
 
-    const block = parseHttpBlock(txt);
+    const block = blockTextToReqAndRes(txt);
     if (block.request) {
         return await fetchRequest(block.request, block.meta, block.response);
     }
@@ -148,7 +147,7 @@ export async function runHttpBlock(txt: string): Promise<_Response | void> {
 
 
 
-export function httpTextToBlocks(txt: string): Block[] {
+export function fileTextToBlocks(txt: string): Block[] {
 
     const blocks: Block[] = [];
     const lines = txt.replaceAll('\r', '\n').split("\n");
@@ -194,12 +193,12 @@ export async function globsToFiles(inputText: string): Promise<File[]> {
         for await (const fileFound of expandGlob(glob)) {
             if (fileFound.isFile) {
                 const fileContent = await Deno.readTextFile(fileFound.path);
-                const blocks = httpTextToBlocks(fileContent);
+                const blocks = fileTextToBlocks(fileContent);
                 files.push({ path: fileFound.path, blocks });
             }
         }
     }
-// console.log(files);
+    // console.log(files);
 
 
     return files;

@@ -30,16 +30,3 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 hello
-
-
-###
-
-POST https://faker.deno.dev/pong?quite=true
-Content-Type: text/plain
-
-hola mundo
-
-HTTP/1.1 200 OK
-Content-Type: text/plain
-
-hola mundo
