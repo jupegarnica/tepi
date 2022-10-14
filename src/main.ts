@@ -3,6 +3,7 @@ import { globsToFiles } from "./globsToFiles.ts";
 import { type File } from './types.ts'
 import { fetchBlock } from './fetchBlock.ts'
 import { assertResponse } from "./assertResponse.ts";
+import { colors } from "https://deno.land/x/terminal_images@3.0.0/deps.ts";
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
@@ -32,7 +33,6 @@ export async function runner(args: Args): Promise<File[]> {
                 hideHeaders: true,
                 hideRequest: true,
                 hideResponse: true,
-
             }
             block.meta = {
                 ...defaultMeta,
@@ -46,15 +46,15 @@ export async function runner(args: Args): Promise<File[]> {
                     assertResponse(block);
                 }
             } catch (error) {
-                const customError = new Error(
-                    `Error in ${file.path}:${block.startLine}
-                        ${error.message}`, {
-                            // cause: error,
-                            stack: '----HERE----',
-                        })
-                // customError.cause = error;
-                // customError.stack = `${file.path}:${block.startLine}`;
-                throw customError;
+                // TODO handle error AND override error stacktrace to .http file line
+
+                // const customError = new Error(
+                //     `Error in ${file.path}:${block.startLine}
+                //         ${error.message}`)
+
+                console.error('❌', colors.cyan(`${file.path}:${block.startLine}`));
+                console.error(error.message);
+
             }
         }
     }
