@@ -1,6 +1,8 @@
 import { parse, type Args } from "https://deno.land/std@0.159.0/flags/mod.ts"
 import { globsToFiles } from "./globsToFiles.ts";
 import { type File } from './types.ts'
+import {fetchBlock} from './fetchBlock.ts'
+import { assertResponse } from "./assertResponse.ts";
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
@@ -23,7 +25,12 @@ export async function runner(args: Args): Promise<File[]> {
 
     for (const file of files) {
         for (const block of file.blocks) {
-            console.log(block.text);
+            if (block.request) {
+                await fetchBlock(block);
+            }
+            if (block.response) {
+                assertResponse(block);
+            }
         }
     }
 

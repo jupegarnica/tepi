@@ -24,6 +24,7 @@ export type Block = {
     text?: string;
     request?: _Request;
     response?: _Response;
+    actualResponse?: _Response;
     meta?: Meta;
     startLine?: number;
     endLine?: number;
