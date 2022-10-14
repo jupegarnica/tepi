@@ -11,12 +11,7 @@ GET https://httpbin.org/gzip
 POST https://httpbin.org/status/400
 Content-Type: text/plain
 
-hola
-
-adios
-
-
-yepppp
+must throw
 
 HTTP/1.1 200 OK
 

@@ -1,7 +1,7 @@
 import { parse, type Args } from "https://deno.land/std@0.159.0/flags/mod.ts"
 import { globsToFiles } from "./globsToFiles.ts";
 import { type File } from './types.ts'
-import {fetchBlock} from './fetchBlock.ts'
+import { fetchBlock } from './fetchBlock.ts'
 import { assertResponse } from "./assertResponse.ts";
 if (import.meta.main) {
 
@@ -20,16 +20,41 @@ export async function runner(args: Args): Promise<File[]> {
 
 
     const globs: string = args._.length ? args._.join(' ') : '**/*.http';
-
     const files: File[] = await globsToFiles(globs);
+
+
+    const tests = [];
 
     for (const file of files) {
         for (const block of file.blocks) {
-            if (block.request) {
-                await fetchBlock(block);
+            const defaultMeta = {
+                hideBody: true,
+                hideHeaders: true,
+                hideRequest: true,
+                hideResponse: true,
+
             }
-            if (block.response) {
-                assertResponse(block);
+            block.meta = {
+                ...defaultMeta,
+                ...block.meta,
+            }
+            try {
+                if (block.request) {
+                    await fetchBlock(block);
+                }
+                if (block.response) {
+                    assertResponse(block);
+                }
+            } catch (error) {
+                const customError = new Error(
+                    `Error in ${file.path}:${block.startLine}
+                        ${error.message}`, {
+                            // cause: error,
+                            stack: '----HERE----',
+                        })
+                // customError.cause = error;
+                // customError.stack = `${file.path}:${block.startLine}`;
+                throw customError;
             }
         }
     }
