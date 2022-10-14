@@ -283,3 +283,70 @@ GET faker.deno.dev
         assertEquals(meta, { name: 'test' });
 
     })
+
+
+Deno.test("[parseBlockText] response must have httpText ",
+    // { only: true },
+    () => {
+        const block = {
+            text: `POST faker.deno.dev/pong
+Content-Type: text/plain
+
+hello world
+
+HTTP/1.1 200 OK
+x-foo: bar
+Content-Type: text/plain
+
+
+hola
+
+mundo
+###`
+        }
+        const { response } = parseBlockText(block);
+        assertEquals(
+            response?.httpText,
+            `HTTP/1.1 200 OK
+x-foo: bar
+Content-Type: text/plain
+
+hola
+
+mundo`);
+
+    })
+
+Deno.test("[parseBlockText] request must have httpText ",
+    { ignore: true }, // TODO: fix this
+    () => {
+        const block = {
+            text: `POST faker.deno.dev/pong
+Content-Type: text/plain
+
+hello
+
+world
+
+HTTP/1.1 200 OK
+x-foo: bar
+Content-Type: text/plain
+
+
+hola
+
+mundo
+###`
+        }
+        const { request } = parseBlockText(block);
+        assertEquals(
+            request?.httpText,
+            `POST faker.deno.dev/pong
+Content-Type: text/plain
+
+hello
+
+world
+`);
+
+    })

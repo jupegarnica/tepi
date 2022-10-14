@@ -16,7 +16,8 @@ export function parseBlockText(block: Block): Block {
 
   let responseInit: ResponseInit | undefined;
   let responseBody: BodyInit | null = '';
-
+  let responseHttpText = '';
+  let requestHttpText = '';
   init.headers = new Headers();
 
   let thisLineMayBeHeader = false;
@@ -28,6 +29,7 @@ export function parseBlockText(block: Block): Block {
     const line = lines[i];
     const trimmed = line.trim();
     if(trimmed.startsWith('HTTP/')) {
+      responseHttpText += line;
       // console.log(i, 'status'.padEnd(17), trimmed);
       responseInit ??= {};
       const [, status, ...statusText] = trimmed.split(' ');
@@ -39,6 +41,7 @@ export function parseBlockText(block: Block): Block {
       continue;
     }
     if(trimmed && thisLineMayBeResponseHeader) {
+      responseHttpText += '\n'+line;
       // console.log(i, 'response header'.padEnd(17), trimmed);
       const [key, value] = trimmed.replace(":", "<<::>>").split("<<::>>");
       try {
@@ -73,11 +76,13 @@ export function parseBlockText(block: Block): Block {
 
     if(thisLineMayBeResponseBody && !thisLineMayBeBody) {
       // console.log(i, 'response body'.padEnd(17), trimmed);
+      responseHttpText += '\n'+line;
       responseBody += '\n' + line;
       continue;
     }
     if(thisLineMayBeBody && !thisLineMayBeResponseBody) {
       // console.log(i, 'body'.padEnd(17), trimmed);
+      requestHttpText += '\n'+line;
       init.body += '\n' + line;
       continue;
     }
@@ -100,6 +105,7 @@ export function parseBlockText(block: Block): Block {
 
     if(httpMethods.some((method) => trimmed.startsWith(method))) {
       // console.log(i, 'url'.padEnd(17), trimmed);
+      requestHttpText += line;
       [init.method, url] = trimmed.split(" ");
       if(!url.match(/^https?:\/\//)) {
         url = `http://${url}`;
@@ -110,6 +116,7 @@ export function parseBlockText(block: Block): Block {
     }
     if(trimmed && thisLineMayBeHeader) {
       // console.log(i, 'header'.padEnd(17), trimmed);
+      requestHttpText += '\n'+line;
       const [key, value] = trimmed.replace(":", "<<::>>").split("<<::>>");
       init.headers.set(key, value);
       thisLineMayBeHeader = true;
@@ -125,6 +132,7 @@ export function parseBlockText(block: Block): Block {
   if(url) {
     const request: _Request = new Request(url, init);
     request.bodyRaw = init.body;
+    request.httpText = requestHttpText;
     block.request = request;
   }
   if (meta) {
@@ -138,6 +146,7 @@ export function parseBlockText(block: Block): Block {
     }
 
     const response: _Response = new Response(responseBody, responseInit);
+    response.httpText = responseHttpText;
     response.bodyRaw = responseBody;
     block.response = response;
   }
