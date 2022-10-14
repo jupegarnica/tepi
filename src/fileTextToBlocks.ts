@@ -1,5 +1,5 @@
 import { Block } from "./types.ts";
-import { extractReqAndResAndMeta } from "./extractReqAndResAndMeta.ts";
+import { parseBlockText } from "./parseBlockText.ts";
 
 
 
@@ -24,7 +24,7 @@ export function fileTextToBlocks(txt: string): Block[] {
         startLine: blockStartLine,
         endLine: blockEndLine,
       };
-      extractReqAndResAndMeta(block);
+      parseBlockText(block);
       blocks.push(block);
       currentBlockText = '';
       blockStartLine = i + 1;
@@ -37,7 +37,7 @@ export function fileTextToBlocks(txt: string): Block[] {
         startLine: blockStartLine,
         endLine: blockEndLine,
       };
-      extractReqAndResAndMeta(block);
+      parseBlockText(block);
       blocks.push(block);
     }
   }
