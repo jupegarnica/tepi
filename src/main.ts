@@ -1,5 +1,5 @@
 import { parse, type Args } from "https://deno.land/std@0.159.0/flags/mod.ts"
-import { globsToFiles } from "./http.ts";
+import { globsToFiles } from "./globsToFiles.ts";
 import { type File } from './types.ts'
 if (import.meta.main) {
 

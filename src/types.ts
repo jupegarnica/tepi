@@ -4,6 +4,7 @@ export type Meta = {
     hideHeaders?: boolean;
     hideRequest?: boolean;
     hideResponse?: boolean;
+    [key: string]: string | boolean | undefined;
 }
 
 export interface _Request extends Request {
@@ -33,3 +34,5 @@ export type File = {
     path: string;
     blocks: Block[];
 }
+
+export const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];

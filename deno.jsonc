@@ -1,7 +1,7 @@
 {
     "tasks": {
         "test":"NO_LOG=1 deno test -A --unstable",
-        "test-watch":"FORCE_COLOR=1 deno test -A --unstable --no-check --watch tests",
-        "install":"deno install -A --unstable --name fetch ./fetch.ts"
+        "test-watch":"FORCE_COLOR=1 deno test -A --unstable --watch test",
+        "install":"deno install -A --unstable --name fetch ./main.ts"
     }
 }
