@@ -8,12 +8,12 @@ export type Meta = {
 }
 
 export interface _Request extends Request {
-    bodyRaw?: BodyInit | null ;
+    bodyRaw?: BodyInit | null;
     bodyExtracted?: unknown;
 }
 
 export interface _Response extends Response {
-    bodyRaw?: BodyInit | null ;
+    bodyRaw?: BodyInit | null;
     bodyExtracted?: unknown;
 }
 
@@ -35,4 +35,19 @@ export type File = {
     blocks: Block[];
 }
 
-export const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
+
+// FETCH VALID HTTP METHODS
+
+export const httpMethods = [
+    'GET',
+    'HEAD',
+    'POST',
+    'PUT',
+    'DELETE',
+    'CONNECT',
+    'OPTIONS',
+    'TRACE',
+    'PATCH',
+];
+
+// export const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
