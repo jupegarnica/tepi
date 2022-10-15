@@ -13,32 +13,52 @@ import { globsToFilePaths } from "./globsToFilePaths.ts";
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
-        boolean: ['help', 'version'],
+        boolean: ['help', 'version', 'failFast', 'watch'],
         alias: {
             h: 'help',
             v: 'version',
+            w: 'watch',
+            t: 'timeout',
+
         },
     })
     if (args.help) {
-        console.log(`Usage: deno run --allow-net --allow-read --allow-write --allow-env --unstable src/main.ts [OPTIONS] [FILES]
+        console.log(
+            `Usage: httest [options] [file|glob]...
 
 Options:
-    -h, --help      Show this help message and exit
-    -v, --version   Show version and exit`)
-        Deno.exit(0)
+
+    -h, --help          output usage information
+    -v, --version       output the version number
+    -w, --watch         watch files for changes
+    -f, --fail-fast     fail on error
+    -t, --timeout       timeout for requests in ms
+    -c, --concurrency   number of concurrent requests
+    `
+        )
+
     }
-    if (args.watch) {
-        console.log('watching')
-        const watcher = Deno.watchFs("/");
-        for await (const event of watcher) {
-            console.log(">>>> event", event);
-            // { kind: "create", paths: [ "/foo.txt" ] }
-        }
-    }
+
     const globs: string = args._.length ? args._.join(' ') : '**/*.http';
     const filePaths = await globsToFilePaths(globs.split(' '));
+    if (args.watch) {
+        console.log('watching')
+        watchAndRun(filePaths).catch(console.error);
+    }
     await runner(filePaths);
 
+}
+
+async function watchAndRun(filePaths: string[]) {
+    const watcher = Deno.watchFs(filePaths);
+    for await (const event of watcher) {
+        if (event.kind === 'modify') {
+            console.clear();
+            console.count(event.paths.join(' '));
+            console.log('file changed', event.paths);
+            await runner(event.paths);
+        }
+    }
 }
 
 

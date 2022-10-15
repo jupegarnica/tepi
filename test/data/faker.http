@@ -1,5 +1,7 @@
 ###
-# @name=pong
+# @name= pong asd
+# @verbose
+
 GET https://faker.deno.dev/pong
 x-foo: bar
 
@@ -8,7 +10,10 @@ x-foo: bar
 
 ###
 # @ignore
+# @verbose
 
-GET /pong
+GET faker.deno.dev/pong?quite=true
 host: faker.deno.dev
 x-foo: bar
+
+HTTP/1.1 201 OK
