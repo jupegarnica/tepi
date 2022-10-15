@@ -4,7 +4,7 @@ import { runner } from "../src/main.ts";
 
 
 Deno.test("[runner] find one file", async () => {
-   const files =  await runner({ _: ['test/data/test1.http'] });
+   const files =  await runner(['test/data/test1.http']);
     assertEquals(files.length, 1);
     assertEquals(files[0].blocks.length, 5);
 });

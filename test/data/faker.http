@@ -5,3 +5,10 @@ x-foo: bar
 
 HTTP/1.1 200 OK
 x-foo: bar
+
+###
+# @ignore
+
+GET /pong
+host: faker.deno.dev
+x-foo: bar

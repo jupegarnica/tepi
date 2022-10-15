@@ -1,12 +1,14 @@
 import { parse, type Args } from "https://deno.land/std@0.159.0/flags/mod.ts"
-import { globsToFiles } from "./globsToFiles.ts";
+import { filePathsToFiles } from "./filePathsToFiles.ts";
 import { type File } from './types.ts'
 import { fetchBlock } from './fetchBlock.ts'
 import { assertResponse } from "./assertResponse.ts";
 import { colors } from "https://deno.land/x/terminal_images@3.0.0/deps.ts";
-
 // import ora from "npm:ora";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
+
+import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
+import { globsToFilePaths } from "./globsToFilePaths.ts";
 
 if (import.meta.main) {
 
@@ -17,23 +19,45 @@ if (import.meta.main) {
             v: 'version',
         },
     })
-    await runner(args);
+    if (args.help) {
+        console.log(`Usage: deno run --allow-net --allow-read --allow-write --allow-env --unstable src/main.ts [OPTIONS] [FILES]
+
+Options:
+    -h, --help      Show this help message and exit
+    -v, --version   Show version and exit`)
+        Deno.exit(0)
+    }
+    if (args.watch) {
+        console.log('watching')
+        const watcher = Deno.watchFs("/");
+        for await (const event of watcher) {
+            console.log(">>>> event", event);
+            // { kind: "create", paths: [ "/foo.txt" ] }
+        }
+    }
+    const globs: string = args._.length ? args._.join(' ') : '**/*.http';
+    const filePaths = await globsToFilePaths(globs.split(' '));
+    await runner(filePaths);
 
 }
 
 
-export async function runner(args: Args): Promise<File[]> {
+export async function runner(filePaths: string[]): Promise<File[]> {
 
-
-    const globs: string = args._.length ? args._.join(' ') : '**/*.http';
-    const files: File[] = await globsToFiles(globs);
+    const files: File[] = await filePathsToFiles(filePaths);
 
     const totalBlocks = files.reduce((acc, file) => acc + file.blocks.length, 0);
     let passedBlocks = 0;
     let failedBlocks = 0;
-    let runnedBlocks = 0;
+    let runBlocks = 0;
     // TODO SKIPPED BLOCKS
     for (const file of files) {
+        // const commonPath = common([file.path, Deno.cwd()]);
+        // const relativePath = file.path.replace(commonPath, './');
+        const relativePath = relative(Deno.cwd(), file.path);
+
+        console.info(colors.brightBlue(`\n${relativePath}`));
+
         for (const block of file.blocks) {
             const defaultMeta = {
                 hideBody: true,
@@ -51,12 +75,12 @@ export async function runner(args: Args): Promise<File[]> {
 
             try {
                 if (block.request) {
-                    runnedBlocks++;
+                    runBlocks++;
                     const text = block.meta?.name as string ||
                         `${block.request?.method} ${block.request?.url}`
                     spinner = wait({
 
-                        prefix: colors.dim(`${runnedBlocks}/${totalBlocks}`),
+                        prefix: colors.dim(`${runBlocks}/${totalBlocks}`),
                         text,
 
                         color: 'cyan',
