@@ -2,45 +2,21 @@
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
 import type { _Request, _Response, BodyExtracted, Block } from "./types.ts";
-import { requestToText, headersToText, printBody, responseToText } from "./print.ts";
 
 
 
 export async function fetchBlock(
     block: Block
 ): Promise<void> {
-    const { request, meta = {} } = block;
+    const { request} = block;
     if (!request) {
         throw new Error('block.request is undefined');
     }
-    const {
-        hideBody = false,
-        hideHeaders = false,
-        hideRequest = false,
-        hideResponse = false,
-    } = meta;
-
     const promise = fetch(request);
-
-    if (!hideRequest) {
-        console.info(requestToText(request));
-        hideHeaders || console.info(headersToText(request.headers));
-        hideBody || await printBody(request);
-    }
 
     const actualResponse: _Response = await promise;
     block.actualResponse = actualResponse;
 
-    hideResponse || console.info(responseToText(actualResponse));
-    hideResponse || hideHeaders || console.info(headersToText(actualResponse.headers));
-
-    if (!hideBody) {
-        await printBody(actualResponse);
-    }
-
-    if (!actualResponse.bodyUsed) {
-        await actualResponse.body?.cancel();
-    }
 
 }
 

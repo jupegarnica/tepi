@@ -1,6 +1,6 @@
 import { parse, type Args } from "https://deno.land/std@0.159.0/flags/mod.ts"
 import { filePathsToFiles } from "./filePathsToFiles.ts";
-import { type File } from './types.ts'
+import { Meta, type File } from './types.ts'
 import { fetchBlock } from './fetchBlock.ts'
 import { assertResponse } from "./assertResponse.ts";
 import { colors } from "https://deno.land/x/terminal_images@3.0.0/deps.ts";
@@ -9,14 +9,15 @@ import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
+import { print } from "./print.ts";
 
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
-        boolean: ['help', 'version', 'failFast', 'watch'],
+        boolean: ['help', 'verbose', 'failFast', 'watch'],
         alias: {
             h: 'help',
-            v: 'version',
+            v: 'verbose',
             w: 'watch',
             t: 'timeout',
 
@@ -29,8 +30,10 @@ if (import.meta.main) {
 Options:
 
     -h, --help          output usage information
-    -v, --version       output the version number
+    -v, --verbose       output http request and response
     -w, --watch         watch files for changes
+
+// TODO:
     -f, --fail-fast     fail on error
     -t, --timeout       timeout for requests in ms
     -c, --concurrency   number of concurrent requests
@@ -38,31 +41,37 @@ Options:
         )
 
     }
+    const defaultMeta = {
+        verbose: args.verbose,
+    }
 
     const globs: string = args._.length ? args._.join(' ') : '**/*.http';
     const filePaths = await globsToFilePaths(globs.split(' '));
+
     if (args.watch) {
-        console.log('watching')
-        watchAndRun(filePaths).catch(console.error);
+        watchAndRun(filePaths, defaultMeta).catch(console.error);
     }
-    await runner(filePaths);
+    console.clear();
+    await runner(filePaths, defaultMeta);
 
 }
 
-async function watchAndRun(filePaths: string[]) {
+async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
+    // console.log('watching', filePaths);
+
     const watcher = Deno.watchFs(filePaths);
     for await (const event of watcher) {
-        if (event.kind === 'modify') {
+        if (event.kind === 'access') {
             console.clear();
-            console.count(event.paths.join(' '));
-            console.log('file changed', event.paths);
-            await runner(event.paths);
+            // console.count(event.paths.join(' '));
+            // console.log('file changed', event.paths);
+            await runner(event.paths, defaultMeta);
         }
     }
 }
 
 
-export async function runner(filePaths: string[]): Promise<File[]> {
+export async function runner(filePaths: string[], defaultMeta: Meta): Promise<File[]> {
 
     const files: File[] = await filePathsToFiles(filePaths);
 
@@ -76,18 +85,16 @@ export async function runner(filePaths: string[]): Promise<File[]> {
         // const relativePath = file.path.replace(commonPath, './');
         const relativePath = relative(Deno.cwd(), file.path);
 
-        console.info(colors.brightBlue(`\n${relativePath}`));
+        console.info(colors.brightBlue(`\n${relativePath}\n`));
 
         for (const block of file.blocks) {
-            const defaultMeta = {
-                hideBody: true,
-                hideHeaders: true,
-                hideRequest: true,
-                hideResponse: true,
-            }
+
             block.meta = {
                 ...defaultMeta,
                 ...block.meta,
+            }
+            if (block.meta.ignore) {
+                continue;
             }
 
             let spinner;
@@ -122,8 +129,13 @@ export async function runner(filePaths: string[]): Promise<File[]> {
                 failedBlocks++;
                 // TODO handle error AND override error stacktrace to .http file line
                 console.error(error.message);
-                console.error('at:', colors.cyan(`${file.path}:${1 + (block.startLine || 0)}`));
+                console.error('at:', colors.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
                 // wait
+            } finally {
+                if (block.meta.verbose) {
+
+                    await print(block);
+                }
             }
         }
     }

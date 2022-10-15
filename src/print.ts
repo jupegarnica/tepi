@@ -4,8 +4,37 @@ import { highlight } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToBlob, mimesToArrayBuffer, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
-import { _Request, _Response, BodyExtracted } from "./types.ts";
+import { _Request, _Response, BodyExtracted, Block } from "./types.ts";
 import { extractBody } from "./fetchBlock.ts";
+
+
+
+export async function print(block: Block): Promise<void> {
+  const { request, actualResponse } = block;
+  if (!request) {
+    return;
+  }
+  console.group();
+  console.info(requestToText(request));
+  console.info(headersToText(request.headers));
+  await printBody(request);
+  console.groupEnd();
+  if (!actualResponse) {
+    throw new Error('block.actualResponse is undefined');
+  }
+  console.group();
+
+  console.info(responseToText(actualResponse));
+  console.info(headersToText(actualResponse.headers));
+  await printBody(actualResponse);
+  console.groupEnd();
+
+  if (!actualResponse.bodyUsed) {
+    await actualResponse.body?.cancel();
+  }
+}
+
+
 
 
 export function requestToText(request: Request): string {
@@ -35,12 +64,12 @@ export function headersToText(headers: Headers): string {
 
   let result = '';
 
-  for(const [key, value] of headers.entries()) {
+  for (const [key, value] of headers.entries()) {
     maxLengthKey = Math.max(maxLengthKey, key.length);
     maxLengthValue = Math.max(maxLengthValue, value.length);
   }
-  for(const [key, value] of headers.entries()) {
-    result += (`${colors.blue(`${key}:`.padEnd(maxLengthKey + 1))} ${colors.white(value.padEnd(maxLengthValue + 1))}\n`);
+  for (const [key, value] of headers.entries()) {
+    result += (`${colors.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${colors.dim(value.padEnd(maxLengthValue + 1))}\n`);
   }
 
   return result;
@@ -60,17 +89,17 @@ export async function printBody(re: _Response | _Request): Promise<void> {
 
 
 async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
-  if(!contentType || !body)
+  if (!contentType || !body)
     return '';
 
 
   const includes = (ct: string) => contentType.includes(ct);
 
-  if(mimesToArrayBuffer.some(includes)) {
+  if (mimesToArrayBuffer.some(includes)) {
     return await imageToText(body as ArrayBuffer);
 
   }
-  if(mimesToBlob.some(includes)) {
+  if (mimesToBlob.some(includes)) {
     return `${Deno.inspect(body)}`;
   }
 
@@ -78,16 +107,16 @@ async function bodyToText({ body, contentType }: BodyExtracted): Promise<string>
   const bodyStr = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
   const language = contentTypeToLanguage(contentType);
 
-  if(language) {
+  if (language) {
 
     try {
       return highlight(bodyStr, { language, ignoreIllegals: true });
-    } catch(error) {
+    } catch (error) {
       console.error(language, error.message);
       throw error;
     }
   }
-  if(mimesToText.some(includes)) {
+  if (mimesToText.some(includes)) {
     return bodyStr;
   }
 
@@ -97,7 +126,7 @@ async function bodyToText({ body, contentType }: BodyExtracted): Promise<string>
 }
 function contentTypeToLanguage(contentType: string): string {
   let language = extension(contentType);
-  if(!language) {
+  if (!language) {
     const [mime] = contentType.split(";");
     [, language] = mime.split("/");
     language = language.replace(/\+.*/, '');

@@ -12,7 +12,7 @@ export function parseBlockText(block: Block): Block {
     method: 'GET',
     body: '',
   };
-  let meta: Meta | undefined ;
+  let meta: Meta | undefined;
 
   let responseInit: ResponseInit | undefined;
   let responseBody: BodyInit | null = '';
@@ -25,10 +25,10 @@ export function parseBlockText(block: Block): Block {
   let thisLineMayBeResponseHeader = false;
   let thisLineMayBeResponseBody = false;
 
-  for(let i = 0;i < lines.length;i++) {
+  for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
-    if(trimmed.startsWith('HTTP/')) {
+    if (trimmed.startsWith('HTTP/')) {
       responseHttpText += line;
       // console.log(i, 'status'.padEnd(17), trimmed);
       responseInit ??= {};
@@ -40,8 +40,8 @@ export function parseBlockText(block: Block): Block {
       thisLineMayBeResponseBody = false;
       continue;
     }
-    if(trimmed && thisLineMayBeResponseHeader) {
-      responseHttpText += '\n'+line;
+    if (trimmed && thisLineMayBeResponseHeader) {
+      responseHttpText += '\n' + line;
       // console.log(i, 'response header'.padEnd(17), trimmed);
       const [key, value] = trimmed.replace(":", "<<::>>").split("<<::>>");
       try {
@@ -54,46 +54,48 @@ export function parseBlockText(block: Block): Block {
         responseInit.headers.set(key, value);
         thisLineMayBeResponseHeader = true;
         continue;
-      } catch(error) {
+      } catch (error) {
         console.error(error);
         throw new Error(`Invalid header; key: ${key}, value: ${value}`);
 
       }
     }
-    if(trimmed.startsWith('#')) {
+    if (trimmed.startsWith('#')) {
       // console.log(i, 'comment'.padEnd(17), trimmed);
       meta ??= {};
       const clean = trimmed.replace(/^#+\s*/g, '');
       if (!clean) continue;
-      let key = clean.match(/^@[^=]+/)?.[0] || '';
+      let key = clean.match(/^@\w+/)?.[0] || '';
       if (key) {
-        const value = clean.replace(key, '').replace('=','').trim();
-         key = key.replace('@', '');
-         meta[key] = value;
+        let value: string | boolean = clean.replace(key, '').replace('=', '').trim();
+        key = key.replace('@', '');
+        if (!value) value = true;
+        meta[key] = value;
       }
+
       continue;
     }
 
-    if(thisLineMayBeResponseBody && !thisLineMayBeBody) {
+    if (thisLineMayBeResponseBody && !thisLineMayBeBody) {
       // console.log(i, 'response body'.padEnd(17), trimmed);
-      responseHttpText += '\n'+line;
+      responseHttpText += '\n' + line;
       responseBody += '\n' + line;
       continue;
     }
-    if(thisLineMayBeBody && !thisLineMayBeResponseBody) {
+    if (thisLineMayBeBody && !thisLineMayBeResponseBody) {
       // console.log(i, 'body'.padEnd(17), trimmed);
-      requestHttpText += '\n'+line;
+      requestHttpText += '\n' + line;
       init.body += '\n' + line;
       continue;
     }
 
 
-    if(!trimmed) {
-      if(thisLineMayBeResponseHeader) {
+    if (!trimmed) {
+      if (thisLineMayBeResponseHeader) {
         thisLineMayBeResponseHeader = false;
         thisLineMayBeResponseBody = true;
       }
-      if(thisLineMayBeHeader) {
+      if (thisLineMayBeHeader) {
         thisLineMayBeHeader = false;
         thisLineMayBeBody = true;
       }
@@ -103,20 +105,20 @@ export function parseBlockText(block: Block): Block {
 
 
 
-    if(httpMethods.some((method) => trimmed.startsWith(method))) {
+    if (httpMethods.some((method) => trimmed.startsWith(method))) {
       // console.log(i, 'url'.padEnd(17), trimmed);
       requestHttpText += line;
       [init.method, url] = trimmed.split(" ");
-      if(!url.match(/^https?:\/\//)) {
+      if (!url.match(/^https?:\/\//)) {
         url = `http://${url}`;
       }
 
       thisLineMayBeHeader = true;
       continue;
     }
-    if(trimmed && thisLineMayBeHeader) {
+    if (trimmed && thisLineMayBeHeader) {
       // console.log(i, 'header'.padEnd(17), trimmed);
-      requestHttpText += '\n'+line;
+      requestHttpText += '\n' + line;
       const [key, value] = trimmed.replace(":", "<<::>>").split("<<::>>");
       init.headers.set(key, value);
       thisLineMayBeHeader = true;
@@ -125,11 +127,11 @@ export function parseBlockText(block: Block): Block {
   }
 
 
-  if(typeof init.body === 'string') {
+  if (typeof init.body === 'string') {
     init.body = init.body.trim();
     init.body ||= null;
   }
-  if(url) {
+  if (url) {
     const request: _Request = new Request(url, init);
     request.bodyRaw = init.body;
     request.httpText = requestHttpText;
@@ -139,8 +141,8 @@ export function parseBlockText(block: Block): Block {
     block.meta = meta;
   }
 
-  if(responseInit) {
-    if(typeof responseBody === 'string') {
+  if (responseInit) {
+    if (typeof responseBody === 'string') {
       responseBody = responseBody.trim();
       responseBody ||= null;
     }

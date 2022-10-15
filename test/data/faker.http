@@ -2,18 +2,31 @@
 # @name= pong asd
 # @verbose
 
-GET https://faker.deno.dev/pong
-x-foo: bar
+POST https://faker.deno.dev/pong
+content-type: application/json
+
+{
+    "name": "pong asd",
+    "verbose": true
+}
 
 HTTP/1.1 200 OK
-x-foo: bar
+content-type: application/json
+
 
 ###
+# @name whatever
 # @ignore
 # @verbose
 
-GET faker.deno.dev/pong?quite=true
+
+POST faker.deno.dev/pong?quite=true
 host: faker.deno.dev
-x-foo: bar
+content-type: application/xml
+
+<xml>
+    <name>pong asd</name>
+    <verbose>true</verbose>
+</xml>
 
 HTTP/1.1 201 OK
