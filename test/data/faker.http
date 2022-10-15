@@ -1,0 +1,7 @@
+###
+# @name=pong
+GET https://faker.deno.dev/pong
+x-foo: bar
+
+HTTP/1.1 200 OK
+x-foo: bar

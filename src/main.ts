@@ -52,10 +52,12 @@ export async function runner(args: Args): Promise<File[]> {
             try {
                 if (block.request) {
                     runnedBlocks++;
+                    const text = block.meta?.name as string ||
+                        `${block.request?.method} ${block.request?.url}`
                     spinner = wait({
 
                         prefix: colors.dim(`${runnedBlocks}/${totalBlocks}`),
-                        text: `${block.request?.url}`,
+                        text,
 
                         color: 'cyan',
                         spinner: 'dots4',
@@ -76,7 +78,7 @@ export async function runner(args: Args): Promise<File[]> {
                 failedBlocks++;
                 // TODO handle error AND override error stacktrace to .http file line
                 console.error(error.message);
-                console.error('at:', colors.cyan(`${file.path}:${block.startLine}`));
+                console.error('at:', colors.cyan(`${file.path}:${1 + (block.startLine || 0)}`));
                 // wait
             }
         }
