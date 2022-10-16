@@ -11,7 +11,9 @@ import { extractBody } from "./fetchBlock.ts";
 
 export async function print(block: Block): Promise<void> {
   const { request, actualResponse, response } = block;
-
+  if (block.meta?.quiet) {
+    return
+  }
   if (!request) {
     return;
   }

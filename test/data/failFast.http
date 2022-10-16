@@ -1,8 +1,23 @@
 ###
 # @name fail fast
+# @ignore
+
+POST https://faker.deno.dev/pong?quiet=true&status=400
+content-type: application/json
+
+{
+    "name": "pong asd",
+    "verbose": true
+}
+
+HTTP/1.1 203 OK
+
+
+###
+# @name fail fast
 # @verbose
 
-POST https://faker.deno.dev/pong?quite=true&status=400
+POST https://faker.deno.dev/pong?quiet=true&status=400
 content-type: application/json
 
 {

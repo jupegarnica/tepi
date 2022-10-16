@@ -16,13 +16,14 @@ let exitCode = 0;
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
-        boolean: ['help', 'verbose', 'failFast', 'watch'],
+        boolean: ['help', 'verbose', 'failFast', 'watch', 'quiet'],
         alias: {
             h: 'help',
             v: 'verbose',
             w: 'watch',
             t: 'timeout',
             f: 'failFast',
+            q: 'quiet',
             'fail-fast': 'failFast',
 
         },
@@ -30,6 +31,12 @@ if (import.meta.main) {
     if (args.help) {
         console.log(
             `Usage: httest [options] [file|glob]...
+
+Examples:
+    httest
+    httest api.http
+    httest test.http test2.http
+    httest **/*.http
 
 Options:
 
@@ -48,6 +55,8 @@ Options:
     }
     const defaultMeta = {
         verbose: args.verbose,
+        quiet: args.quiet,
+
     }
 
     const globs: string = args._.length ? args._.join(' ') : '**/*.http';
@@ -78,11 +87,11 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
     const files: File[] = await filePathsToFiles(filePaths);
 
-    const totalBlocks = files.reduce((acc, file) => acc + file.blocks.length, 0);
+    const totalBlocks = files.reduce((acc, file) => acc + file.blocks.filter(b => b.request).length, 0);
     let passedBlocks = 0;
     let failedBlocks = 0;
     let runBlocks = 0;
-    // TODO SKIPPED BLOCKS
+    let ignoredBlocks = 0;
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
 
@@ -95,6 +104,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 ...block.meta,
             }
             if (block.meta.ignore) {
+                ignoredBlocks++;
                 continue;
             }
 
@@ -148,10 +158,10 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         }
     }
     console.info(
-        '\n',
         colors.green(`Passed: ${passedBlocks}`),
         colors.red(`Failed: ${failedBlocks}`),
-        colors.yellow(`Total: ${totalBlocks}`),
-    );
+        colors.yellow(`Ignored: ${ignoredBlocks}`),
+        colors.white(`Total: ${totalBlocks}`)
+    )
     return files;
 }
