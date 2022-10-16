@@ -4,32 +4,32 @@ import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.158.0/t
 export function assertResponse(block: Block) {
 
 
-  const { response, actualResponse } = block;
-  if (!response) {
-    throw new Error('block.response is undefined');
+  const { expectedResponse, actualResponse } = block;
+  if (!expectedResponse) {
+    throw new Error('block.expectedResponse is undefined');
   }
   if (!actualResponse) {
     throw new Error('block.actualResponse is undefined');
   }
 
-  if (response.status)
-    assertEquals(response.status, actualResponse.status);
-  if (response.statusText)
-    assertEquals(response.statusText, actualResponse.statusText);
-  if (response.bodyExtracted) {
-    if (typeof response.bodyExtracted === 'object' && typeof actualResponse.bodyExtracted === 'object') {
+  if (expectedResponse.status)
+    assertEquals(expectedResponse.status, actualResponse.status);
+  if (expectedResponse.statusText)
+    assertEquals(expectedResponse.statusText, actualResponse.statusText);
+  if (expectedResponse.bodyExtracted) {
+    if (typeof expectedResponse.bodyExtracted === 'object' && typeof actualResponse.bodyExtracted === 'object') {
       assertObjectMatch(
         actualResponse.bodyExtracted as Record<string, unknown>,
-        response.bodyExtracted as Record<string, unknown>
+        expectedResponse.bodyExtracted as Record<string, unknown>
       );
     } else {
-      assertEquals(actualResponse.bodyExtracted, response.bodyExtracted);
+      assertEquals(actualResponse.bodyExtracted, expectedResponse.bodyExtracted);
     }
 
   }
-  if (response.headers) {
+  if (expectedResponse.headers) {
 
-    for (const [key, value] of response.headers.entries()) {
+    for (const [key, value] of expectedResponse.headers.entries()) {
       assertEquals(actualResponse.headers.get(key), value);
     }
   }

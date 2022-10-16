@@ -3,13 +3,13 @@ import { assertResponse } from "../src/assertResponse.ts";
 import { extractBody } from "../src/fetchBlock.ts";
 
 
-Deno.test("[assertResponse] with response throws error checking status", () => {
-    const response = new Response(null, { status: 400 });
+Deno.test("[assertResponse] with expectedResponse throws error checking status", () => {
+    const expectedResponse = new Response(null, { status: 400 });
     const actualResponse = new Response(null, { status: 403 });
     assertThrows(() => {
 
         assertResponse({
-            response,
+            expectedResponse,
             actualResponse,
         });
     });
@@ -17,53 +17,53 @@ Deno.test("[assertResponse] with response throws error checking status", () => {
 });
 
 
-Deno.test("[assertResponse] with response throws error checking statusText", () => {
-    const response = new Response(null, { status: 400, statusText: 'Bad Request' });
+Deno.test("[assertResponse] with expectedResponse throws error checking statusText", () => {
+    const expectedResponse = new Response(null, { status: 400, statusText: 'Bad Request' });
     const actualResponse = new Response(null, { status: 400, statusText: 'Forbidden' });
     assertThrows(() => {
 
         assertResponse({
-            response,
+            expectedResponse,
             actualResponse,
         });
     });
 
 });
-Deno.test("[assertResponse] with no response not throws", () => {
-    const response = new Response(null, { status: 400, statusText: 'Bad Request' });
+Deno.test("[assertResponse] with no expectedResponse not throws", () => {
+    const expectedResponse = new Response(null, { status: 400, statusText: 'Bad Request' });
     const actualResponse = new Response(null, { status: 400, statusText: 'Bad Request' });
     assertResponse({
-        response,
+        expectedResponse,
         actualResponse,
     });
 
 });
 
-Deno.test("[assertResponse] with response plain test body", () => {
-    const response = new Response('foo', { status: 200 });
+Deno.test("[assertResponse] with expectedResponse plain test body", () => {
+    const expectedResponse = new Response('foo', { status: 200 });
     const actualResponse = new Response('foo', { status: 200 });
     assertResponse({
-        response,
+        expectedResponse,
         actualResponse,
     });
 
 });
 
-Deno.test("[assertResponse] with response json body", () => {
-    const response = new Response('{"foo": "bar"}', { status: 200, headers: { 'content-type': 'application/json' } });
+Deno.test("[assertResponse] with expectedResponse json body", () => {
+    const expectedResponse = new Response('{"foo": "bar"}', { status: 200, headers: { 'content-type': 'application/json' } });
     const actualResponse = new Response('{ "foo" : "bar" }', { status: 200, headers: { 'content-type': 'application/json' } });
     assertResponse({
-        response,
+        expectedResponse,
         actualResponse,
     });
 
 });
 
-Deno.test("[assertResponse] with response json test body with regexp", () => {
-    const response = new Response('{"foo": "bar"}', { status: 200, headers: { 'content-type': 'application/json' } });
+Deno.test("[assertResponse] with expectedResponse json test body with regexp", () => {
+    const expectedResponse = new Response('{"foo": "bar"}', { status: 200, headers: { 'content-type': 'application/json' } });
     const actualResponse = new Response('{"foo": "bar"}', { status: 200, headers: { 'content-type': 'application/json' } });
     assertResponse({
-        response,
+        expectedResponse,
         actualResponse,
     });
 });
@@ -71,13 +71,13 @@ Deno.test("[assertResponse] with response json test body with regexp", () => {
 Deno.test("[assertResponse] must throw with different bodies",
     // { only: true },
     async () => {
-        const response = new Response('{"foo": "bar"}', { headers: { 'content-type': 'application/json' } });
-        await extractBody(response);
+        const expectedResponse = new Response('{"foo": "bar"}', { headers: { 'content-type': 'application/json' } });
+        await extractBody(expectedResponse);
         const actualResponse = new Response('{"foo": "baz"}', { headers: { 'content-type': 'application/json' } });
         await extractBody(actualResponse);
         assertThrows(() => {
             assertResponse({
-                response,
+                expectedResponse,
                 actualResponse,
             });
         });
@@ -89,12 +89,12 @@ Deno.test("[assertResponse] must throw with different bodies",
 Deno.test("[assertResponse] must not throw with same body",
     // { only: true },
     async () => {
-        const response = new Response('{"foo": "bar"}', { headers: { 'content-type': 'application/json' } });
-        await extractBody(response);
+        const expectedResponse = new Response('{"foo": "bar"}', { headers: { 'content-type': 'application/json' } });
+        await extractBody(expectedResponse);
         const actualResponse = new Response('{  "foo" : "bar" } ', { headers: { 'content-type': 'application/json' } });
         await extractBody(actualResponse);
         assertResponse({
-            response,
+            expectedResponse,
             actualResponse,
         });
 

@@ -5,7 +5,7 @@ import { parseBlockText } from "../src/parseBlockText.ts";
 import { Block } from "../src/types.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
 
-Deno.test("[fetchBlock] with response and actualResponse",
+Deno.test("[fetchBlock] with expectedResponse and actualResponse",
     // { only: true },
     async () => {
         const block: Block = {
@@ -16,10 +16,10 @@ Deno.test("[fetchBlock] with response and actualResponse",
         `}
         parseBlockText(block);
         await fetchBlock(block);
-        assertEquals(block.response?.status, 403);
+        assertEquals(block.expectedResponse?.status, 403);
         assertEquals(block.actualResponse?.status, 400);
-        if (!block.response?.bodyUsed) {
-            await block.response?.body?.cancel();
+        if (!block.expectedResponse?.bodyUsed) {
+            await block.expectedResponse?.body?.cancel();
         }
         if (!block.actualResponse?.bodyUsed) {
             await block.actualResponse?.body?.cancel();
@@ -29,7 +29,7 @@ Deno.test("[fetchBlock] with response and actualResponse",
 
 
 
-Deno.test("[fetchBlock] with response and actualResponse",
+Deno.test("[fetchBlock] with expectedResponse and actualResponse",
     // { only: true },
     async () => {
         const block: Block = {
@@ -40,10 +40,10 @@ HTTP/1.1 400 Forbidden
 `}
         parseBlockText(block);
         await fetchBlock(block);
-        assertEquals(block.response?.statusText, 'Forbidden');
+        assertEquals(block.expectedResponse?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
-        if (!block.response?.bodyUsed) {
-            await block.response?.body?.cancel();
+        if (!block.expectedResponse?.bodyUsed) {
+            await block.expectedResponse?.body?.cancel();
         }
         if (!block.actualResponse?.bodyUsed) {
             await block.actualResponse?.body?.cancel();
@@ -52,7 +52,7 @@ HTTP/1.1 400 Forbidden
 
 
 
-Deno.test("[fetchBlock] with response and actualResponse",
+Deno.test("[fetchBlock] with expectedResponse and actualResponse",
     // { only: true },
     async () => {
         const block: Block = {
@@ -63,20 +63,20 @@ HTTP/1.1 400 Forbidden
 `}
         parseBlockText(block);
         await fetchBlock(block);
-        assertEquals(block.response?.statusText, 'Forbidden');
+        assertEquals(block.expectedResponse?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
-        if (!block.response?.bodyUsed) {
-            await block.response?.body?.cancel();
+        if (!block.expectedResponse?.bodyUsed) {
+            await block.expectedResponse?.body?.cancel();
         }
         if (!block.actualResponse?.bodyUsed) {
             await block.actualResponse?.body?.cancel();
         }
     })
 
-// Deno.test("[fetchBlock] with response plain test body",
+// Deno.test("[fetchBlock] with expectedResponse plain test body",
 //     { ignore: true }, // TODO rethink this test
 //     async () => {
-//         const response = await fetchBlock(
+//         const expectedResponse = await fetchBlock(
 //             `
 // POST http://httpbin.org/text
 // Content-Type: text/plain
@@ -89,17 +89,17 @@ HTTP/1.1 400 Forbidden
 // hola mundo
 
 // `);
-//         assertEquals(response?.status, 200);
+//         assertEquals(expectedResponse?.status, 200);
 
 //     })
 
 
 
-// Deno.test("[fetchBlock] with response json body",
+// Deno.test("[fetchBlock] with expectedResponse json body",
 //     // { only: true },
 //     // { ignore: true },
 //     async () => {
-//         const response = await fetchBlock(
+//         const expectedResponse = await fetchBlock(
 //             `
 // POST https://faker.deno.dev/pong?quite=true
 // Content-Type: application/json
@@ -112,9 +112,9 @@ HTTP/1.1 400 Forbidden
 // {"foo":"bar"}
 
 // `);
-//         // assertEquals(response?.bodyRaw, '{"foo":"bar"}');
-//         assertEquals(response?.bodyExtracted, { foo: "bar" });
-//         assertEquals(response?.status, 200);
+//         // assertEquals(expectedResponse?.bodyRaw, '{"foo":"bar"}');
+//         assertEquals(expectedResponse?.bodyExtracted, { foo: "bar" });
+//         assertEquals(expectedResponse?.status, 200);
 
 //     })
 
@@ -124,8 +124,8 @@ HTTP/1.1 400 Forbidden
 //     // { only: true },
 //     // { ignore: true },
 //     async () => {
-//         const response = await fetchBlock(``);
-//         assertEquals(response, undefined);
+//         const expectedResponse = await fetchBlock(``);
+//         assertEquals(expectedResponse, undefined);
 
 //     })
 

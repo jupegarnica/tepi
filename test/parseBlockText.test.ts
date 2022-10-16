@@ -125,7 +125,7 @@ HTTP/1.1 200 OK
     })
 
 
-Deno.test("[parseBlockText] response with status",
+Deno.test("[parseBlockText] expectedResponse with status",
     // { only: true },
     () => {
         const block = {
@@ -141,14 +141,14 @@ Deno.test("[parseBlockText] response with status",
 
         `
         }
-        const { response } = parseBlockText(block);
+        const { expectedResponse } = parseBlockText(block);
 
-        assertEquals(response?.status, 200);
+        assertEquals(expectedResponse?.status, 200);
 
     })
 
 
-Deno.test("[parseBlockText] response with headers",
+Deno.test("[parseBlockText] expectedResponse with headers",
     // { only: true },
     () => {
         const block = {
@@ -164,15 +164,15 @@ x-foo: bar
 hola mundo
 
 `}
-        const { response } = parseBlockText(block);
+        const { expectedResponse } = parseBlockText(block);
 
-        assertEquals(response?.headers.get('x-foo'), 'bar');
+        assertEquals(expectedResponse?.headers.get('x-foo'), 'bar');
 
     })
 
 
 
-Deno.test("[parseBlockText] response with statusText",
+Deno.test("[parseBlockText] expectedResponse with statusText",
     // { only: true },
     () => {
         const block = {
@@ -189,13 +189,13 @@ hola mundo
 
 `
         }
-        const { response } = parseBlockText(block);
+        const { expectedResponse } = parseBlockText(block);
 
-        assertEquals(response?.statusText, 'OK');
+        assertEquals(expectedResponse?.statusText, 'OK');
 
     })
 
-Deno.test("[parseBlockText] response with body ",
+Deno.test("[parseBlockText] expectedResponse with body ",
     // { only: true },
     async () => {
         const block = {
@@ -213,12 +213,12 @@ Deno.test("[parseBlockText] response with body ",
 
     `
         }
-        const { response } = parseBlockText(block);
-        assertEquals(await response?.text(), 'hola mundo');
+        const { expectedResponse } = parseBlockText(block);
+        assertEquals(await expectedResponse?.text(), 'hola mundo');
 
     })
 
-Deno.test("[parseBlockText] response without body ",
+Deno.test("[parseBlockText] expectedResponse without body ",
     // { only: true },
     async () => {
         const block = {
@@ -232,13 +232,13 @@ Deno.test("[parseBlockText] response without body ",
             x-foo: bar
             `
         }
-        const { response } = parseBlockText(block);
-        assertEquals(await response?.text(), '');
+        const { expectedResponse } = parseBlockText(block);
+        assertEquals(await expectedResponse?.text(), '');
     })
 
 
 
-Deno.test("[parseBlockText] response with body multiline ",
+Deno.test("[parseBlockText] expectedResponse with body multiline ",
     // { only: true },
     async () => {
         const block = {
@@ -259,14 +259,14 @@ mundo
 
     `
         }
-        const { response } = parseBlockText(block);
-        assertEquals(await response?.text(), 'hola\n\nmundo');
+        const { expectedResponse } = parseBlockText(block);
+        assertEquals(await expectedResponse?.text(), 'hola\n\nmundo');
 
     })
 
 
 
-Deno.test("[parseBlockText] response with metadata ",
+Deno.test("[parseBlockText] expectedResponse with metadata ",
     // { only: true },
     () => {
         const block = {
@@ -285,7 +285,7 @@ GET faker.deno.dev
     })
 
 
-Deno.test("[parseBlockText] response must have httpText ",
+Deno.test("[parseBlockText] expectedResponse must have httpText ",
     // { only: true },
     () => {
         const block = {
@@ -304,9 +304,9 @@ hola
 mundo
 ###`
         }
-        const { response } = parseBlockText(block);
+        const { expectedResponse } = parseBlockText(block);
         assertEquals(
-            response?.httpText,
+            expectedResponse?.httpText,
             `HTTP/1.1 200 OK
 x-foo: bar
 Content-Type: text/plain

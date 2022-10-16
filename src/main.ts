@@ -147,7 +147,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (block.request) {
                     await fetchBlock(block);
                 }
-                if (block.response) {
+                if (block.expectedResponse) {
                     assertResponse(block);
                 }
                 spinner?.succeed();
@@ -165,8 +165,8 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                     await print(block);
                 }
-                if (!block.response?.bodyUsed) {
-                    await block.response?.body?.cancel();
+                if (!block.expectedResponse?.bodyUsed) {
+                    await block.expectedResponse?.body?.cancel();
                 }
                 if (!block.actualResponse?.bodyUsed) {
                     await block.actualResponse?.body?.cancel();

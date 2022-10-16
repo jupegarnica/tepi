@@ -10,7 +10,7 @@ import { extractBody } from "./fetchBlock.ts";
 
 
 export async function print(block: Block): Promise<void> {
-  const { request, actualResponse, response } = block;
+  const { request, actualResponse, expectedResponse } = block;
   if (block.meta?.quiet) {
     return
   }
@@ -35,18 +35,18 @@ export async function print(block: Block): Promise<void> {
       await actualResponse.body?.cancel();
     }
   }
-  if (response) {
+  if (expectedResponse) {
     console.group();
     console.info(colors.dim('----------------------------------------'));
     console.info(colors.yellow('Expected Response'));
     console.info(colors.dim('----------------------------------------'));
-    console.info(responseToText(response));
-    console.info(headersToText(response.headers));
-    await printBody(response);
+    console.info(responseToText(expectedResponse));
+    console.info(headersToText(expectedResponse.headers));
+    await printBody(expectedResponse);
     console.groupEnd();
 
-    if (!response.bodyUsed) {
-      await response.body?.cancel();
+    if (!expectedResponse.bodyUsed) {
+      await expectedResponse.body?.cancel();
     }
   }
 }

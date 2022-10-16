@@ -150,7 +150,7 @@ export function parseBlockText(block: Block): Block {
     const response: _Response = new Response(responseBody, responseInit);
     response.httpText = responseHttpText;
     response.bodyRaw = responseBody;
-    block.response = response;
+    block.expectedResponse = response;
   }
   return block;
 }
