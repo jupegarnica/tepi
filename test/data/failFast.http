@@ -14,16 +14,13 @@ HTTP/1.1 203 OK
 
 
 
+
+
 ###
-# @name fail fast
+# @name invalid url
 # @verbose
 
-POST https://faker.deno.dev/pong?quiet=true&status=400
-content-type: application/json
 
-{
-    "name": "pong asd",
-    "verbose": true
-}
+POST invalid
 
-HTTP/1.1 203 OK
+HTTP/1.1 201 OK

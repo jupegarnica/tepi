@@ -12,7 +12,6 @@ content-type: application/json
 }
 
 HTTP/1.1 200 OK
-content-type: application/json
 
 
 ###
@@ -34,10 +33,21 @@ HTTP/1.1 201 OK
 
 
 ###
-# @name invalid url
+# @name yaml
 # @verbose
 
 
-POST invalid
+POST http://faker.deno.dev/pong
+Content-Type: application/yaml
 
-HTTP/1.1 201 OK
+name: pong asd
+verbose: true
+list:
+    - 1
+    - 2
+    - 3
+obj: {a: 1, b: 2}
+
+
+
+HTTP/1.1 200 OK

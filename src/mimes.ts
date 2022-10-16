@@ -20,6 +20,7 @@ export const mimesToText = [
     'text/yaml',
     'image/svg+xml',
     'image/svg',
+    'application/yaml'
 ]
 
 export const mimesToJSON = [
