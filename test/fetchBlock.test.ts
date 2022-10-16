@@ -18,6 +18,12 @@ Deno.test("[fetchBlock] with response and actualResponse",
         await fetchBlock(block);
         assertEquals(block.response?.status, 403);
         assertEquals(block.actualResponse?.status, 400);
+        if (!block.response?.bodyUsed) {
+            await block.response?.body?.cancel();
+        }
+        if (!block.actualResponse?.bodyUsed) {
+            await block.actualResponse?.body?.cancel();
+        }
 
     })
 
@@ -36,7 +42,12 @@ HTTP/1.1 400 Forbidden
         await fetchBlock(block);
         assertEquals(block.response?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
-
+        if (!block.response?.bodyUsed) {
+            await block.response?.body?.cancel();
+        }
+        if (!block.actualResponse?.bodyUsed) {
+            await block.actualResponse?.body?.cancel();
+        }
     })
 
 
@@ -54,7 +65,12 @@ HTTP/1.1 400 Forbidden
         await fetchBlock(block);
         assertEquals(block.response?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
-
+        if (!block.response?.bodyUsed) {
+            await block.response?.body?.cancel();
+        }
+        if (!block.actualResponse?.bodyUsed) {
+            await block.actualResponse?.body?.cancel();
+        }
     })
 
 // Deno.test("[fetchBlock] with response plain test body",

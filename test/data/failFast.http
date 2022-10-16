@@ -1,5 +1,5 @@
 ###
-# @name fail fast
+# @name ignored
 # @ignore
 
 POST https://faker.deno.dev/pong?quiet=true&status=400

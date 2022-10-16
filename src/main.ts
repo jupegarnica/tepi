@@ -16,6 +16,10 @@ let exitCode = 0;
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
+        default: {
+            watch: false,
+            verbose: false,
+        },
         boolean: ['help', 'verbose', 'failFast', 'watch', 'quiet'],
         alias: {
             h: 'help',
@@ -98,7 +102,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
     const files: File[] = await filePathsToFiles(filePaths);
 
-    const totalBlocks = files.reduce((acc, file) => acc + file.blocks.filter(b => b.request).length, 0);
+    const totalBlocks = files.reduce((acc, file) => acc + file.blocks.filter(b => !!b.request).length, 0);
     let passedBlocks = 0;
     let failedBlocks = 0;
     let runBlocks = 0;
@@ -109,37 +113,39 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         console.info(colors.brightBlue(`\n${relativePath}\n`));
 
         for (const block of file.blocks) {
-            // console.log(block.text);
+            if (!block.request) continue;
             block.meta = {
                 ...defaultMeta,
                 ...block.meta,
             }
-            if (block.meta.ignore) {
-                ignoredBlocks++;
-                continue;
-            }
+            runBlocks++;
+            const text = block.meta?.name as string ||
+                `${block.request?.method} ${block.request?.url}`
 
-            let spinner;
+            const spinner = wait({
 
+                prefix: colors.dim(`${runBlocks}/${totalBlocks}`),
+                text: colors.bold(text),
 
+                color: 'cyan',
+                spinner: 'dots4',
+                interval: 200,
+                discardStdin: true,
+            }).start();
             try {
+
+
+
+                if (block.meta.ignore) {
+                    ignoredBlocks++;
+                    spinner.stopAndPersist({ symbol: '✔', text: colors.dim(text) });
+                    continue;
+                }
+
+
+
                 if (block.request) {
-                    runBlocks++;
-                    const text = block.meta?.name as string ||
-                        `${block.request?.method} ${block.request?.url}`
-                    spinner = wait({
-
-                        prefix: colors.dim(`${runBlocks}/${totalBlocks}`),
-                        text: colors.bold(text),
-
-                        color: 'cyan',
-                        spinner: 'dots4',
-                        interval: 100,
-                        discardStdin: true,
-                    }).start();
-
                     await fetchBlock(block);
-
                 }
                 if (block.response) {
                     assertResponse(block);
@@ -158,6 +164,12 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (block.meta.verbose) {
 
                     await print(block);
+                }
+                if (!block.response?.bodyUsed) {
+                    await block.response?.body?.cancel();
+                }
+                if (!block.actualResponse?.bodyUsed) {
+                    await block.actualResponse?.body?.cancel();
                 }
                 if (failFast && exitCode) {
                     const status = block.actualResponse?.status || 1;
