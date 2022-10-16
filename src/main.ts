@@ -11,6 +11,8 @@ import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { print } from "./print.ts";
 
+let mustExitWithError = false;
+
 if (import.meta.main) {
 
     const args = parse(Deno.args, {
@@ -60,14 +62,11 @@ Options:
 }
 
 async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
-    // console.log('watching', filePaths);
 
     const watcher = Deno.watchFs(filePaths);
     for await (const event of watcher) {
         if (event.kind === 'access') {
             console.clear();
-            // console.count(event.paths.join(' '));
-            // console.log('file changed', event.paths);
             await runner(event.paths, defaultMeta);
         }
     }
@@ -90,7 +89,6 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
         for (const block of file.blocks) {
             // console.log(block.text);
-            let mustExit = false;
             block.meta = {
                 ...defaultMeta,
                 ...block.meta,
@@ -133,15 +131,13 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 console.error(colors.red(error.message));
                 console.error('at:', colors.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
 
-                if (failFast) {
-                    mustExit = true
-                }
+                mustExitWithError = true
             } finally {
                 if (block.meta.verbose) {
 
                     await print(block);
                 }
-                if (mustExit) {
+                if (failFast && mustExitWithError) {
                     const status = block.actualResponse?.status || 1;
                     console.log(colors.red(`\nFAIL FAST: exiting with status ${status}`));
                     Deno.exit(status);
@@ -156,6 +152,9 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         colors.red(`Failed: ${failedBlocks}`),
         colors.yellow(`Total: ${totalBlocks}`),
     );
+    if (mustExitWithError) {
+        Deno.exit(1);
+    }
 
     return files;
 }
