@@ -42,6 +42,7 @@ Options:
 
     -h, --help          output usage information
     -v, --verbose       output http request and response
+    -q, --quiet         do not output http request and response
     -w, --watch         watch files for changes
     -f, --fail-fast     fail on error
 
@@ -63,12 +64,19 @@ Options:
     const filePaths = await globsToFilePaths(globs.split(' '));
     // console.log({args});
 
+    await runner(filePaths, defaultMeta, args.failFast);
     if (args.watch) {
         watchAndRun(filePaths, defaultMeta).catch(console.error);
+        logWatchingPaths(filePaths);
+    } else {
+        Deno.exit(exitCode);
     }
-    await runner(filePaths, defaultMeta, args.failFast);
-    Deno.exit(exitCode);
 
+}
+
+function logWatchingPaths(filePaths: string[]) {
+    console.info(colors.dim('\nWatching for file changes at:'));
+    filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((filePath) => console.info(colors.dim(`  ${filePath}`)));
 }
 
 async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
@@ -76,8 +84,11 @@ async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
     const watcher = Deno.watchFs(filePaths);
     for await (const event of watcher) {
         if (event.kind === 'access') {
+
             console.clear();
             await runner(event.paths, defaultMeta);
+            logWatchingPaths(filePaths);
+
         }
     }
 }
@@ -158,6 +169,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         }
     }
     console.info(
+        '\n',
         colors.green(`Passed: ${passedBlocks}`),
         colors.red(`Failed: ${failedBlocks}`),
         colors.yellow(`Ignored: ${ignoredBlocks}`),

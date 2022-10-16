@@ -3,7 +3,7 @@ GET https://httpbin.org/html
 
 ###
 
-POST https://faker.deno.dev/pong?quite=true&delay=2000
+POST https://faker.deno.dev/pong?quiet=true&delay=2000
 Content-Type: text/plain
 
 hola mundo

@@ -3,7 +3,7 @@
 # @ignore
 # @verbose
 
-POST https://faker.deno.dev/pong
+POST https://faker.deno.dev/pong?quiet=true
 content-type: application/json
 
 {
@@ -20,7 +20,7 @@ content-type: application/json
 # @verbose
 
 
-POST faker.deno.dev/pong?quite=true
+POST faker.deno.dev/pong?quiet=true
 host: faker.deno.dev
 content-type: application/xml
 
