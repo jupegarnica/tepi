@@ -10,27 +10,42 @@ import { extractBody } from "./fetchBlock.ts";
 
 
 export async function print(block: Block): Promise<void> {
-  const { request, actualResponse } = block;
+  const { request, actualResponse, response } = block;
+
   if (!request) {
     return;
   }
   console.group();
+  console.info('');
   console.info(requestToText(request));
   console.info(headersToText(request.headers));
   await printBody(request);
   console.groupEnd();
-  if (!actualResponse) {
-    throw new Error('block.actualResponse is undefined');
+  if (actualResponse) {
+    console.group();
+
+    console.info(responseToText(actualResponse));
+    console.info(headersToText(actualResponse.headers));
+    await printBody(actualResponse);
+    console.groupEnd();
+
+    if (!actualResponse.bodyUsed) {
+      await actualResponse.body?.cancel();
+    }
   }
-  console.group();
+  if (response) {
+    console.group();
+    console.info(colors.dim('----------------------------------------'));
+    console.info(colors.yellow('Expected Response'));
+    console.info(colors.dim('----------------------------------------'));
+    console.info(responseToText(response));
+    console.info(headersToText(response.headers));
+    await printBody(response);
+    console.groupEnd();
 
-  console.info(responseToText(actualResponse));
-  console.info(headersToText(actualResponse.headers));
-  await printBody(actualResponse);
-  console.groupEnd();
-
-  if (!actualResponse.bodyUsed) {
-    await actualResponse.body?.cancel();
+    if (!response.bodyUsed) {
+      await response.body?.cancel();
+    }
   }
 }
 
@@ -40,7 +55,7 @@ export async function print(block: Block): Promise<void> {
 export function requestToText(request: Request): string {
   const method = request.method;
   const url = request.url;
-  return `${colors.bold(`${colors.yellow(method)} ${url}`)}`;
+  return `${colors.brightWhite(`${colors.yellow(method)} ${url}`)}`;
 }
 export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300

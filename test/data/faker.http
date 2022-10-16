@@ -1,5 +1,6 @@
 ###
 # @name= pong asd
+# @ignore
 # @verbose
 
 POST https://faker.deno.dev/pong
@@ -16,7 +17,6 @@ content-type: application/json
 
 ###
 # @name whatever
-# @ignore
 # @verbose
 
 
@@ -28,5 +28,16 @@ content-type: application/xml
     <name>pong asd</name>
     <verbose>true</verbose>
 </xml>
+
+HTTP/1.1 201 OK
+
+
+
+###
+# @name invalid url
+# @verbose
+
+
+POST invalid
 
 HTTP/1.1 201 OK

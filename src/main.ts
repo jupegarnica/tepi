@@ -20,6 +20,8 @@ if (import.meta.main) {
             v: 'verbose',
             w: 'watch',
             t: 'timeout',
+            f: 'failFast',
+            'fail-fast': 'failFast',
 
         },
     })
@@ -32,13 +34,14 @@ Options:
     -h, --help          output usage information
     -v, --verbose       output http request and response
     -w, --watch         watch files for changes
+    -f, --fail-fast     fail on error
 
 // TODO:
-    -f, --fail-fast     fail on error
     -t, --timeout       timeout for requests in ms
     -c, --concurrency   number of concurrent requests
     `
         )
+        Deno.exit(0);
 
     }
     const defaultMeta = {
@@ -47,12 +50,12 @@ Options:
 
     const globs: string = args._.length ? args._.join(' ') : '**/*.http';
     const filePaths = await globsToFilePaths(globs.split(' '));
+    // console.log({args});
 
     if (args.watch) {
         watchAndRun(filePaths, defaultMeta).catch(console.error);
     }
-    console.clear();
-    await runner(filePaths, defaultMeta);
+    await runner(filePaths, defaultMeta, args.failFast);
 
 }
 
@@ -71,7 +74,7 @@ async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
 }
 
 
-export async function runner(filePaths: string[], defaultMeta: Meta): Promise<File[]> {
+export async function runner(filePaths: string[], defaultMeta: Meta, failFast = false): Promise<File[]> {
 
     const files: File[] = await filePathsToFiles(filePaths);
 
@@ -81,14 +84,13 @@ export async function runner(filePaths: string[], defaultMeta: Meta): Promise<Fi
     let runBlocks = 0;
     // TODO SKIPPED BLOCKS
     for (const file of files) {
-        // const commonPath = common([file.path, Deno.cwd()]);
-        // const relativePath = file.path.replace(commonPath, './');
         const relativePath = relative(Deno.cwd(), file.path);
 
         console.info(colors.brightBlue(`\n${relativePath}\n`));
 
         for (const block of file.blocks) {
-
+            // console.log(block.text);
+            let mustExit = false;
             block.meta = {
                 ...defaultMeta,
                 ...block.meta,
@@ -108,7 +110,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta): Promise<Fi
                     spinner = wait({
 
                         prefix: colors.dim(`${runBlocks}/${totalBlocks}`),
-                        text,
+                        text: colors.bold(text),
 
                         color: 'cyan',
                         spinner: 'dots4',
@@ -127,15 +129,24 @@ export async function runner(filePaths: string[], defaultMeta: Meta): Promise<Fi
             } catch (error) {
                 spinner?.fail();
                 failedBlocks++;
-                // TODO handle error AND override error stacktrace to .http file line
-                console.error(error.message);
+                console.error();
+                console.error(colors.red(error.message));
                 console.error('at:', colors.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
-                // wait
+
+                if (failFast) {
+                    mustExit = true
+                }
             } finally {
                 if (block.meta.verbose) {
 
                     await print(block);
                 }
+                if (mustExit) {
+                    const status = block.actualResponse?.status || 1;
+                    console.log(colors.red(`\nFAIL FAST: exiting with status ${status}`));
+                    Deno.exit(status);
+                }
+
             }
         }
     }
