@@ -11,7 +11,7 @@ import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { print } from "./print.ts";
 
-let mustExitWithError = false;
+let exitCode = 0;
 
 if (import.meta.main) {
 
@@ -58,6 +58,7 @@ Options:
         watchAndRun(filePaths, defaultMeta).catch(console.error);
     }
     await runner(filePaths, defaultMeta, args.failFast);
+    Deno.exit(exitCode);
 
 }
 
@@ -131,13 +132,13 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 console.error(colors.red(error.message));
                 console.error('at:', colors.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
 
-                mustExitWithError = true
+                exitCode++;
             } finally {
                 if (block.meta.verbose) {
 
                     await print(block);
                 }
-                if (failFast && mustExitWithError) {
+                if (failFast && exitCode) {
                     const status = block.actualResponse?.status || 1;
                     console.log(colors.red(`\nFAIL FAST: exiting with status ${status}`));
                     Deno.exit(status);
@@ -152,9 +153,5 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         colors.red(`Failed: ${failedBlocks}`),
         colors.yellow(`Total: ${totalBlocks}`),
     );
-    if (mustExitWithError) {
-        Deno.exit(1);
-    }
-
     return files;
 }
