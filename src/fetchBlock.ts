@@ -1,4 +1,3 @@
-// @ts-ignore: it has a highlight named export
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
 import type { _Request, _Response, BodyExtracted, Block } from "./types.ts";

@@ -126,12 +126,19 @@ async function bodyToText({ body, contentType }: BodyExtracted): Promise<string>
 
   if (language) {
 
-    try {
-      return highlight(bodyStr, { language, ignoreIllegals: true });
-    } catch (error) {
-      console.error(language, error.message);
-      throw error;
-    }
+    return highlight(bodyStr);
+    // try {
+
+    //   return highlight(bodyStr, { language, ignoreIllegals: true });
+    // } catch  {
+    //  try {
+    //   // auto detect language
+    //   return highlight(bodyStr);
+    //  } catch{
+    //    return bodyStr
+
+    //  }
+    // }
   }
   if (mimesToText.some(includes)) {
     return bodyStr;

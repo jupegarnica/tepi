@@ -38,7 +38,7 @@ HTTP/1.1 201 OK
 
 
 POST http://faker.deno.dev/pong
-Content-Type: application/yaml
+Content-Type: application/x-yaml
 
 name: pong asd
 verbose: true
