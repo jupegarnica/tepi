@@ -6,8 +6,8 @@ import type { _Request, _Response, BodyExtracted, Block } from "./types.ts";
 
 export async function fetchBlock(
     block: Block
-): Promise<void> {
-    const { request} = block;
+): Promise<Block> {
+    const { request } = block;
     if (!request) {
         throw new Error('block.request is undefined');
     }
@@ -15,7 +15,7 @@ export async function fetchBlock(
 
     const actualResponse: _Response = await promise;
     block.actualResponse = actualResponse;
-
+    return block;
 
 }
 
@@ -70,4 +70,17 @@ export async function extractBody(re: _Response | _Request): Promise<BodyExtract
         return { body, contentType };
     }
     throw new Error("Unknown content type " + contentType);
+}
+
+
+export async function consumeBodies(block: Block): Promise<void> {
+    const promises = [];
+    if (!block.expectedResponse?.bodyUsed) {
+        promises.push(block.expectedResponse?.body?.cancel())
+    }
+    if (!block.actualResponse?.bodyUsed) {
+        promises.push(block.actualResponse?.body?.cancel())
+    }
+    await Promise.all(promises);
+
 }

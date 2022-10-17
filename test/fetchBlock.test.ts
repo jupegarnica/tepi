@@ -1,5 +1,5 @@
 import { assertEquals, assertRejects } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { fetchBlock } from "../src/fetchBlock.ts";
+import { consumeBodies, fetchBlock } from "../src/fetchBlock.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 import { parseBlockText } from "../src/parseBlockText.ts";
 import { Block } from "../src/types.ts";
@@ -18,12 +18,7 @@ Deno.test("[fetchBlock] with expectedResponse and actualResponse",
         await fetchBlock(block);
         assertEquals(block.expectedResponse?.status, 403);
         assertEquals(block.actualResponse?.status, 400);
-        if (!block.expectedResponse?.bodyUsed) {
-            await block.expectedResponse?.body?.cancel();
-        }
-        if (!block.actualResponse?.bodyUsed) {
-            await block.actualResponse?.body?.cancel();
-        }
+        await consumeBodies(block)
 
     })
 
@@ -42,12 +37,7 @@ HTTP/1.1 400 Forbidden
         await fetchBlock(block);
         assertEquals(block.expectedResponse?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
-        if (!block.expectedResponse?.bodyUsed) {
-            await block.expectedResponse?.body?.cancel();
-        }
-        if (!block.actualResponse?.bodyUsed) {
-            await block.actualResponse?.body?.cancel();
-        }
+        await consumeBodies(block)
     })
 
 
@@ -65,58 +55,60 @@ HTTP/1.1 400 Forbidden
         await fetchBlock(block);
         assertEquals(block.expectedResponse?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
-        if (!block.expectedResponse?.bodyUsed) {
-            await block.expectedResponse?.body?.cancel();
-        }
-        if (!block.actualResponse?.bodyUsed) {
-            await block.actualResponse?.body?.cancel();
-        }
+        await consumeBodies(block)
     })
 
-// Deno.test("[fetchBlock] with expectedResponse plain test body",
-//     { ignore: true }, // TODO rethink this test
-//     async () => {
-//         const expectedResponse = await fetchBlock(
-//             `
-// POST http://httpbin.org/text
-// Content-Type: text/plain
+Deno.test("[fetchBlock] with expectedResponse plain test body",
+    async () => {
+        const block = {
+            text: `
+            POST http://httpbin.org/text
+            Content-Type: text/plain
 
-// hola mundo
+            hola mundo
 
-// HTTP/1.1 200 OK
-// Content-Type: text/plain
+            HTTP/1.1 200 OK
+            Content-Type: text/plain
 
-// hola mundo
+            hola mundo
 
-// `);
-//         assertEquals(expectedResponse?.status, 200);
+            `
+        }
+        parseBlockText(block);
+        const { expectedResponse } = await fetchBlock(block);
+        await consumeBodies(block);
+        assertEquals(expectedResponse?.status, 200);
 
-//     })
+    })
 
 
 
-// Deno.test("[fetchBlock] with expectedResponse json body",
-//     // { only: true },
-//     // { ignore: true },
-//     async () => {
-//         const expectedResponse = await fetchBlock(
-//             `
-// POST https://faker.deno.dev/pong?quite=true
-// Content-Type: application/json
+Deno.test("[fetchBlock] with expectedResponse json body",
+    // { only: true },
+    // { ignore: true },
+    async () => {
+        const block: Block = {
+            text: `
+            POST https://faker.deno.dev/pong?quite=true
+            Content-Type: application/json
 
-// {"foo":"bar"}
+            {"foo":"bar"}
 
-// HTTP/1.1 200 OK
-// Content-Type: application/json
+            HTTP/1.1 200 OK
+            Content-Type: application/json
 
-// {"foo":"bar"}
+            {"foo":"bar"}
 
-// `);
-//         // assertEquals(expectedResponse?.bodyRaw, '{"foo":"bar"}');
-//         assertEquals(expectedResponse?.bodyExtracted, { foo: "bar" });
-//         assertEquals(expectedResponse?.status, 200);
+            `
+        }
+        parseBlockText(block);
+        await fetchBlock(block);
+        await consumeBodies(block);
+        assertEquals(block.expectedResponse?.bodyRaw, '{"foo":"bar"}');
+        assertEquals(block.expectedResponse?.status, 200);
+        // assertEquals(block.expectedResponse, block.actualResponse);
 
-//     })
+    })
 
 
 
