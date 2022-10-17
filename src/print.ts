@@ -1,6 +1,6 @@
 import * as colors from "https://deno.land/std@0.158.0/fmt/colors.ts";
 // @ts-ignore ¿?¿ it has a named highlight export
-import { highlight } from "npm:cli-highlight";
+import { highlight, supportsLanguage } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToBlob, mimesToArrayBuffer, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
@@ -125,20 +125,12 @@ async function bodyToText({ body, contentType }: BodyExtracted): Promise<string>
   const language = contentTypeToLanguage(contentType);
 
   if (language) {
+    if (supportsLanguage(language)) {
+      return highlight(bodyStr, { language, ignoreIllegals: true });
+    }
 
     return highlight(bodyStr);
-    // try {
 
-    //   return highlight(bodyStr, { language, ignoreIllegals: true });
-    // } catch  {
-    //  try {
-    //   // auto detect language
-    //   return highlight(bodyStr);
-    //  } catch{
-    //    return bodyStr
-
-    //  }
-    // }
   }
   if (mimesToText.some(includes)) {
     return bodyStr;
