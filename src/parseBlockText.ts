@@ -2,10 +2,16 @@ import { Block, Meta, _Request, _Response } from "./types.ts";
 import { httpMethods } from "./types.ts";
 
 
+const isRequestStartLine = (line: string): boolean => httpMethods.some(method => line.trim().startsWith(method));
 
-export function parseBlockText(block: Block): Block {
-  const txt = block.text || '';
-  const lines: string[] = txt.replaceAll('\r', '\n').split("\n");
+const isResponseStartLine = (line: string): boolean => line.trim().startsWith('HTTP/');
+
+const isHeaderLine = (line: string): boolean => !!line.trim().match(/^[^:]+:\s*[^:]+$/);
+
+
+export function parseBlockTextOLD(block: Block): Block {
+  const text = block.text || '';
+  const lines: string[] = text.replaceAll('\r', '\n').split("\n");
 
   let url = '';
   const init: RequestInit = {
@@ -155,9 +161,156 @@ export function parseBlockText(block: Block): Block {
   return block;
 }
 
+export function parseBlockText(block: Block): Block {
+  block.request = parseRequestFromText(block.text);
+  block.meta = parseMetaFromText(block.text);
+  block.expectedResponse = parseResponseFromText(block.text);
+
+  return block
+}
+
+export function parseMetaFromText(text = ''): Meta  {
+  const meta: Meta = {};
+  const lines: string[] = text.replaceAll('\r', '\n').split("\n");
+
+  const requestStartLine = lines.findIndex(isRequestStartLine);
+  if (requestStartLine === -1) return meta;
+  for (let i = 0; i < requestStartLine; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed.startsWith('#')) {
+      const clean = trimmed.replace(/^#+\s*/g, '');
+      if (!clean) continue;
+      let key = clean.match(/^@\w+/)?.[0] || '';
+      if (key) {
+        let value: string | boolean = clean.replace(key, '').replace('=', '').trim();
+        key = key.replace('@', '');
+        if (!value) value = true;
+        if (value === 'true') value = true;
+        if (value === 'false') value = false;
+        meta[key] = value;
+      }
+    }
+  }
+  return meta;
+
+}
 
 
-// export function parseRequestFromBlockText(block: Block): Block {
-//   const { request } = parseBlockText(block);
-//   return request;
-// }
+
+export function parseRequestFromText(text = ''): _Request | undefined {
+
+  const lines: string[] = text.replaceAll('\r', '\n').split("\n");
+  const requestStartLine = lines.findIndex(isRequestStartLine);
+  if (requestStartLine === -1) {
+    return;
+  }
+  let requestEndLine = lines.findIndex(isResponseStartLine, requestStartLine);
+  if (requestEndLine === -1) requestEndLine = lines.length;
+  let url = '';
+  const headers: Headers = new Headers();
+  const requestInit: RequestInit = {}
+  const meta: Meta = {};
+  let lookingFor = 'url';
+
+  for (let i = requestStartLine; i < requestEndLine; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed.startsWith('###')) {
+      break;
+    }
+    if (lookingFor !== 'body' && trimmed.startsWith('#')) {
+      continue;
+    }
+
+
+    if (lookingFor === 'url' && isRequestStartLine(line)) {
+      const [method, _url] = trimmed.split(" ");
+
+      requestInit.method = method;
+      url = _url;
+      if (!url.match(/^https?:\/\//)) {
+        url = `http://${url}`;
+      }
+      lookingFor = 'headers';
+      continue;
+    }
+    if (lookingFor === 'headers' && isHeaderLine(line)) {
+      const [key, value] = trimmed.split(":")
+      headers.set(key, value);
+      continue;
+    }
+    if (lookingFor === 'headers' && !isHeaderLine(line)) {
+      lookingFor = 'body';
+    }
+    if (lookingFor === 'body') {
+      requestInit.body = (requestInit.body || '') + '\n' + line;
+    }
+
+
+  }
+  requestInit.body = (requestInit.body as string || '').trim();
+  if (requestInit.body === '') {
+    requestInit.body = null;
+  }
+  requestInit.headers = headers;
+
+  const request: _Request = new Request(url, requestInit);
+  request.bodyRaw = requestInit.body;
+  return request
+
+
+}
+
+
+export function parseResponseFromText(text = ''): _Response | undefined {
+  const lines: string[] = text.replaceAll('\r', '\n').split("\n");
+  const responseInit: ResponseInit = {};
+  const headers = new Headers();
+  let responseBody: BodyInit | null = '';
+
+  const statusLine = lines.findIndex(isResponseStartLine);
+  if (statusLine === -1) return;
+
+  let lookingFor = 'status';
+  for (let i = statusLine; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('###')) {
+      break;
+    }
+    if (lookingFor !== 'body' && trimmed.startsWith('#')) {
+      continue;
+    }
+    if (lookingFor === 'status' && isResponseStartLine(line)) {
+      const [, status, ...statusText] = trimmed.split(' ');
+      responseInit.status = parseInt(status);
+      responseInit.statusText = statusText.join(' ');
+      lookingFor = 'headers';
+      continue;
+    }
+    if (lookingFor === 'headers' && isHeaderLine(line)) {
+      const [key, value] = trimmed.split(":")
+      headers.set(key, value);
+      continue;
+    }
+    if (lookingFor !== 'body' && !trimmed) {
+      if (lookingFor === 'headers') {
+        lookingFor = 'body';
+      }
+      continue;
+    }
+    if (lookingFor === 'body') {
+      responseBody += '\n' + line;
+      continue;
+    }
+  }
+
+  responseInit.headers = headers;
+  responseBody = responseBody.trim();
+  responseBody ||= null;
+  const response: _Response = new Response(responseBody, responseInit);
+  response.bodyRaw = responseBody;
+  return response;
+}

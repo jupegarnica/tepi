@@ -1,9 +1,5 @@
 
 export type Meta = {
-    hideBody?: boolean;
-    hideHeaders?: boolean;
-    hideRequest?: boolean;
-    hideResponse?: boolean;
     [key: string]: string | boolean | undefined;
 }
 
