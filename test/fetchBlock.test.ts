@@ -112,44 +112,23 @@ Deno.test("[fetchBlock] with expectedResponse json body",
 
 
 
-// Deno.test("[fetchBlock] run empty block",
-//     // { only: true },
-//     // { ignore: true },
-//     async () => {
-//         const expectedResponse = await fetchBlock(``);
-//         assertEquals(expectedResponse, undefined);
+Deno.test("[fetchBlock] run block with request must throw error",
+    { only: true },
+    // { ignore: true },
+    async () => {
+        await assertRejects(async () => {
+            await fetchBlock({text:''})
+        })
 
-//     })
-
-
-
+    })
 
 
-// Deno.test("[fetchBlock] with response json body throws",
-//     // { only: true },
-//     async () => {
-//         await assertRejects(async () => {
-//             await fetchBlock(
-//                 `
-//     POST https://faker.deno.dev/pong?quite=true
-//     Content-Type: application/json
 
-//     {"foo":"bar"}
-
-//     HTTP/1.1 200 OK
-//     Content-Type: application/json
-
-//     {"hey":"bar"}
-
-//     `);
-//         });
-
-//     })
-
+// TODO rethink this
 
 // Deno.test("[fetchBlock] with response json body contains",
 //     // { only: true },
-//     // { ignore: true },
+//     { ignore: true },
 //     async () => {
 //         const response = await fetchBlock(
 //             `
