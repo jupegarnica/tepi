@@ -8,12 +8,12 @@ Deno.test("[fileTextToBlocks]",
     // { only: true },
     () => {
         const blocks = fileTextToBlocks(
-`
+            `
 GET http://faker.deno.dev
 ###
 GET http://faker.deno.dev
-    `
-    );
+    `, 'test.http'
+        );
         assertEquals(blocks.length, 2);
         assertEquals(blocks[0].startLine, 0);
         assertEquals(blocks[0].endLine, 2);
@@ -24,7 +24,7 @@ GET http://faker.deno.dev
 
 
 Deno.test("[fileTextToBlocks]", () => {
-    const blocks = fileTextToBlocks(`###`);
+    const blocks = fileTextToBlocks(`###`, 'test.http');
     assertEquals(blocks.length, 1);
     assertEquals(blocks[0].startLine, 0);
     assertEquals(blocks[0].endLine, 0);

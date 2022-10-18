@@ -1,11 +1,10 @@
 import { Block } from "./types.ts";
-import { parseBlockText } from "./parseBlockText.ts";
 
 
 
 
 
-export function fileTextToBlocks(txt: string): Block[] {
+export function fileTextToBlocks(txt: string, filePath: string): Block[] {
 
   const blocks: Block[] = [];
   const lines = txt.replaceAll('\r', '\n').split("\n");
@@ -23,6 +22,7 @@ export function fileTextToBlocks(txt: string): Block[] {
         text: currentBlockText,
         startLine: blockStartLine,
         endLine: blockEndLine,
+        filePath ,
       };
       blocks.push(block);
       currentBlockText = '';
@@ -35,6 +35,7 @@ export function fileTextToBlocks(txt: string): Block[] {
         text: currentBlockText,
         startLine: blockStartLine,
         endLine: blockEndLine,
+        filePath ,
       };
       blocks.push(block);
     }

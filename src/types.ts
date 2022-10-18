@@ -25,12 +25,12 @@ export type BodyExtracted = { body: unknown; contentType: string }
 export type Block = {
     text?: string;
     request?: _Request;
-    // response?: _Response;
     expectedResponse?: _Response;
     actualResponse?: _Response;
     meta?: Meta;
     startLine?: number;
     endLine?: number;
+    filePath?: string;
 };
 
 

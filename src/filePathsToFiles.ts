@@ -8,7 +8,7 @@ export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
 
   for(const filePath of filePaths) {
     const fileContent = await Deno.readTextFile(filePath);
-    const blocks = fileTextToBlocks(fileContent);
+    const blocks = fileTextToBlocks(fileContent, filePath);
     files.push({ path: filePath, blocks });
   }
 
