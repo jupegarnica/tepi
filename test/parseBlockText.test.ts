@@ -298,7 +298,6 @@ mundo
 
 
 Deno.test("[parseBlockText meta] with metadata ",
-    { only: true },
     () => {
         const block = {
             text: `
