@@ -80,7 +80,7 @@ Options:
 
 function logWatchingPaths(filePaths: string[]) {
     console.info(colors.dim('\nWatching for file changes at:'));
-    filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((filePath) => console.info(colors.dim(`  ${filePath}`)));
+    filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((filePath) => console.info(colors.cyan(`  ${filePath}`)));
 }
 
 async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
