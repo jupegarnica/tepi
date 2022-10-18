@@ -210,7 +210,6 @@ export function parseRequestFromText(text = ''): _Request | undefined {
   let url = '';
   const headers: Headers = new Headers();
   const requestInit: RequestInit = {}
-  const meta: Meta = {};
   let lookingFor = 'url';
 
   for (let i = requestStartLine; i < requestEndLine; i++) {

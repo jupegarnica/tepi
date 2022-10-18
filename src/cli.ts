@@ -10,6 +10,7 @@ import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { print } from "./print.ts";
+import { parseMetaFromText, parseRequestFromText, parseResponseFromText } from "./parseBlockText.ts";
 
 let exitCode = 0;
 
@@ -113,7 +114,6 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         console.info(colors.brightBlue(`\n${relativePath}\n`));
 
         for (const block of file.blocks) {
-            if (!block.request) continue;
             block.meta = {
                 ...defaultMeta,
                 ...block.meta,
@@ -142,11 +142,16 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                     continue;
                 }
 
+                block.request = parseRequestFromText(block.text);
+                block.meta = parseMetaFromText(block.text);
+
 
 
                 if (block.request) {
                     await fetchBlock(block);
                 }
+                block.expectedResponse = parseResponseFromText(block.text);
+
                 if (block.expectedResponse) {
                     assertResponse(block);
                 }

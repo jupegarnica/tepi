@@ -1,8 +1,5 @@
-GET https://httpbin.org/html
 
-
-###
-
+# @boolean
 POST https://faker.deno.dev/pong?quiet=true&delay=2000
 Content-Type: text/plain
 
@@ -12,5 +9,3 @@ HTTP/1.1 200 OK
 Content-Type: text/plain
 
 hola mundo
-
-###
