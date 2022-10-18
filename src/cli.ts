@@ -162,7 +162,6 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 exitCode++;
             } finally {
                 if (block.meta.verbose) {
-
                     await print(block);
                 }
                 if (!block.expectedResponse?.bodyUsed) {

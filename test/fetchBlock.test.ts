@@ -113,7 +113,7 @@ Deno.test("[fetchBlock] with expectedResponse json body",
 
 
 Deno.test("[fetchBlock] run block with request must throw error",
-    { only: true },
+    // { only: true },
     // { ignore: true },
     async () => {
         await assertRejects(async () => {

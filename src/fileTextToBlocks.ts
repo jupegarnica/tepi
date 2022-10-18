@@ -24,7 +24,6 @@ export function fileTextToBlocks(txt: string): Block[] {
         startLine: blockStartLine,
         endLine: blockEndLine,
       };
-      parseBlockText(block);
       blocks.push(block);
       currentBlockText = '';
       blockStartLine = i + 1;
@@ -37,7 +36,6 @@ export function fileTextToBlocks(txt: string): Block[] {
         startLine: blockStartLine,
         endLine: blockEndLine,
       };
-      parseBlockText(block);
       blocks.push(block);
     }
   }

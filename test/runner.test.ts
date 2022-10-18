@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { runner } from "../src/main.ts";
+import { runner } from "../src/cli.ts";
 
 
 

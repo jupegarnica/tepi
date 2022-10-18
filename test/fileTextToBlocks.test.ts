@@ -29,12 +29,3 @@ Deno.test("[fileTextToBlocks]", () => {
     assertEquals(blocks[0].startLine, 0);
     assertEquals(blocks[0].endLine, 0);
 })
-
-
-
-Deno.test("[fileTextToBlocks] must have request", () => {
-    const blocks = fileTextToBlocks(`GET https://faker.deno.dev`);
-    assertEquals(blocks.length, 1);
-    assertEquals(blocks[0].request?.url, 'https://faker.deno.dev/');
-    assertEquals(blocks[0].request?.method, 'GET');
-})
