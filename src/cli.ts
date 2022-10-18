@@ -103,10 +103,10 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
     const files: File[] = await filePathsToFiles(filePaths);
 
-    const totalBlocks = files.reduce((acc, file) => acc + file.blocks.filter(b => !!b.request).length, 0);
+    // const totalBlocks = files.reduce((acc, file) => acc + file.blocks.filter(b => !!b.request).length, 0);
     let passedBlocks = 0;
     let failedBlocks = 0;
-    let runBlocks = 0;
+    let totalBlocks = 0;
     let ignoredBlocks = 0;
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
@@ -114,17 +114,20 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         console.info(colors.brightBlue(`\n${relativePath}\n`));
 
         for (const block of file.blocks) {
+            block.request = parseRequestFromText(block.text);
+            block.meta = parseMetaFromText(block.text);
+
             block.meta = {
                 ...defaultMeta,
                 ...block.meta,
             }
-            runBlocks++;
+            totalBlocks++;
             const text = block.meta?.name as string ||
                 `${block.request?.method} ${block.request?.url}`
 
             const spinner = wait({
 
-                prefix: colors.dim(`${runBlocks}/${totalBlocks}`),
+                // prefix: colors.dim(`${runBlocks}/${totalBlocks}`),
                 text: colors.bold(text),
 
                 color: 'cyan',
@@ -138,13 +141,9 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                 if (block.meta.ignore) {
                     ignoredBlocks++;
-                    spinner.stopAndPersist({ symbol: '✔', text: colors.dim(text) });
+                    spinner.stopAndPersist({ symbol: colors.yellow('ignore'), text: colors.dim(text) });
                     continue;
                 }
-
-                block.request = parseRequestFromText(block.text);
-                block.meta = parseMetaFromText(block.text);
-
 
 
                 if (block.request) {
