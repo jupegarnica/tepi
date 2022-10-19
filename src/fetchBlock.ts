@@ -25,15 +25,17 @@ export async function extractBody(re: _Response | _Request): Promise<_Response |
 
     if (re.bodyUsed) {
 
-        const requestExtracted =
-            mimesToJSON.some((ct) => contentType.includes(ct))
-                ? JSON.parse(re.bodyRaw as string)
-                : re.bodyRaw;
+        if (re.bodyRaw) {
 
-        if (requestExtracted) {
+            const requestExtracted =
+                mimesToJSON.some((ct) => contentType.includes(ct))
+                    ? JSON.parse(re.bodyRaw as string)
+                    : re.bodyRaw;
             re.bodyExtracted = requestExtracted;
+            return re;
         }
-        return re;
+        return re
+
     }
     if (!contentType) {
         re.bodyExtracted = undefined;

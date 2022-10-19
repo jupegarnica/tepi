@@ -6,7 +6,6 @@ export type Meta = {
 export interface _Request extends Request {
     bodyRaw?: BodyInit | null;
     bodyExtracted?: unknown;
-    httpText?: string;
 }
 
 export interface _Response extends Response {
@@ -14,6 +13,8 @@ export interface _Response extends Response {
     bodyExtracted?: unknown;
     httpText?: string;
 }
+
+
 
 export type BodyExtracted = { body: unknown; contentType: string }
 

@@ -1,9 +1,26 @@
+# @ignore
 POST faker.deno.dev/pong?quiet=true
 Content-Type: application/json
+x-powered-by: Deno
 
 { "message":"pong", "quiet":true }
 
 HTTP/1.1 200 OK
 Content-Type: application/json
+x-powered-by: Deno
 
-{ "message":"pong", "quiet":true }
+
+{
+ "message":"pong",
+ "quiet": true
+ }
+
+###
+
+POST faker.deno.dev/pong?quiet=true
+
+holaaa
+
+HTTP/1.1 200 OK
+
+<%= Deno.inspect(response.bodyExtracted) %>

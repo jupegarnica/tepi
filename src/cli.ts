@@ -176,7 +176,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                 await fetchBlock(block);
 
-                block.expectedResponse = await parseResponseFromText(block.text, { ...block });
+                block.expectedResponse = await parseResponseFromText(block.text, { ...block, response: block.actualResponse });
                 if (block.expectedResponse) {
                     await assertResponse(block);
                 }

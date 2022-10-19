@@ -21,7 +21,6 @@ Deno.test("[assertResponse] with expectedResponse throws error checking statusTe
     const expectedResponse = new Response(null, { status: 400, statusText: 'Bad Request' });
     const actualResponse = new Response(null, { status: 400, statusText: 'Forbidden' });
     assertThrows(() => {
-
         assertResponse({
             expectedResponse,
             actualResponse,
