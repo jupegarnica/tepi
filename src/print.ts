@@ -1,4 +1,4 @@
-import * as colors from "https://deno.land/std@0.158.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 // @ts-ignore ¿?¿ it has a named highlight export
 import { highlight, supportsLanguage } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
@@ -9,13 +9,13 @@ import { extractBody } from "./fetchBlock.ts";
 
 
 
-export async function print(block: Block): Promise<void> {
+export async function printHttpText(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse } = block;
-  if (block.meta?.quiet) {
-    return
-  }
   if (!request) {
     return;
+  }
+  if (block.meta?.displayIndex as number < 2) {
+    return
   }
   console.group();
   console.info('');
@@ -31,47 +31,53 @@ export async function print(block: Block): Promise<void> {
     await printBody(actualResponse);
     console.groupEnd();
 
-    if (!actualResponse.bodyUsed) {
-      await actualResponse.body?.cancel();
-    }
   }
   if (expectedResponse) {
     console.group();
-    console.info(colors.dim('----------------------------------------'));
-    console.info(colors.yellow('Expected Response'));
-    console.info(colors.dim('----------------------------------------'));
+    console.info(fmt.dim('----------------------------------------'));
+    console.info(fmt.yellow('Expected Response'));
+    console.info(fmt.dim('----------------------------------------'));
     console.info(responseToText(expectedResponse));
     console.info(headersToText(expectedResponse.headers));
     await printBody(expectedResponse);
     console.groupEnd();
 
-    if (!expectedResponse.bodyUsed) {
-      await expectedResponse.body?.cancel();
-    }
   }
 }
 
+
+export function printError(block: Block): void {
+  const error = block.error;
+  if (!error) return;
+  if (block.meta?.displayIndex as number < 1) return;
+
+  const relativePath = block.meta?.relativePath;
+  console.error(fmt.red(`----------`));
+  console.error(fmt.brightRed(`Error at ${block.description}`));
+  console.error('At:', fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
+  console.error('Message:\n',fmt.white(error?.message));
+}
 
 
 
 export function requestToText(request: Request): string {
   const method = request.method;
   const url = request.url;
-  return `${colors.brightWhite(`${colors.yellow(method)} ${url}`)}`;
+  return `${fmt.brightWhite(`${fmt.yellow(method)} ${url}`)}`;
 }
 export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
-    ? colors.green
+    ? fmt.green
     : response.status >= 300 && response.status < 400
-      ? colors.yellow
+      ? fmt.yellow
       : response.status >= 400 && response.status < 500
-        ? colors.red
-        : colors.bgRed;
+        ? fmt.red
+        : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
 
-  return `${colors.dim(`HTTP/1.1`)} ${colors.bold(`${status} ${statusText}`)}`;
+  return `${fmt.dim(`HTTP/1.1`)} ${fmt.bold(`${status} ${statusText}`)}`;
 
 
 }
@@ -86,7 +92,7 @@ export function headersToText(headers: Headers): string {
     maxLengthValue = Math.max(maxLengthValue, value.length);
   }
   for (const [key, value] of headers.entries()) {
-    result += (`${colors.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${colors.dim(value.padEnd(maxLengthValue + 1))}\n`);
+    result += (`${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(value.padEnd(maxLengthValue + 1))}\n`);
   }
 
   return result;

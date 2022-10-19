@@ -1,6 +1,6 @@
 
 export type Meta = {
-    [key: string]: string | boolean | undefined;
+    [key: string]: number | string | boolean | undefined;
 }
 
 export interface _Request extends Request {
@@ -20,6 +20,7 @@ export type BodyExtracted = { body: unknown; contentType: string }
 
 export type Block = {
     text?: string;
+    description?: string;
     request?: _Request;
     expectedResponse?: _Response;
     actualResponse?: _Response;
@@ -27,6 +28,7 @@ export type Block = {
     startLine?: number;
     endLine?: number;
     filePath?: string;
+    error?: Error;
 };
 
 
