@@ -120,14 +120,17 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     let totalBlocks = 0;
     let ignoredBlocks = 0;
     const blocksWithErrors: Block[] = [];
+    const fullSpinner = wait({ text: 'Running tests...' })
 
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
 
-        if ((defaultMeta?.displayIndex as number)  >= 1) {
+        if ((defaultMeta?.displayIndex as number) >= 1) {
             console.info(fmt.dim(`${relativePath}`));
+        } else {
+            fullSpinner.start();
+            fullSpinner.text = fmt.dim(`${relativePath}`);
         }
-
         for (const block of file.blocks) {
 
             block.request = parseRequestFromText(block.text);
@@ -159,8 +162,6 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 spinner = {
                     start: noop,
                     stopAndPersist: noop,
-                    succeed: noop,
-                    fail: noop,
                 }
             }
 
@@ -169,7 +170,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                 if (block.meta.ignore) {
                     ignoredBlocks++;
-                    spinner.stopAndPersist({ symbol: fmt.yellow('-') });
+                    spinner.stopAndPersist({ symbol: fmt.yellow('-'), text: fmt.yellow(block.description) });
                     continue;
                 }
 
@@ -179,12 +180,12 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (block.expectedResponse) {
                     assertResponse(block);
                 }
-                spinner.succeed();
+                spinner.stopAndPersist({ symbol: fmt.green('✔') });
                 passedBlocks++;
             } catch (error) {
                 block.error = error;
                 blocksWithErrors.push(block);
-                spinner.fail();
+                spinner.stopAndPersist({ symbol: fmt.brightRed('✖'), text: fmt.red(block.description) });
                 failedBlocks++;
                 exitCode++;
             } finally {
@@ -200,7 +201,10 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 }
 
             }
+
         }
+
+        fullSpinner.stopAndPersist();
     }
     blocksWithErrors.forEach(printError);
 
