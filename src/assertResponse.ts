@@ -24,6 +24,7 @@ export async function assertResponse(block: Block) {
     assertEquals(expectedResponse.status, actualResponse.status);
   if (expectedResponse.statusText)
     assertEquals(expectedResponse.statusText, actualResponse.statusText);
+
   if (expectedResponse.bodyExtracted) {
     if (typeof expectedResponse.bodyExtracted === 'object' && typeof actualResponse.bodyExtracted === 'object') {
       assertObjectMatch(
