@@ -100,18 +100,20 @@ export function headersToText(headers: Headers): string {
 
 }
 export async function printBody(re: _Response | _Request): Promise<void> {
-  const { body, contentType } = await extractBody(re);
+  await extractBody(re);
 
   // console.log('re.constructor.name', re.constructor.name);
   // console.log('re.bodyExtracted', re.bodyExtracted);
   // console.log('re. bodyRaw', re.bodyRaw);
-  console.info(await bodyToText({ body, contentType }), '\n');
+  console.info(await bodyToText(re), '\n');
 
 }
 
 
 
-async function bodyToText({ body, contentType }: BodyExtracted): Promise<string> {
+async function bodyToText(re: _Request | _Response): Promise<string> {
+  const body = re.bodyExtracted;
+  const contentType = re.headers.get('content-type') || '';
   if (!contentType || !body)
     return '';
 

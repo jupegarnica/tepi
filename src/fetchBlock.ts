@@ -1,6 +1,6 @@
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
-import type { _Request, _Response, BodyExtracted, Block } from "./types.ts";
+import type { _Request, _Response, Block } from "./types.ts";
 
 
 
@@ -11,20 +11,17 @@ export async function fetchBlock(
     if (!request) {
         throw new Error('block.request is undefined');
     }
-    const promise = fetch(request);
-
-    const actualResponse: _Response = await promise;
+    const actualResponse: _Response = await fetch(request);
     block.actualResponse = actualResponse;
     return block;
 
 }
 
 
-export async function extractBody(re: _Response | _Request): Promise<BodyExtracted> {
+export async function extractBody(re: _Response | _Request): Promise<_Response | _Request> {
 
     const contentType = re.headers.get("content-type") || "";
     const includes = (ct: string) => contentType.includes(ct);
-
 
     if (re.bodyUsed) {
 
@@ -36,38 +33,36 @@ export async function extractBody(re: _Response | _Request): Promise<BodyExtract
         if (requestExtracted) {
             re.bodyExtracted = requestExtracted;
         }
-        return { body: re.bodyExtracted, contentType };
+        return re;
     }
     if (!contentType) {
-
-        const body = undefined;
-        re.bodyExtracted = body;
-        return { body, contentType };
+        re.bodyExtracted = undefined;
+        return re;
     }
     if (mimesToArrayBuffer.some(includes)) {
         const body = await re.arrayBuffer();
         re.bodyExtracted = body;
-        return { body, contentType };
+        return re;
     }
     if (mimesToText.some(includes)) {
         const body = await re.text();
         re.bodyExtracted = body;
-        return { body, contentType };
+        return re;
     }
     if (mimesToJSON.some(includes)) {
         const body = await re.json();
         re.bodyExtracted = body;
-        return { body, contentType };
+        return re;
     }
     if (mimesToBlob.some(includes)) {
         const body = await re.blob();
         re.bodyExtracted = body;
-        return { body, contentType };
+        return re;
     }
     if (mimesToFormData.some(includes)) {
         const body = await re.formData();
         re.bodyExtracted = body;
-        return { body, contentType };
+        return re;
     }
     throw new Error("Unknown content type " + contentType);
 }

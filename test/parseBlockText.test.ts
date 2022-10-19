@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
-import { parseBlockText, parseRequestFromText } from "../src/parseBlockText.ts";
+import { parseBlockText } from "../src/parseBlockText.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 Deno.env.get('NO_LOG') && stub(console, 'info')
 

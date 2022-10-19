@@ -1,0 +1,9 @@
+POST faker.deno.dev/pong?quiet=true
+Content-Type: application/json
+
+{ "message":"pong", "quiet":true }
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{ "message":"pong", "quiet":true }

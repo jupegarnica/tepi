@@ -27,11 +27,10 @@ Deno.test("[runner] must have found request, expected response, meta and actualR
 Deno.test('[runner] interpolation',
     { only: true },
     async () => {
-        const files = await runner(['test/data/interpolate.http'], { displayIndex: 2 });
+        const files = await runner(['test/data/interpolate.http'], { displayIndex: 0 });
         const firstBlock = files[0].blocks[0];
 
         assertEquals(firstBlock.expectedResponse?.headers.get('content-type'), 'text/plain;charset=UTF-8');
-        assertEquals(firstBlock.actualResponse?.bodyRaw, 'Hola Garn!');
         assertEquals(firstBlock.actualResponse?.bodyExtracted, 'Hola Garn!');
         const secondBlock = files[0].blocks[1];
         assertEquals(secondBlock.actualResponse?.bodyExtracted, 'pong');

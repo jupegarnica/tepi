@@ -1,7 +1,8 @@
 import { Block, _Response } from "./types.ts";
 import { assertEquals, assertObjectMatch } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { extractBody } from "./fetchBlock.ts";
 
-export function assertResponse(block: Block) {
+export async function assertResponse(block: Block) {
 
 
   const { expectedResponse, actualResponse } = block;
@@ -10,6 +11,13 @@ export function assertResponse(block: Block) {
   }
   if (!actualResponse) {
     throw new Error('block.actualResponse is undefined');
+  }
+
+  if (!expectedResponse.bodyUsed) {
+    await extractBody(expectedResponse);
+  }
+  if (!actualResponse.bodyUsed) {
+    await extractBody(actualResponse);
   }
 
   if (expectedResponse.status)

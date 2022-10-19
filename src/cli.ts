@@ -178,7 +178,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                 block.expectedResponse = await parseResponseFromText(block.text, { ...block });
                 if (block.expectedResponse) {
-                    assertResponse(block);
+                    await assertResponse(block);
                 }
                 spinner.stopAndPersist({ symbol: fmt.green('✔') });
                 passedBlocks++;
