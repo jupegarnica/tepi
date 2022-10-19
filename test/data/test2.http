@@ -1,6 +1,6 @@
 
 # @boolean
-POST https://faker.deno.dev/pong?quiet=true&delay=2000
+POST https://faker.deno.dev/pong?quiet=true&delay=200
 Content-Type: text/plain
 
 hola mundo
