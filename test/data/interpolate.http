@@ -1,0 +1,16 @@
+# @data garn
+
+POST https://faker.deno.dev/pong?quiet=true
+x-data: <%= meta.data %>
+
+hola <%= meta.data %>!
+
+HTTP/1.1 200 OK
+content-type: <%= request.headers.get("content-type") %>
+
+Hola Garn!
+
+###
+
+GET https://faker.deno.dev/pong?quiet=true
+x-data: <%= meta.data %>

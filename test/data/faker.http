@@ -1,14 +1,12 @@
 ###
 # @name= pong asd
 # @ignore
-# @verbose
 
 POST https://faker.deno.dev/pong?quiet=true
 content-type: application/json
 
 {
-    "name": "pong asd",
-    "verbose": true
+    "name": "pong asd"
 }
 
 HTTP/1.1 200 OK
@@ -34,14 +32,12 @@ HTTP/1.1 201 OK
 
 ###
 # @name yaml
-# @verbose
 
 
 POST http://faker.deno.dev/pong
 Content-Type: application/x-yaml
 
 name: pong asd
-verbose: true
 list:
     - 1
     - 2

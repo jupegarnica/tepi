@@ -14,7 +14,7 @@ Deno.test("[fetchBlock] with expectedResponse and actualResponse",
 
         HTTP/1.1 403 Forbidden
         `}
-        parseBlockText(block);
+        await parseBlockText(block);
         await fetchBlock(block);
         assertEquals(block.expectedResponse?.status, 403);
         assertEquals(block.actualResponse?.status, 400);
@@ -33,7 +33,7 @@ GET http://httpbin.org/status/400
 
 HTTP/1.1 400 Forbidden
 `}
-        parseBlockText(block);
+        await parseBlockText(block);
         await fetchBlock(block);
         assertEquals(block.expectedResponse?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
@@ -51,7 +51,7 @@ GET http://httpbin.org/status/400
 
 HTTP/1.1 400 Forbidden
 `}
-        parseBlockText(block);
+        await parseBlockText(block);
         await fetchBlock(block);
         assertEquals(block.expectedResponse?.statusText, 'Forbidden');
         assertEquals(block.actualResponse?.statusText, 'Bad Request');
@@ -74,7 +74,7 @@ Deno.test("[fetchBlock] with expectedResponse plain test body",
 
             `
         }
-        parseBlockText(block);
+        await parseBlockText(block);
         const { expectedResponse } = await fetchBlock(block);
         await consumeBodies(block);
         assertEquals(expectedResponse?.status, 200);
@@ -101,7 +101,7 @@ Deno.test("[fetchBlock] with expectedResponse json body",
 
             `
         }
-        parseBlockText(block);
+        await parseBlockText(block);
         await fetchBlock(block);
         await consumeBodies(block);
         assertEquals(block.expectedResponse?.bodyRaw, '{"foo":"bar"}');

@@ -1,7 +1,6 @@
 ###
 # @name ignored
 # @ignore
-
 POST https://faker.deno.dev/pong?quiet=true&status=400
 content-type: application/json
 
@@ -13,14 +12,8 @@ content-type: application/json
 HTTP/1.1 203 OK
 
 
-
-
-
 ###
 # @name invalid url
-# @verbose
-
-
 POST invalid
 
 HTTP/1.1 201 OK

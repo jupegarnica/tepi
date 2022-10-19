@@ -120,7 +120,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     let totalBlocks = 0;
     let ignoredBlocks = 0;
     const blocksWithErrors: Block[] = [];
-    const fullSpinner = wait({ text: 'Running tests...' })
+    const fullSpinner = wait({ text: '' })
 
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
@@ -133,10 +133,10 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         }
         for (const block of file.blocks) {
 
-            block.request = parseRequestFromText(block.text);
+            block.meta = await parseMetaFromText(block.text, { ...block });
+            block.request = await parseRequestFromText(block.text, { ...block });
             if (!block.request) continue;
 
-            block.meta = parseMetaFromText(block.text);
 
             block.meta = {
                 ...defaultMeta,
@@ -176,7 +176,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                 await fetchBlock(block);
 
-                block.expectedResponse = parseResponseFromText(block.text);
+                block.expectedResponse = await parseResponseFromText(block.text, { ...block });
                 if (block.expectedResponse) {
                     assertResponse(block);
                 }
