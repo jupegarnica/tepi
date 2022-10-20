@@ -15,7 +15,6 @@ HTTP/1.1 200 OK
 ###
 # @name xml
 
-
 POST https://faker.deno.dev/pong
 log-level: critical
 host: faker.deno.dev

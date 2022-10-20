@@ -1,4 +1,4 @@
-import { parse } from "https://deno.land/std@0.159.0/flags/mod.ts"
+import { type Args, parse } from "https://deno.land/std@0.159.0/flags/mod.ts"
 import { filePathsToFiles } from "./filePathsToFiles.ts";
 import type { Meta, File, Block } from './types.ts'
 import { consumeBodies, fetchBlock } from './fetchBlock.ts'
@@ -18,12 +18,13 @@ let exitCode = 0;
 
 if (import.meta.main) {
 
-    const args = parse(Deno.args, {
+    const args: Args = parse(Deno.args, {
         default: {
-            watch: false,
             display: 'minimal',
+            help: false,
         },
-        boolean: ['help', 'failFast', 'watch'],
+        collect: ['watch'],
+        boolean: ['help', 'failFast'],
         alias: {
             h: 'help',
             w: 'watch',
@@ -61,51 +62,65 @@ Options:
         Deno.exit(0);
 
     }
+
     const displays = [
         'none',
         'minimal',
         'full',
     ];
-    const displayIndex = displays.indexOf(args.display as string);
-
-    if (displayIndex === -1) {
-        console.error(`Invalid display mode: ${args.display}`);
+    const defaultMeta: Meta = {
+        display: args.display as string,
+        get displayIndex(): number { return displays.indexOf(this.display as string); },
+    }
+    if (defaultMeta.displayIndex === -1) {
+        console.error(`Invalid display mode: ${args.display}. Must be one of: ${displays.join(', ')}`);
         Deno.exit(1);
     }
 
-    const defaultMeta: Meta = {
-        display: args.display as string,
-        displayIndex,
-    }
 
     const globs: string = args._.length ? args._.join(' ') : '**/*.http';
-    const filePaths = await globsToFilePaths(globs.split(' '));
-    // console.log({args});
+    const filePathsToRun = await globsToFilePaths(globs.split(' '));
 
-    await runner(filePaths, defaultMeta, args.failFast);
+    await runner(filePathsToRun, defaultMeta, args.failFast);
     if (args.watch) {
-        watchAndRun(filePaths, defaultMeta).catch(console.error);
-        logWatchingPaths(filePaths);
+        const filePathsToJustWatch = await globsToFilePaths(args.watch.filter((i: boolean | string) => typeof i === 'string'));
+        watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta).catch(console.error);
     } else {
         Deno.exit(exitCode);
     }
 
 }
 
-function logWatchingPaths(filePaths: string[]) {
-    console.info(fmt.dim('\nWatching for file changes at:'));
+function logWatchingPaths(filePaths: string[], filePathsToJustWatch: string[]) {
+    console.info(fmt.dim('\nWatching and Running tests from:'));
     filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((filePath) => console.info(fmt.cyan(`  ${filePath}`)));
+    if (filePathsToJustWatch.length) {
+        console.info(fmt.dim('\nRerun when changes from:'));
+        filePathsToJustWatch.map((filePath) => relative(Deno.cwd(), filePath)).forEach((filePath) => console.info(fmt.cyan(`  ${filePath}`)));
+    }
 }
 
-async function watchAndRun(filePaths: string[], defaultMeta: Meta) {
+async function watchAndRun(filePaths: string[], filePathsToJustWatch: string[], defaultMeta: Meta) {
+    const allFilePaths = filePaths.concat(filePathsToJustWatch);
+    const watcher = Deno.watchFs(allFilePaths);
+    logWatchingPaths(filePaths, filePathsToJustWatch);
 
-    const watcher = Deno.watchFs(filePaths);
     for await (const event of watcher) {
         if (event.kind === 'access') {
+            if (filePathsToJustWatch.includes(event.paths[0])) {
+                // run all
+                console.clear();
+                await runner(filePaths, defaultMeta);
+                logWatchingPaths(filePaths, filePathsToJustWatch);
 
-            console.clear();
-            await runner(event.paths, defaultMeta);
-            logWatchingPaths(filePaths);
+            } else {
+
+                // run just this file
+                console.clear();
+                await runner(event.paths, defaultMeta);
+                logWatchingPaths(filePaths, filePathsToJustWatch);
+
+            }
 
         }
     }
