@@ -12,6 +12,9 @@ import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { printBlock, printError } from "./print.ts";
 import { parseMetaFromText, parseRequestFromText, parseResponseFromText } from "./parseBlockText.ts";
 
+import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
+
+
 let exitCode = 0;
 
 
@@ -107,7 +110,7 @@ async function watchAndRun(filePaths: string[], filePathsToJustWatch: string[], 
 
     for await (const event of watcher) {
         if (event.kind === 'access') {
-            if (filePathsToJustWatch.includes(event.paths[0])) {
+            if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
                 // run all
                 console.clear();
                 await runner(filePaths, defaultMeta);
@@ -132,7 +135,6 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     const files: File[] = await filePathsToFiles(filePaths);
     let passedBlocks = 0;
     let failedBlocks = 0;
-    let totalBlocks = 0;
     let ignoredBlocks = 0;
     const blocksWithErrors: Block[] = [];
     const fullSpinner = wait({ text: '' })
@@ -147,18 +149,21 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
             fullSpinner.text = fmt.dim(`${relativePath}`);
         }
         for (const block of file.blocks) {
-
-            block.meta = await parseMetaFromText(block.text, { ...block });
-            block.request = await parseRequestFromText(block, { ...block });
-            if (!block.request) continue;
-
-
-            block.meta = {
-                ...defaultMeta,
-                ...block.meta,
-            }
+            block.meta ??= {};
             block.meta.relativePath = relativePath;
-            totalBlocks++;
+
+            try {
+                const meta = await parseMetaFromText(block.text, { ...block, ...assertions });
+                block.meta = { ...defaultMeta, ...block.meta, ...meta };
+                block.request = await parseRequestFromText(block, { ...block, ...assertions });
+            } catch (error) {
+                block.error = error;
+                blocksWithErrors.push(block);
+                failedBlocks++;
+                continue;
+            }
+
+            if (!block.request) continue;
             block.description = block.meta?.name as string
                 || `${block.request?.method} ${block.request?.url}`
 
@@ -190,8 +195,43 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 }
 
                 await fetchBlock(block);
+                await block.actualResponse?.extractBody()
 
-                block.expectedResponse = await parseResponseFromText(block.text, { ...block, response: block.actualResponse });
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('bodyExtracted',block.actualResponse?.bodyExtracted);
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+                // console.log('-------------------------');
+
+
+
+
+                block.expectedResponse = await parseResponseFromText(
+                    block.text,
+                    {
+                        ...block,
+                        response: block.actualResponse,
+                        ...assertions
+                    });
                 if (block.expectedResponse) {
                     await assertResponse(block);
                 }
@@ -202,13 +242,11 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 blocksWithErrors.push(block);
                 spinner.stopAndPersist({ symbol: fmt.brightRed('✖'), text: fmt.red(block.description) });
                 failedBlocks++;
-                exitCode++;
             } finally {
-
                 await printBlock(block);
                 await consumeBodies(block);
 
-                if (failFast && exitCode) {
+                if (failFast && failedBlocks) {
                     blocksWithErrors.forEach(printError);
                     const status = block.actualResponse?.status || 1;
                     console.log(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
@@ -222,20 +260,15 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         fullSpinner.stopAndPersist();
     }
     blocksWithErrors.forEach(printError);
+    exitCode = failedBlocks;
 
-    const statusText = exitCode ? fmt.bgBrightRed(' FAIL ') : fmt.bgBrightGreen(' PASS ');
+    const statusText = exitCode ? fmt.bgRed(' FAIL ') : fmt.bgBrightGreen(' PASS ');
 
-    // console.info(
-    //     `\nPassed:`.padEnd(9), `${fmt.green(String(passedBlocks))}`,
-    //     `\nFailed:`.padEnd(9), `${fmt.red(String(failedBlocks))}`,
-    //     `\nIgnored:`.padEnd(9), `${fmt.yellow(String(ignoredBlocks))}`,
-    //     `\nTotal:`.padEnd(9), `${fmt.white(String(totalBlocks))}`,
-    // )
-
+    const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
+    console.info()
     console.info(
-        fmt.bold(`${statusText}`),
+        (fmt.bold(`${statusText}`)),
         `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(passedBlocks))} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))} ignored`,
     )
-    console.info()
     return files;
 }

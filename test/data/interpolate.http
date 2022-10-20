@@ -13,3 +13,11 @@ Hola Garn!
 ###
 GET https://faker.deno.dev/pong?quiet=true
 x-data: <%= meta.ignore %>
+
+###
+# @name must fail
+
+GET https://faker.deno.dev/pong
+quiet: true
+
+<% assert(false, 'ups') %>

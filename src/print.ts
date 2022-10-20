@@ -71,7 +71,8 @@ export function printError(block: Block): void {
   if (block.meta?.displayIndex as number < 1) return;
 
   const relativePath = block.meta?.relativePath;
-  console.error(fmt.brightRed(`Error at ${block.description}`));
+  console.error(fmt.bold(fmt.brightRed(`Error`)));
+  block.description && console.error(fmt.brightRed(block.description));
   console.error(fmt.dim('At:\n'), fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
   console.error(fmt.dim('Message:\n'), fmt.white(error?.message));
   // error?.stack && console.error(fmt.dim('Trace:\n'), fmt.dim(error?.stack));

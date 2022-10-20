@@ -1,5 +1,8 @@
+# @host https://faker.deno.dev
+
+###
 # @ignore
-POST faker.deno.dev/pong?quiet=true
+POST /pong?quiet=true
 Content-Type: application/json
 x-powered-by: Deno
 
@@ -17,10 +20,10 @@ x-powered-by: Deno
 
 ###
 
-POST faker.deno.dev/pong?quiet=true
+POST /pong?quiet=true
 
 holaaa
 
 HTTP/1.1 200 OK
 
-<%= Deno.inspect(response.bodyExtracted) %>
+<%= assertEquals(response.bodyExtracted, "holaaa") %>
