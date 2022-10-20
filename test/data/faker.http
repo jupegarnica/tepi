@@ -17,7 +17,8 @@ HTTP/1.1 200 OK
 # @verbose
 
 
-POST faker.deno.dev/pong?quiet=true
+POST https://faker.deno.dev/pong
+log-level: critical
 host: faker.deno.dev
 content-type: application/xml
 
@@ -35,6 +36,7 @@ HTTP/1.1 201 OK
 
 
 POST http://faker.deno.dev/pong
+x-quiet: true
 Content-Type: application/x-yaml
 
 name: pong asd

@@ -26,10 +26,9 @@ export class _Response extends Response implements ResponseInterface {
         super(body, init);
         this.bodyRaw = body;
     }
-    extractBody(): Promise<unknown> {
-        if (this.bodyUsed)
-            return Promise.resolve(this.#bodyExtracted);
-        return extractBody(this);
+    async extractBody(): Promise<void> {
+        if (this.bodyUsed) return;
+        await extractBody(this);
     }
     get bodyExtracted() {
         return this.#bodyExtracted;
@@ -47,10 +46,9 @@ export class _Request extends Request implements RequestInterface {
         super(input, init);
         this.bodyRaw = init?.body;
     }
-    extractBody(): Promise<unknown> {
-        if (this.#bodyExtracted)
-            return Promise.resolve(this.#bodyExtracted);
-        return extractBody(this);
+    async extractBody(): Promise<void> {
+        if (this.bodyUsed) return;
+        await extractBody(this);
     }
 
     get bodyExtracted() {

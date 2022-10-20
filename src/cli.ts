@@ -180,7 +180,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (block.expectedResponse) {
                     await assertResponse(block);
                 }
-                spinner.stopAndPersist({ symbol: fmt.green('✔') });
+                spinner.stopAndPersist({ symbol: fmt.green('✔'), text: fmt.green(block.description) });
                 passedBlocks++;
             } catch (error) {
                 block.error = error;
@@ -208,12 +208,19 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     }
     blocksWithErrors.forEach(printError);
 
+    const statusText = exitCode ? fmt.bgBrightRed(' FAIL ') : fmt.bgBrightGreen(' PASS ');
+
+    // console.info(
+    //     `\nPassed:`.padEnd(9), `${fmt.green(String(passedBlocks))}`,
+    //     `\nFailed:`.padEnd(9), `${fmt.red(String(failedBlocks))}`,
+    //     `\nIgnored:`.padEnd(9), `${fmt.yellow(String(ignoredBlocks))}`,
+    //     `\nTotal:`.padEnd(9), `${fmt.white(String(totalBlocks))}`,
+    // )
+
     console.info(
-        '\n',
-        fmt.green(`Passed: ${passedBlocks}`),
-        fmt.red(`Failed: ${failedBlocks}`),
-        fmt.yellow(`Ignored: ${ignoredBlocks}`),
-        fmt.white(`Total: ${totalBlocks}`)
+        fmt.bold(`${statusText}`),
+        `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(passedBlocks))} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))} ignored`,
     )
+    console.info()
     return files;
 }
