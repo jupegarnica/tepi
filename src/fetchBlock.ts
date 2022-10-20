@@ -24,19 +24,17 @@ export async function extractBody(re: _Response | _Request): Promise<_Response |
     const contentType = re.headers.get("content-type") || "";
     const includes = (ct: string) => contentType.includes(ct);
 
-    // if (re.bodyUsed) {
-
-    //     if (typeof re.bodyRaw === "string") {
-    //         const requestExtracted =
-    //             mimesToJSON.some((ct) => contentType.includes(ct))
-    //                 ? JSON.parse(re.bodyRaw as string)
-    //                 : re.bodyRaw;
-    //         re.bodyExtracted = requestExtracted;
-    //         return re;
-    //     }
-    //     return re
-
-    // }
+    if (re.bodyUsed) {
+        if (typeof re.bodyRaw === "string") {
+            const requestExtracted =
+                mimesToJSON.some((ct) => contentType.includes(ct))
+                    ? JSON.parse(re.bodyRaw as string)
+                    : re.bodyRaw;
+            re.bodyExtracted = requestExtracted;
+            return re;
+        }
+        return re
+    }
     if (!contentType) {
         re.bodyExtracted = undefined;
         return re;

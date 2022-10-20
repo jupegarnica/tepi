@@ -8,8 +8,16 @@ import { _Request, _Response, Block } from "./types.ts";
 import { extractBody } from "./fetchBlock.ts";
 
 
+function printTitle(title: string, fmtMethod = 'blue') {
+  // @ts-ignore TODO fix this
+  const titleStr = fmt[fmtMethod](title) as string
+  const separator = fmt.dim('-'.repeat(titleStr.length - 9));
+  console.info(separator);
+  console.info(titleStr);
+  console.info(separator);
+}
 
-export async function printHttpText(block: Block): Promise<void> {
+export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error } = block;
   if (!request) {
     return;
@@ -22,9 +30,7 @@ export async function printHttpText(block: Block): Promise<void> {
   }
   console.group();
   console.info('');
-  console.info(fmt.dim('------------------------'));
-  console.info(fmt.blue('⬇   Request    ⬇'));
-  console.info(fmt.dim('------------------------'));
+  printTitle('⬇   Request    ⬇');
 
   console.info(requestToText(request));
   console.info(headersToText(request.headers));
@@ -32,9 +38,7 @@ export async function printHttpText(block: Block): Promise<void> {
   console.groupEnd();
   if (actualResponse) {
     console.group();
-    console.info(fmt.dim('------------------------'));
-    console.info(fmt.blue('⬇   Response   ⬇'));
-    console.info(fmt.dim('------------------------'));
+    printTitle('⬇   Response   ⬇');
 
     console.info(responseToText(actualResponse));
     console.info(headersToText(actualResponse.headers));
@@ -44,9 +48,7 @@ export async function printHttpText(block: Block): Promise<void> {
   }
   if (expectedResponse) {
     console.group();
-    console.info(fmt.dim('--------------------------'));
-    console.info(fmt.blue('⬇   Expected Response   ⬇'));
-    console.info(fmt.dim('--------------------------'));
+    printTitle('⬇   Expected Response   ⬇');
     console.info(responseToText(expectedResponse));
     console.info(headersToText(expectedResponse.headers));
     await printBody(expectedResponse);
@@ -55,10 +57,8 @@ export async function printHttpText(block: Block): Promise<void> {
   }
   if (error) {
     console.group();
-    console.info(fmt.dim('------------------------'));
-    console.info(fmt.red('⬇   Error   ⬇'));
-    console.info(fmt.dim('------------------------'));
-    console.info(error.message);
+    printTitle('⬇   Error   ⬇', 'red');
+    printError(block);
     console.groupEnd();
   }
 }
@@ -70,10 +70,9 @@ export function printError(block: Block): void {
   if (block.meta?.displayIndex as number < 1) return;
 
   const relativePath = block.meta?.relativePath;
-  console.error(fmt.red(`----------`));
   console.error(fmt.brightRed(`Error at ${block.description}`));
-  console.error('At:', fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
-  console.error('Message:\n', fmt.white(error?.message));
+  console.error(fmt.dim('At:\n'), fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
+  console.error(fmt.dim('Message:\n'), fmt.white(error?.message));
 }
 
 

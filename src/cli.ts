@@ -9,7 +9,7 @@ import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
-import { printHttpText, printError } from "./print.ts";
+import { printBlock, printError } from "./print.ts";
 import { parseMetaFromText, parseRequestFromText, parseResponseFromText } from "./parseBlockText.ts";
 
 let exitCode = 0;
@@ -190,7 +190,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 exitCode++;
             } finally {
 
-                await printHttpText(block);
+                await printBlock(block);
                 await consumeBodies(block);
 
                 if (failFast && exitCode) {
