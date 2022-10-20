@@ -22,7 +22,7 @@ const isHeaderLine = (line: string): boolean => !!line.trim().match(/^[^:]+:\s*[
 
 // export function parseBlockTextOLD(block: Block): Block {
 //   const text = block.text || '';
-//   const lines: string[] = text.replaceAll('\r', '\n').split("\n");
+//   const lines: string[] = splitLines(text);
 
 //   let url = '';
 //   const init: RequestInit = {
@@ -181,14 +181,14 @@ export async function parseBlockText(block: Block): Promise<Block> {
 
 export async function parseMetaFromText(textRaw = '', dataToInterpolate = {}): Promise<Meta> {
   const meta: Meta = {};
-  let lines: string[] = textRaw.replaceAll('\r', '\n').split("\n");
+  let lines: string[] = splitLines(textRaw);
 
   const requestStartLine = lines.findIndex(isRequestStartLine);
 
   const metaText = lines.slice(0, requestStartLine).join("\n");
   const text = await renderTemplate(metaText, dataToInterpolate) || '';
 
-  lines = text.replaceAll('\r', '\n').split("\n");
+  lines = splitLines(text);
   if (requestStartLine === -1) return meta;
   for (let i = 0; i < requestStartLine; i++) {
     const line = lines[i];
@@ -211,11 +211,14 @@ export async function parseMetaFromText(textRaw = '', dataToInterpolate = {}): P
 
 }
 
+function splitLines(text: string): string[] {
+  return text.replaceAll('\r', '\n').split("\n");
+}
 
-
-export async function parseRequestFromText(textRaw = '', dataToInterpolate = {}): Promise<_Request | undefined> {
-
-  const linesRaw: string[] = textRaw.replaceAll('\r', '\n').split("\n");
+export async function parseRequestFromText(block: Block, dataToInterpolate = {}): Promise<_Request | undefined> {
+  const textRaw = block.text || '';
+  const meta = block.meta;
+  const linesRaw: string[] = splitLines(textRaw);
   const requestStartLine = linesRaw.findIndex(isRequestStartLine);
   if (requestStartLine === -1) {
     return;
@@ -227,12 +230,30 @@ export async function parseRequestFromText(textRaw = '', dataToInterpolate = {})
   const requestText = linesRaw.slice(requestStartLine, requestEndLine).join("\n");
 
   const text = await renderTemplate(requestText, dataToInterpolate) || '';
-  const lines = text.replaceAll('\r', '\n').split("\n");
+  const lines = splitLines(text);
 
 
   let url = '';
   const headers: Headers = new Headers();
-  const requestInit: RequestInit = {}
+  const requestInit: RequestInit = {
+    method: 'GET',
+    mode: 'cors',
+    credentials: 'same-origin',
+    cache: 'default',
+    redirect: 'follow',
+    referrer: 'client',
+    referrerPolicy: 'no-referrer-when-downgrade',
+    integrity: '',
+    keepalive: false,
+    signal: undefined,
+  }
+
+
+  for (const key in meta) {
+    if (key in requestInit) {
+      requestInit[key as keyof RequestInit] = meta[key];
+    }
+  }
   let lookingFor = 'url';
 
   for (const line of lines) {
@@ -286,7 +307,7 @@ export async function parseRequestFromText(textRaw = '', dataToInterpolate = {})
 
 
 export async function parseResponseFromText(textRaw = '', dataToInterpolate = {}): Promise<_Response | undefined> {
-  const linesRaw: string[] = textRaw.replaceAll('\r', '\n').split("\n");
+  const linesRaw: string[] = splitLines(textRaw);
   const responseInit: ResponseInit = {};
   const headers = new Headers();
   let responseBody: BodyInit | null = '';
@@ -296,7 +317,7 @@ export async function parseResponseFromText(textRaw = '', dataToInterpolate = {}
 
   const responseText = linesRaw.slice(statusLine).join("\n");
   const text = await renderTemplate(responseText, dataToInterpolate) || '';
-  const lines = text.replaceAll('\r', '\n').split("\n");
+  const lines = splitLines(text);
 
   let lookingFor = 'status';
   for (const line of lines) {

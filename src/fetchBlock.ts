@@ -7,33 +7,16 @@ import { _Response, type _Request, type Block } from "./types.ts";
 export async function fetchBlock(
     block: Block
 ): Promise<Block> {
-    const { request, meta } = block;
+    const { request } = block;
     if (!request) {
         throw new Error('block.request is undefined');
     }
-    const init: RequestInit = {
-        method: request.method || 'GET',
-        headers: request.headers,
-        body: request.body,
-        mode: request.mode || 'cors',
-        credentials: request.credentials || 'same-origin',
-        cache: request.cache || 'default',
-        redirect: request.redirect || 'follow',
-        referrer: request.referrer || 'client',
-        referrerPolicy: request.referrerPolicy || 'no-referrer-when-downgrade',
-        integrity: request.integrity || '',
-        keepalive: request.keepalive || false,
-        signal: request.signal || undefined,
-    }
 
-    for (const key in meta) {
-        if (key in init) {
-            init[key as keyof RequestInit] = meta[key];
-        }
-    }
-    const response = await fetch(request, init);
+
+    const response = await fetch(request);
     const actualResponse = _Response.fromResponse(response);
     block.actualResponse = actualResponse;
+
     return block;
 
 }

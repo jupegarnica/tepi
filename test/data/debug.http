@@ -1,0 +1,15 @@
+# @redirect follow
+POST http://faker.deno.dev/pong
+x-quiet: true
+Content-Type: application/x-yaml
+
+name: pong asd
+list:
+    - 1
+    - 2
+    - 3
+obj: {a: 1, b: 2}
+
+
+
+HTTP/1.1 200 OK

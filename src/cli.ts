@@ -134,7 +134,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         for (const block of file.blocks) {
 
             block.meta = await parseMetaFromText(block.text, { ...block });
-            block.request = await parseRequestFromText(block.text, { ...block });
+            block.request = await parseRequestFromText(block, { ...block });
             if (!block.request) continue;
 
 

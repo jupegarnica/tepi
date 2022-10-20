@@ -73,6 +73,8 @@ export function printError(block: Block): void {
   console.error(fmt.brightRed(`Error at ${block.description}`));
   console.error(fmt.dim('At:\n'), fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
   console.error(fmt.dim('Message:\n'), fmt.white(error?.message));
+  error?.stack && console.error(fmt.dim('Trace:\n'), fmt.dim(error?.stack));
+  error?.cause && console.error(fmt.dim('Cause:\n'), fmt.dim(String(error?.cause)));
 }
 
 

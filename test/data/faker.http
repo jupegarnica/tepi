@@ -1,5 +1,5 @@
 ###
-# @name= pong asd
+# @name= json
 
 
 POST https://faker.deno.dev/pong?quiet=true
@@ -13,7 +13,7 @@ HTTP/1.1 200 OK
 
 
 ###
-# @name whatever
+# @name xml
 
 
 POST https://faker.deno.dev/pong
@@ -52,5 +52,6 @@ HTTP/1.1 200 OK
 
 ###
 # @redirect manual
+# @name redirect
 GET https://faker.deno.dev/image/avatar
 log-level: critical
