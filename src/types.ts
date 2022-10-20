@@ -27,7 +27,7 @@ export class _Response extends Response implements ResponseInterface {
         this.bodyRaw = body;
     }
     extractBody(): Promise<unknown> {
-        if (this.#bodyExtracted)
+        if (this.bodyUsed)
             return Promise.resolve(this.#bodyExtracted);
         return extractBody(this);
     }
