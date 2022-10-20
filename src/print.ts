@@ -4,14 +4,17 @@ import { highlight, supportsLanguage } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToBlob, mimesToArrayBuffer, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
-import { _Request, _Response, BodyExtracted, Block } from "./types.ts";
+import { _Request, _Response, Block } from "./types.ts";
 import { extractBody } from "./fetchBlock.ts";
 
 
 
 export async function printHttpText(block: Block): Promise<void> {
-  const { request, actualResponse, expectedResponse } = block;
+  const { request, actualResponse, expectedResponse, error } = block;
   if (!request) {
+    return;
+  }
+  if (block.meta?.ignore) {
     return;
   }
   if (block.meta?.displayIndex as number < 2) {
@@ -19,12 +22,19 @@ export async function printHttpText(block: Block): Promise<void> {
   }
   console.group();
   console.info('');
+  console.info(fmt.dim('------------------------'));
+  console.info(fmt.blue('⬇   Request    ⬇'));
+  console.info(fmt.dim('------------------------'));
+
   console.info(requestToText(request));
   console.info(headersToText(request.headers));
   await printBody(request);
   console.groupEnd();
   if (actualResponse) {
     console.group();
+    console.info(fmt.dim('------------------------'));
+    console.info(fmt.blue('⬇   Response   ⬇'));
+    console.info(fmt.dim('------------------------'));
 
     console.info(responseToText(actualResponse));
     console.info(headersToText(actualResponse.headers));
@@ -34,14 +44,22 @@ export async function printHttpText(block: Block): Promise<void> {
   }
   if (expectedResponse) {
     console.group();
-    console.info(fmt.dim('----------------------------------------'));
-    console.info(fmt.yellow('Expected Response'));
-    console.info(fmt.dim('----------------------------------------'));
+    console.info(fmt.dim('--------------------------'));
+    console.info(fmt.blue('⬇   Expected Response   ⬇'));
+    console.info(fmt.dim('--------------------------'));
     console.info(responseToText(expectedResponse));
     console.info(headersToText(expectedResponse.headers));
     await printBody(expectedResponse);
     console.groupEnd();
 
+  }
+  if (error) {
+    console.group();
+    console.info(fmt.dim('------------------------'));
+    console.info(fmt.red('⬇   Error   ⬇'));
+    console.info(fmt.dim('------------------------'));
+    console.info(error.message);
+    console.groupEnd();
   }
 }
 
@@ -55,7 +73,7 @@ export function printError(block: Block): void {
   console.error(fmt.red(`----------`));
   console.error(fmt.brightRed(`Error at ${block.description}`));
   console.error('At:', fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
-  console.error('Message:\n',fmt.white(error?.message));
+  console.error('Message:\n', fmt.white(error?.message));
 }
 
 
@@ -112,7 +130,10 @@ export async function printBody(re: _Response | _Request): Promise<void> {
 
 
 async function bodyToText(re: _Request | _Response): Promise<string> {
+  if (!re.bodyUsed) await re.extractBody();
+
   const body = re.bodyExtracted;
+
   const contentType = re.headers.get('content-type') || '';
   if (!contentType || !body)
     return '';
