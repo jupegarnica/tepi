@@ -1,6 +1,6 @@
 ###
 # @name= pong asd
-# @ignore
+
 
 POST https://faker.deno.dev/pong?quiet=true
 content-type: application/json
@@ -14,7 +14,6 @@ HTTP/1.1 200 OK
 
 ###
 # @name whatever
-# @verbose
 
 
 POST https://faker.deno.dev/pong
@@ -49,3 +48,9 @@ obj: {a: 1, b: 2}
 
 
 HTTP/1.1 200 OK
+
+
+###
+# @redirect manual
+GET https://faker.deno.dev/image/avatar
+log-level: critical
