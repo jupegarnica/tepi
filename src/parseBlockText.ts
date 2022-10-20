@@ -1,9 +1,6 @@
-import { Block, Meta } from "./types.ts";
-import { httpMethods } from "./types.ts";
+import type { Block, Meta } from "./types.ts";
+import { httpMethods, _Request, _Response } from "./types.ts";
 import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts"
-import { extractBody } from "./fetchBlock.ts";
-
-
 
 async function renderTemplate(template: string, data: Record<string, unknown>) {
   const result = await eta.render(
@@ -341,33 +338,4 @@ export async function parseResponseFromText(textRaw = '', dataToInterpolate = {}
   responseBody ||= null;
   const response: _Response = new _Response(responseBody, responseInit);
   return response;
-}
-
-
-export class _Response extends Response {
-  bodyRaw?: BodyInit | null;
-  #bodyExtracted?: unknown;
-  constructor(body?: BodyInit | null | undefined, init?: ResponseInit) {
-    super(body, init);
-    this.bodyRaw = body;
-  }
-  extractBody(): Promise<unknown> {
-    if (this.#bodyExtracted) return Promise.resolve(this.#bodyExtracted);
-    return extractBody(this);
-  }
-
-}
-
-export class _Request extends Request {
-  bodyRaw?: BodyInit | null;
-  #bodyExtracted?: unknown;
-  constructor(input: RequestInfo, init?: RequestInit) {
-    super(input, init);
-    this.bodyRaw = init?.body;
-  }
-  extractBody(): Promise<unknown> {
-    if (this.#bodyExtracted) return Promise.resolve(this.#bodyExtracted);
-    return extractBody(this);
-  }
-
 }

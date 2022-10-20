@@ -1,18 +1,72 @@
 
+import { extractBody } from "./fetchBlock.ts";
+
+export interface RequestInterface extends Request {
+    bodyRaw?: BodyInit | null;
+    bodyExtracted?: unknown;
+    extractBody?: () => Promise<unknown>;
+}
+
+export interface ResponseInterface extends Response {
+    bodyRaw?: BodyInit | null;
+    bodyExtracted?: unknown;
+    extractBody?: () => Promise<unknown>;
+}
+
+export class _Response extends Response implements ResponseInterface {
+    bodyRaw?: BodyInit | null;
+    #bodyExtracted?: unknown;
+
+    static fromResponse(response: Response): _Response {
+        const _response = new _Response(response.body, response);
+        _response.bodyRaw = response.body;
+        return _response;
+    }
+    constructor(body?: BodyInit | null | undefined, init?: ResponseInit) {
+        super(body, init);
+        this.bodyRaw = body;
+    }
+    extractBody(): Promise<unknown> {
+        if (this.#bodyExtracted)
+            return Promise.resolve(this.#bodyExtracted);
+        return extractBody(this);
+    }
+    get bodyExtracted() {
+        return this.#bodyExtracted;
+    }
+    set bodyExtracted(value) {
+        this.#bodyExtracted = value;
+    }
+
+}
+
+export class _Request extends Request implements RequestInterface {
+    bodyRaw?: BodyInit | null;
+    #bodyExtracted?: unknown;
+    constructor(input: RequestInfo, init?: RequestInit) {
+        super(input, init);
+        this.bodyRaw = init?.body;
+    }
+    extractBody(): Promise<unknown> {
+        if (this.#bodyExtracted)
+            return Promise.resolve(this.#bodyExtracted);
+        return extractBody(this);
+    }
+
+    get bodyExtracted() {
+        return this.#bodyExtracted;
+    }
+    set bodyExtracted(value) {
+        this.#bodyExtracted = value;
+    }
+
+}
+
+
 export type Meta = {
     [key: string]: number | string | boolean | undefined;
 }
 
-export interface _Request extends Request {
-    bodyRaw?: BodyInit | null;
-    bodyExtracted?: unknown;
-}
-
-export interface _Response extends Response {
-    bodyRaw?: BodyInit | null;
-    bodyExtracted?: unknown;
-    httpText?: string;
-}
 
 
 

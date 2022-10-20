@@ -1,6 +1,6 @@
 import { mimesToBlob, mimesToArrayBuffer, mimesToJSON, mimesToText, mimesToFormData } from "./mimes.ts";
 
-import type { _Request, _Response, Block } from "./types.ts";
+import { _Response, type _Request, type Block } from "./types.ts";
 
 
 
@@ -11,7 +11,8 @@ export async function fetchBlock(
     if (!request) {
         throw new Error('block.request is undefined');
     }
-    const actualResponse: _Response = await fetch(request);
+    const response = await fetch(request);
+    const actualResponse = _Response.fromResponse(response);
     block.actualResponse = actualResponse;
     return block;
 

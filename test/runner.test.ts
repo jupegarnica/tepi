@@ -31,7 +31,7 @@ Deno.test('[runner] interpolation',
         const firstBlock = files[0].blocks[0];
 
         assertEquals(firstBlock.expectedResponse?.headers.get('content-type'), 'text/plain;charset=UTF-8');
-        assertEquals(firstBlock.actualResponse?.bodyExtracted, 'Hola Garn!');
+        assertEquals(await firstBlock.actualResponse?.extractBody(), 'Hola Garn!');
         const secondBlock = files[0].blocks[1];
-        assertEquals(secondBlock.actualResponse?.bodyExtracted, 'pong');
+        assertEquals(await secondBlock.actualResponse?.extractBody(), 'pong');
     });
