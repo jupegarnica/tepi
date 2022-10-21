@@ -64,13 +64,26 @@ Deno.test('[runner] asserts ',
 
 
 
-// Deno.test('[runner] host meta data',
-//     // { only: true },
-//     async () => {
-//         const files = await runner(['test/data/assert.http'], { displayIndex: 0 });
-//         const firstBlock = files[0].blocks[0];
+Deno.test('[runner] host meta data',
+    { only: true },
+    async () => {
+        const files = await runner(['test/data/host.http'], { displayIndex: 0 });
 
-//         assertEquals(firstBlock.request?.url, 'https://faker.deno.dev');
+        const firstBlock = files[0].blocks[0];
+        assertEquals(firstBlock.meta?.host, 'https://faker.deno.dev/');
 
+        const secondBlock = files[0].blocks[1];
+        assertEquals(secondBlock.request?.url, 'https://faker.deno.dev/pong?quiet=true');
 
-//     });
+        const thirdBlock = files[0].blocks[2];
+        assertEquals(thirdBlock.request?.url, 'https://faker.deno.dev/');
+
+        const fourthBlock = files[0].blocks[3];
+        assertEquals(fourthBlock.request?.url, 'https://faker.deno.dev/ping');
+
+        const fifthBlock = files[0].blocks[4];
+        assertEquals(fifthBlock.request?.url, 'http://httpbin.org/get');
+
+        const sixthBlock = files[0].blocks[5];
+        assertEquals(sixthBlock.request?.url, 'http://httpbin.org/post');
+    });

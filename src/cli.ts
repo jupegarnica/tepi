@@ -166,7 +166,8 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
             try {
                 const meta = await parseMetaFromText(block.text, { ...block, ...assertions });
-                block.meta = { ...defaultMeta, ...globalMeta, ...block.meta, ...meta };
+                block.meta = { ...defaultMeta,...block.meta, ...globalMeta , ...meta };
+
                 block.request = await parseRequestFromText(block, { ...block, ...assertions });
             } catch (error) {
                 block.error = error;
@@ -241,7 +242,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (failFast && failedBlocks) {
                     blocksWithErrors.forEach(printError);
                     const status = block.actualResponse?.status || 1;
-                    console.log(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
+                    console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
                     Deno.exit(status);
                 }
 

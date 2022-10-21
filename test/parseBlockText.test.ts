@@ -29,6 +29,16 @@ Deno.test("[parseBlockText request] with headers", async () => {
 })
 
 
+Deno.test("[parseBlockText request] with headers not body", async () => {
+    const block = {
+        text: `GET http://faker.deno.dev HTTP/1.1
+        Host: http://faker.deno.dev`}
+    const { request } = await parseBlockText(block);
+    assertEquals(request?.bodyRaw, null);
+    assertEquals(request?.headers.get('host'), "http://faker.deno.dev");
+})
+
+
 Deno.test("[parseBlockText request] with headers and comments", async () => {
     const block = {
         text:
