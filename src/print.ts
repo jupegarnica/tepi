@@ -25,7 +25,7 @@ export async function printBlock(block: Block): Promise<void> {
   if (block.meta?.ignore) {
     return;
   }
-  if (block.meta?.displayIndex as number < 2) {
+  if (block.meta?.displayIndex as number < 3) {
     return
   }
   console.group();
@@ -68,7 +68,7 @@ export async function printBlock(block: Block): Promise<void> {
 export function printError(block: Block): void {
   const error = block.error;
   if (!error) return;
-  if (block.meta?.displayIndex as number < 1) return;
+  if (block.meta?.displayIndex as number < 2) return;
 
   const relativePath = block.meta?.relativePath;
   console.error(fmt.bold(fmt.brightRed(`Error`)));

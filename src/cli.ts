@@ -23,7 +23,7 @@ if (import.meta.main) {
 
     const args: Args = parse(Deno.args, {
         default: {
-            display: 'minimal',
+            display: 'default',
             help: false,
         },
         collect: ['watch'],
@@ -54,7 +54,8 @@ Options:
     -f, --fail-fast     fail on error
     -d, --display       display mode, (defaults: only-error)
                             none: display nothing
-                            minimal: display list results and errors
+                            minimal: display only results
+                            default: display list results and errors
                             full: display all requests and responses
 
 // TODO:
@@ -69,6 +70,7 @@ Options:
     const displays = [
         'none',
         'minimal',
+        'default',
         'full',
     ];
     const defaultMeta: Meta = {
@@ -142,19 +144,28 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
 
-        if ((defaultMeta?.displayIndex as number) >= 1) {
+        if ((defaultMeta?.displayIndex as number) === 0) {
+            // do not display anything
+        } else if ((defaultMeta?.displayIndex as number) >= 1) {
+
             console.info(fmt.dim(`${relativePath}`));
         } else {
             fullSpinner.start();
             fullSpinner.text = fmt.dim(`${relativePath}`);
         }
+
+        let firstBlock = true;
+        let globalMeta = {};
         for (const block of file.blocks) {
-            block.meta ??= {};
-            block.meta.relativePath = relativePath;
+            if (firstBlock) {
+                block.meta ??= {};
+                block.meta.relativePath = relativePath;
+            }
+
 
             try {
                 const meta = await parseMetaFromText(block.text, { ...block, ...assertions });
-                block.meta = { ...defaultMeta, ...block.meta, ...meta };
+                block.meta = { ...defaultMeta, ...globalMeta, ...block.meta, ...meta };
                 block.request = await parseRequestFromText(block, { ...block, ...assertions });
             } catch (error) {
                 block.error = error;
@@ -162,13 +173,20 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 failedBlocks++;
                 continue;
             }
+            if (firstBlock) {
+                if (!block.request) {
+                    globalMeta = block.meta;
+                }
+                firstBlock = false;
+            }
+
 
             if (!block.request) continue;
             block.description = block.meta?.name as string
                 || `${block.request?.method} ${block.request?.url}`
 
             let spinner;
-            if ((block.meta?.displayIndex as number) >= 1) {
+            if ((block.meta?.displayIndex as number) >= 2) {
                 spinner = wait({
                     prefix: fmt.dim('-'),
                     text: fmt.white(block.description),
@@ -196,33 +214,6 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
                 await fetchBlock(block);
                 await block.actualResponse?.extractBody()
-
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('bodyExtracted',block.actualResponse?.bodyExtracted);
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-                // console.log('-------------------------');
-
-
 
 
                 block.expectedResponse = await parseResponseFromText(
@@ -257,18 +248,21 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
         }
 
+
         fullSpinner.stopAndPersist();
     }
-    blocksWithErrors.forEach(printError);
-    exitCode = failedBlocks;
+    if ((defaultMeta?.displayIndex as number) !== 0) {
+        blocksWithErrors.forEach(printError);
+        exitCode = failedBlocks;
 
-    const statusText = exitCode ? fmt.bgRed(' FAIL ') : fmt.bgBrightGreen(' PASS ');
+        const statusText = exitCode ? fmt.bgRed(' FAIL ') : fmt.bgBrightGreen(' PASS ');
 
-    const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
-    console.info()
-    console.info(
-        (fmt.bold(`${statusText}`)),
-        `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(passedBlocks))} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))} ignored`,
-    )
+        const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
+        console.info()
+        console.info(
+            (fmt.bold(`${statusText}`)),
+            `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(passedBlocks))} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))} ignored`,
+        )
+    }
     return files;
 }
