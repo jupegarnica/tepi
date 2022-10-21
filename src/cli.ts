@@ -55,7 +55,7 @@ Options:
     -f, --fail-fast     fail on error
     -d, --display       display mode, (defaults: only-error)
                             none: display nothing
-                            minimal: display only results
+                            minimal: display only final result
                             default: display list results and errors
                             full: display all requests and responses
 

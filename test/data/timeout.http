@@ -1,0 +1,6 @@
+
+# @timeout 500
+GET faker.deno.dev/pong?delay=1000
+x-quiet: true
+
+HTTP/1.1 200 OK
