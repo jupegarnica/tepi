@@ -1,8 +1,4 @@
-# @host https://faker.deno.dev
-
-###
-# @ignore
-POST /pong?quiet=true
+POST faker.deno.dev/pong?quiet=true
 Content-Type: application/json
 x-powered-by: Deno
 
@@ -15,15 +11,38 @@ x-powered-by: Deno
 
 {
  "message":"pong",
- "quiet": true
+ "quiet": false
  }
 
 ###
+# @name must work
+POST faker.deno.dev/pong?quiet=true
 
-POST /pong?quiet=true
-
-holaaa
+hello
 
 HTTP/1.1 200 OK
 
-<%= assertEquals(response.bodyExtracted, "holaaa") %>
+hello
+<% assertEquals(response.bodyExtracted, "hello", 'not body extracted') %>
+
+
+###
+# @name must fail with custom error
+POST faker.deno.dev/pong?quiet=true
+
+hello
+
+HTTP/1.1 200 OK
+
+hello
+<% assertEquals(response.bodyExtracted, "hola", 'failed!') %>
+
+
+
+###
+# @name must fail because of headers
+GET faker.deno.dev/pong?quiet=true
+x-quiet: true
+
+HTTP/1.1 200 OK
+x-quiet: false

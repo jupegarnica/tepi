@@ -21,3 +21,16 @@ GET https://faker.deno.dev/pong
 quiet: true
 
 <% assert(false, 'ups') %>
+
+
+###
+# @name must work
+POST faker.deno.dev/pong?quiet=true
+
+hola
+
+HTTP/1.1 200 OK
+
+<%= 'hola' %>
+
+<% assert(true, 'ups') %>

@@ -174,7 +174,7 @@ const isHeaderLine = (line: string): boolean => !!line.trim().match(/^[^:]+:\s*[
 
 export async function parseBlockText(block: Block): Promise<Block> {
   block.meta = await parseMetaFromText(block.text);
-  block.request = await parseRequestFromText(block.text);
+  block.request = await parseRequestFromText(block);
   block.expectedResponse = await parseResponseFromText(block.text);
   return block
 }
@@ -272,9 +272,7 @@ export async function parseRequestFromText(block: Block, dataToInterpolate = {})
 
       requestInit.method = method;
       url = _url;
-      if (!url.match(/^https?:\/\//)) {
-        url = `http://${url}`;
-      }
+
       lookingFor = 'headers';
       continue;
     }
@@ -297,6 +295,14 @@ export async function parseRequestFromText(block: Block, dataToInterpolate = {})
     requestInit.body = null;
   }
   requestInit.headers = headers;
+
+  const host = requestInit.headers.get('host') || meta?.host;
+  if (host) {
+    url = host + url;
+  }
+  if (!url.match(/^https?:\/\//)) {
+    url = `http://${url}`;
+  }
 
   const request: _Request = new _Request(url, requestInit);
 

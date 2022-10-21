@@ -1,0 +1,29 @@
+
+###
+# @host https://faker.deno.dev
+
+POST /pong?quiet=true
+Content-Type: application/json
+x-powered-by: Deno
+
+{ "message":"pong", "quiet":true }
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+x-powered-by: Deno
+
+
+{
+ "message":"pong",
+ "quiet": true
+ }
+
+###
+
+POST /pong?quiet=true
+
+holaaa
+
+HTTP/1.1 200 OK
+
+<%= assertEquals(response.bodyExtracted, "holaaa") %>
