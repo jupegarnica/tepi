@@ -1,4 +1,5 @@
 # @data Garn
+# @name hasData
 
 POST https://faker.deno.dev/pong?quiet=true
 x-data: <%= meta.data %>

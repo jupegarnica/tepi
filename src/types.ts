@@ -72,6 +72,7 @@ export type BodyExtracted = { body: unknown; contentType: string }
 
 
 export type Block = {
+    elapsedTime?: number;
     text?: string;
     description?: string;
     request?: _Request;

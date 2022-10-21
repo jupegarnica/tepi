@@ -16,6 +16,7 @@ import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
 
 
 let exitCode = 0;
+const noop = (..._: unknown[]): void => { };
 
 
 
@@ -139,7 +140,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     let failedBlocks = 0;
     let ignoredBlocks = 0;
     const blocksWithErrors: Block[] = [];
-    let fullSpinner ;
+    let fullSpinner;
 
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
@@ -158,15 +159,13 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
         let firstBlock = true;
         let globalMeta = {};
         for (const block of file.blocks) {
-            if (firstBlock) {
-                block.meta ??= {};
-                block.meta.relativePath = relativePath;
-            }
+            block.meta ??= {};
+            block.meta.relativePath = relativePath;
 
-
+            const startTime = Date.now();
             try {
                 const meta = await parseMetaFromText(block.text, { ...block, ...assertions });
-                block.meta = { ...defaultMeta,...block.meta, ...globalMeta , ...meta };
+                block.meta = { ...defaultMeta, ...block.meta, ...globalMeta, ...meta };
 
                 block.request = await parseRequestFromText(block, { ...block, ...assertions });
             } catch (error) {
@@ -198,10 +197,10 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                     discardStdin: true,
                 })
             } else {
-                const noop = (..._: unknown[]): void => { };
                 spinner = {
                     start: noop,
                     stopAndPersist: noop,
+                    update: noop,
                 }
             }
 
@@ -228,12 +227,16 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (block.expectedResponse) {
                     await assertResponse(block);
                 }
-                spinner.stopAndPersist({ symbol: fmt.green('✔'), text: fmt.green(block.description) });
+                block.elapsedTime = Date.now() - startTime;
+                spinner.stopAndPersist({ symbol: fmt.green('✔'), text: fmt.green(block.description) + fmt.dim(` ${block.elapsedTime}ms`) });
+
                 passedBlocks++;
             } catch (error) {
                 block.error = error;
                 blocksWithErrors.push(block);
-                spinner.stopAndPersist({ symbol: fmt.brightRed('✖'), text: fmt.red(block.description) });
+
+                block.elapsedTime = Date.now() - startTime;
+                spinner.stopAndPersist({ symbol: fmt.brightRed('✖'), text: fmt.red(block.description) + fmt.dim(` ${block.elapsedTime}ms`) });
                 failedBlocks++;
             } finally {
                 await printBlock(block);

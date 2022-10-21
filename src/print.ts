@@ -9,13 +9,16 @@ import { extractBody } from "./fetchBlock.ts";
 
 
 function printTitle(title: string, fmtMethod = 'blue') {
+  const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
   // @ts-ignore TODO fix this
-  const titleStr = fmt[fmtMethod](title) as string
-  const separator = fmt.dim('-'.repeat(titleStr.length - 9));
-  console.info(separator);
-  console.info(titleStr);
-  console.info(separator);
+  const titleStr = fmt[fmtMethod](` ${title} `) as string
+  const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
+  const separator = fmt.dim('-');
+  const output =
+    `${separator.repeat(padLength)} ${titleStr} ${separator.repeat(padLength)}`;
+  console.info(output);
 }
+
 
 export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error } = block;
@@ -57,7 +60,6 @@ export async function printBlock(block: Block): Promise<void> {
   }
   if (error) {
     console.group();
-    printTitle('⬇   Error   ⬇', 'red');
     printError(block);
     console.groupEnd();
   }
@@ -71,7 +73,9 @@ export function printError(block: Block): void {
   if (block.meta?.displayIndex as number < 2) return;
 
   const relativePath = block.meta?.relativePath;
-  console.error(fmt.bold(fmt.brightRed(`Error`)));
+
+  printTitle('⬇   Error    ⬇', 'brightRed');
+
   block.description && console.error(fmt.brightRed(block.description));
   console.error(fmt.dim('At:\n'), fmt.cyan(`${relativePath}:${1 + (block.startLine || 0)}`));
   console.error(fmt.dim('Message:\n'), fmt.white(error?.message));
