@@ -11,7 +11,7 @@ export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
     try {
       fileContent = await Deno.readTextFile(filePath);
     } catch (error) {
-      console.error('File not found ', filePath);
+      console.error('File not found:', filePath);
       console.error(error.message);
 
     }

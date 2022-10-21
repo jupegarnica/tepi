@@ -139,7 +139,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
     let failedBlocks = 0;
     let ignoredBlocks = 0;
     const blocksWithErrors: Block[] = [];
-    const fullSpinner = wait({ text: '' })
+    let fullSpinner ;
 
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
@@ -150,6 +150,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
             console.info(fmt.dim(`${relativePath}`));
         } else {
+            fullSpinner = wait({ text: '' })
             fullSpinner.start();
             fullSpinner.text = fmt.dim(`${relativePath}`);
         }
@@ -248,8 +249,7 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
 
         }
 
-
-        fullSpinner.stopAndPersist();
+        fullSpinner?.stopAndPersist();
     }
     if ((defaultMeta?.displayIndex as number) !== 0) {
         blocksWithErrors.forEach(printError);
