@@ -47,6 +47,22 @@ Deno.test("[runner] interpolation", async () => {
     const fourthBlock = files[0].blocks[3];
     assertEquals(await fourthBlock.expectedResponse?.getBody(), "hola");
     assertEquals(fourthBlock.error, undefined);
+
+    const fifthBlock = files[0].blocks[4];
+    assertEquals(fifthBlock.request?.headers.get('x-payload'), "Garn?");
+    assertEquals(fifthBlock.error, undefined);
+    assertEquals(await fifthBlock.expectedResponse?.getBody(), "Garn!");
+
+    const sixthBlock = files[0].blocks[5];
+    assertEquals(sixthBlock.error, undefined);
+    assertEquals(await sixthBlock.request?.getBody(), "body");
+    assertEquals(await sixthBlock.expectedResponse?.getBody(), "body");
+
+    const seventhBlock = files[0].blocks[6];
+    assertEquals(seventhBlock.expectedResponse?.status, 200);
+    assertEquals(seventhBlock.expectedResponse?.statusText, 'OK');
+    assertEquals(seventhBlock.expectedResponse?.headers.get('hola'), "mundo");
+    assertEquals(seventhBlock.expectedResponse?.headers.get('adios'), "mundo");
 });
 
 Deno.test("[runner] asserts ", async () => {
@@ -110,7 +126,7 @@ Deno.test("[runner] timeout", async () => {
 
 
 
-Deno.test("[runner] ref", { only: true }, async () => {
+Deno.test("[runner] ref", async () => {
     const files = await runner(["test/data/ref.http"], {
         displayIndex: 0,
     });
@@ -141,5 +157,17 @@ Deno.test("[runner] ref loop", async () => {
     assertEquals(secondBlock.meta.isDoneBlock, true);
     assertEquals(secondBlock.error, undefined);
     assertEquals(await secondBlock.request?.getBody(), "block1??");
+
+});
+
+
+Deno.test("[runner] redirect ", {only:true},async () => {
+    const files = await runner(["test/data/redirect.http"], { displayIndex: 0 });
+    const firstBlock = files[0].blocks[0];
+    assertEquals(firstBlock.response?.status, 200);
+    assertEquals(firstBlock.response?.headers.get('content-type'), 'image/jpeg');
+    const secondBlock = files[0].blocks[1];
+    assertEquals(secondBlock.response?.status, 307);
+    assertEquals(secondBlock.response?.headers.get('Location')?.startsWith('http'), true);
 
 });

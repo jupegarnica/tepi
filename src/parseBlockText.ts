@@ -6,7 +6,14 @@ async function renderTemplate(template: string, data: Record<string, unknown>) {
   const result = await eta.render(
     template,
     data,
-    { async: true, useWith: true, rmWhitespace: false, autoTrim: false },
+    {
+      async: true,
+      useWith: true,
+      rmWhitespace: false,
+      autoTrim: false,
+      // TODO: add custom tags??
+      // tags: ["{{", "}}"]
+    },
   );
   return result;
 }
@@ -133,6 +140,7 @@ export async function parseRequestFromText(
       continue;
     }
     if (lookingFor === "headers" && isHeaderLine(line)) {
+
       const [key, value] = extractHeader(trimmed);
       headers.set(key, value);
       continue;
@@ -192,6 +200,10 @@ export async function parseResponseFromText(
     if (trimmed.startsWith("###")) {
       break;
     }
+    if (lookingFor !== "body" && trimmed.startsWith("#")) {
+      continue;
+    }
+
     if (lookingFor !== "body" && trimmed.startsWith("#")) {
       continue;
     }

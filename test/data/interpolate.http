@@ -14,8 +14,8 @@ Hola Garn!
 
 ###
 GET https://faker.deno.dev/pong?quiet=true
-x-data: <%= meta.ignore %>
 read-from-name: <%= hasData.meta.data %>
+
 ###
 # @name must fail
 
@@ -27,6 +27,7 @@ quiet: true
 
 ###
 # @name must work
+
 POST faker.deno.dev/pong?quiet=true
 
 hola
@@ -36,3 +37,45 @@ HTTP/1.1 200 OK
 <%= 'hola' %>
 
 <% assert(true, 'ups') %>
+
+
+###
+# @name must read another request
+
+POST http://faker.deno.dev/pong
+quiet: true
+x-payload: <%= hasData.request.headers.get('x-data') + '?' %>
+
+<%= hasData.request.headers.get('x-data') + '!' %>
+
+HTTP/1.1 200 OK
+x-payload: Garn?
+
+Garn!
+
+
+###
+# @name must read same request
+POST http://faker.deno.dev/pong
+quiet: true
+
+body
+
+HTTP/1.1 200 OK
+
+<%= await request.getBody()    %>
+
+
+###
+# @name must read same response
+POST http://faker.deno.dev/pong
+quiet: true
+adios: mundo
+
+body ¿?
+
+HTTP/1.1 <%= response.status %> <%= response.statusText %>
+hola: mundo
+<% response.headers.forEach((v, k) => { %> <%= k %>: <%= v +'\n'%> <% }) %>
+
+<%= await response.getBody() + '!'  %>

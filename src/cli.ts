@@ -164,16 +164,22 @@ export async function runner(
     // parse all metadata first
     for (const file of files) {
         for (const block of file.blocks) {
-            const meta = await parseMetaFromText(block.text, {
-                ...globalData,
-                ...block,
-                ...assertions,
-            });
-            block.meta = {
-                ...globalData.meta,
-                ...block.meta,
-                ...meta
-            };
+            try {
+                const meta = await parseMetaFromText(block.text, {
+                    ...globalData,
+                    ...block,
+                    ...assertions,
+                });
+                block.meta = {
+                    ...globalData.meta,
+                    ...block.meta,
+                    ...meta
+                };
+            } catch (error) {
+                block.error = error;
+                block.meta.isDoneBlock = true;
+                block.meta.isErrorBlock = true;
+            }
         }
     }
 
@@ -352,13 +358,18 @@ async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> 
         block.meta.isFailedBlock = true;
         return blocksDone;
     } finally {
-        await printBlock(block);
+        try {
+            await printBlock(block);
+        } catch (error) {
+            console.error("Error printing block", error);
+        }
         await consumeBodies(block);
         block.meta.isDoneBlock = true;
         if (block.meta.name) {
             const name = block.meta.name as string;
             globalData._blocksDone[name] = block;
         }
+
 
     }
 }
