@@ -92,7 +92,7 @@ Deno.test("[runner] host meta data", async () => {
   assertEquals(sixthBlock.request?.url, "http://httpbin.org/post");
 });
 
-Deno.test("[runner] timeout", { only: true }, async () => {
+Deno.test("[runner] timeout", async () => {
   const files = await runner(["test/data/timeout.http"], {
     displayIndex: 0,
     timeout: 100,
