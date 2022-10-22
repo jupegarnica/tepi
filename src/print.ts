@@ -15,7 +15,7 @@ function printTitle(title: string, fmtMethod = 'blue') {
   const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   const separator = fmt.dim('-');
   const output =
-    `${separator.repeat(padLength)} ${titleStr} ${separator.repeat(padLength)}`;
+    `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)}`;
   console.info(output);
 }
 
