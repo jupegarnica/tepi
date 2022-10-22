@@ -58,9 +58,9 @@ Options:
                             minimal: display only final result
                             default: display list results and errors
                             full: display all requests and responses
+    -t, --timeout       global timeout for all requests in ms
 
 // TODO:
-    -t, --timeout       timeout for requests in ms
     -c, --concurrency   number of concurrent requests
     `
         )
@@ -75,6 +75,7 @@ Options:
         'full',
     ];
     const defaultMeta: Meta = {
+        timeout: 0,
         display: args.display as string,
         get displayIndex(): number { return displays.indexOf(this.display as string); },
     }
@@ -227,16 +228,19 @@ export async function runner(filePaths: string[], defaultMeta: Meta, failFast = 
                 if (block.expectedResponse) {
                     await assertResponse(block);
                 }
-                block.elapsedTime = Date.now() - startTime;
-                spinner.stopAndPersist({ symbol: fmt.green('✔'), text: fmt.green(block.description) + fmt.dim(` ${block.elapsedTime}ms`) });
+                const elapsedTime = Date.now() - startTime;
+                block.meta.elapsedTime = elapsedTime;
+
+                spinner.stopAndPersist({ symbol: fmt.green('✔'), text: fmt.green(block.description) + fmt.dim(` ${elapsedTime}ms`) });
 
                 passedBlocks++;
             } catch (error) {
                 block.error = error;
                 blocksWithErrors.push(block);
 
-                block.elapsedTime = Date.now() - startTime;
-                spinner.stopAndPersist({ symbol: fmt.brightRed('✖'), text: fmt.red(block.description) + fmt.dim(` ${block.elapsedTime}ms`) });
+                const elapsedTime = Date.now() - startTime;
+                block.meta.elapsedTime = elapsedTime;
+                spinner.stopAndPersist({ symbol: fmt.brightRed('✖'), text: fmt.red(block.description) + fmt.dim(` ${elapsedTime}ms`) });
                 failedBlocks++;
             } finally {
                 await printBlock(block);

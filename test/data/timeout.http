@@ -4,3 +4,15 @@ GET faker.deno.dev/pong?delay=1000
 x-quiet: true
 
 HTTP/1.1 200 OK
+
+###
+# @name force no timeout
+# @timeout 0
+GET faker.deno.dev/pong?delay=1000
+x-quiet: true
+
+
+###
+# @name no timeout
+GET faker.deno.dev/pong?delay=1000
+x-quiet: true

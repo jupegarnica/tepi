@@ -65,7 +65,6 @@ Deno.test('[runner] asserts ',
 
 
 Deno.test('[runner] host meta data',
-    { only: true },
     async () => {
         const files = await runner(['test/data/host.http'], { displayIndex: 0 });
 
@@ -86,4 +85,26 @@ Deno.test('[runner] host meta data',
 
         const sixthBlock = files[0].blocks[5];
         assertEquals(sixthBlock.request?.url, 'http://httpbin.org/post');
+    });
+
+
+
+
+Deno.test('[runner] timeout',
+    { only: true },
+    async () => {
+        const files = await runner(['test/data/timeout.http'], { displayIndex: 0, timeout: 100 });
+
+        const firstBlock = files[0].blocks[0];
+        assertEquals(firstBlock.meta?.timeout, "500");
+        assertEquals(firstBlock.error?.message, "Timeout of 500ms exceeded");
+
+        const secondBlock = files[0].blocks[1];
+        assertEquals(secondBlock.meta?.timeout, "0");
+        assertEquals(secondBlock.error, undefined);
+
+        const thirdBlock = files[0].blocks[2];
+        assertEquals(thirdBlock.meta?.timeout, 100);
+        assertEquals(thirdBlock.error?.message, "Timeout of 100ms exceeded");
+
     });

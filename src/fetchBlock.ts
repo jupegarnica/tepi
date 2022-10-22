@@ -14,18 +14,23 @@ export async function fetchBlock(
     const ctl = new AbortController();
     const signal = ctl.signal;
     let timeoutId;
-    if (block.meta?.timeout) {
-        const timeout = Number(block.meta.timeout);
-        if (timeout > 0) {
-            timeoutId = setTimeout(() => {
-                ctl.abort();
-            }, timeout);
-        }
+    const timeout = Number(block.meta?.timeout);
+    if (timeout) {
+        timeoutId = setTimeout(() => ctl.abort(), timeout);
     }
 
-    const response = await fetch(request, { signal });
-    const actualResponse = _Response.fromResponse(response);
-    block.actualResponse = actualResponse;
+    try {
+        const response = await fetch(request, { signal });
+        const actualResponse = _Response.fromResponse(response);
+        block.actualResponse = actualResponse;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            throw new Error(`Timeout of ${block.meta?.timeout}ms exceeded`);
+        }
+
+        throw error;
+
+    }
     clearTimeout(timeoutId);
     return block;
 
