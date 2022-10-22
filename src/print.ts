@@ -23,10 +23,10 @@ export async function printBlock(block: Block): Promise<void> {
   if (!request) {
     return;
   }
-  if (block.meta?.ignore) {
+  if (block.meta.ignore) {
     return;
   }
-  if (block.meta?.displayIndex as number < 3) {
+  if (block.meta.displayIndex as number < 3) {
     return;
   }
   console.group();
@@ -64,9 +64,9 @@ export async function printBlock(block: Block): Promise<void> {
 export function printError(block: Block): void {
   const error = block.error;
   if (!error) return;
-  if (block.meta?.displayIndex as number < 2) return;
+  if (block.meta.displayIndex as number < 2) return;
 
-  const relativePath = block.meta?.relativePath;
+  const relativePath = block.meta.relativePath;
 
   printTitle("⬇   Error    ⬇", "brightRed");
 

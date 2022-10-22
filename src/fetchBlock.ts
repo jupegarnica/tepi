@@ -18,7 +18,7 @@ export async function fetchBlock(
   const ctl = new AbortController();
   const signal = ctl.signal;
   let timeoutId;
-  const timeout = Number(block.meta?.timeout);
+  const timeout = Number(block.meta.timeout);
   if (timeout) {
     timeoutId = setTimeout(() => ctl.abort(), timeout);
   }
@@ -29,7 +29,7 @@ export async function fetchBlock(
     block.actualResponse = actualResponse;
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error(`Timeout of ${block.meta?.timeout}ms exceeded`);
+      throw new Error(`Timeout of ${block.meta.timeout}ms exceeded`);
     }
 
     throw error;

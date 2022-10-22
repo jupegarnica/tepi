@@ -6,6 +6,7 @@ Deno.env.get("NO_LOG") && stub(console, "info");
 // const http = String.raw
 Deno.test("[parseBlockText request]", async () => {
   const block = {
+    meta: {},
     text: `
 GET http://faker.deno.dev
 `,
@@ -17,6 +18,7 @@ GET http://faker.deno.dev
 
 Deno.test("[parseBlockText request] with headers", async () => {
   const block = {
+    meta: {},
     text: `POST http://faker.deno.dev HTTP/1.1
         Host: faker.deno.dev
         User-Agent: curl/7.64.1
@@ -31,6 +33,7 @@ Deno.test("[parseBlockText request] with headers", async () => {
 
 Deno.test("[parseBlockText request] with headers not body", async () => {
   const block = {
+    meta: {},
     text: `GET http://faker.deno.dev HTTP/1.1
         Host: http://faker.deno.dev`,
   };
@@ -41,6 +44,7 @@ Deno.test("[parseBlockText request] with headers not body", async () => {
 
 Deno.test("[parseBlockText request] with headers and comments", async () => {
   const block = {
+    meta: {},
     text: `POST http://faker.deno.dev HTTP/1.1
 Host: faker.deno.dev
 # x-foo: bar
@@ -56,6 +60,7 @@ x-foo: bar`,
 
 Deno.test("[parseBlockText request] without protocol", async () => {
   const block = {
+    meta: {},
     text: `GET faker.deno.dev`,
   };
 
@@ -65,6 +70,7 @@ Deno.test("[parseBlockText request] without protocol", async () => {
 
 Deno.test("[parseBlockText request] with body", async () => {
   const block = {
+    meta: {},
     text: `POST faker.deno.dev
         Content-Type: text/plain
 
@@ -77,6 +83,7 @@ Deno.test("[parseBlockText request] with body", async () => {
 
 Deno.test("[parseBlockText request] with body no headers", async () => {
   const block = {
+    meta: {},
     text: `POST faker.deno.dev
 
         hola mundo`,
@@ -92,6 +99,7 @@ Deno.test("[parseBlockText request] with body no headers", async () => {
 
 Deno.test("[parseBlockText request] with body raw", async () => {
   const block = {
+    meta: {},
     text: `POST faker.deno.dev
 
         hola mundo`,
@@ -105,6 +113,7 @@ Deno.test(
   "[parseBlockText request] with comments and body", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev
 #  x-foo: bar
 Content-Type: text/plain
@@ -131,6 +140,7 @@ Deno.test(
   // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev
 #  x-foo: bar
 Content-Type: text/plain
@@ -156,6 +166,7 @@ Deno.test(
   "[parseBlockText expectedResponse] with status", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev/pong
             Content-Type: text/plain
 
@@ -178,6 +189,7 @@ Deno.test(
   "[parseBlockText expectedResponse] with headers", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev/pong
     Content-Type: text/plain
 
@@ -200,6 +212,7 @@ Deno.test(
   "[parseBlockText expectedResponse] with statusText", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev/pong
 Content-Type: text/plain
 
@@ -222,6 +235,7 @@ Deno.test(
   "[parseBlockText expectedResponse] with body ", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev/pong
     Content-Type: text/plain
 
@@ -244,6 +258,7 @@ Deno.test(
   "[parseBlockText expectedResponse] without body ", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev/pong
             Content-Type: text/plain
 
@@ -262,6 +277,7 @@ Deno.test(
   "[parseBlockText expectedResponse] with body multiline ", // { only: true },
   async () => {
     const block = {
+      meta: {},
       text: `POST faker.deno.dev/pong
 Content-Type: text/plain
 
@@ -287,6 +303,7 @@ mundo
 
 Deno.test("[parseBlockText meta] with metadata ", async () => {
   const block = {
+    meta: {},
     text: `
 # @name=test
 # @description hello world

@@ -4,7 +4,7 @@ import {
   assertObjectMatch,
 } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 
-export async function assertResponse(block: Block) {
+export async function assertResponse(block: Omit<Block, "meta">) {
   const { expectedResponse, actualResponse } = block;
   if (!expectedResponse) {
     throw new Error("block.expectedResponse is undefined");

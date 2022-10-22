@@ -200,11 +200,11 @@ export async function runner(
       }
 
       if (!block.request) continue;
-      block.description = block.meta?.name as string ||
+      block.description = block.meta.name as string ||
         `${block.request?.method} ${block.request?.url}`;
 
       let spinner;
-      if ((block.meta?.displayIndex as number) >= 2) {
+      if ((block.meta.displayIndex as number) >= 2) {
         spinner = wait({
           prefix: fmt.dim("-"),
           text: fmt.white(block.description),

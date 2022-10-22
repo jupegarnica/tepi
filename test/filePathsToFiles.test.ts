@@ -10,6 +10,7 @@ Deno.test("[filePathsToFiles] must have a basic block", async () => {
   assertEquals(files?.[0].blocks?.[0], {
     endLine: 2,
     startLine: 0,
+    meta: {},
     text: "GET https://httpbin.org/html\n\n###\n",
     filePath: "./test/data/test1.http",
   });

@@ -150,7 +150,7 @@ export async function parseRequestFromText(
   }
   requestInit.headers = headers;
 
-  let host = requestInit.headers.get("host") || meta?.host || "";
+  let host = requestInit.headers.get("host") || meta.host || "";
   host = String(host).trim();
   const hasProtocol = url.match(/^https?:\/\//);
   if (host && !hasProtocol) {

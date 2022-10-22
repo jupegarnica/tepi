@@ -58,19 +58,20 @@ export class _Request extends Request implements RequestInterface {
 }
 
 export type Meta = {
+  elapsedTime?: number | string;
   [key: string]: number | string | boolean | undefined;
 };
 
 export type BodyExtracted = { body: unknown; contentType: string };
 
 export type Block = {
-  elapsedTime?: number;
+
   text?: string;
   description?: string;
   request?: _Request;
   expectedResponse?: _Response;
   actualResponse?: _Response;
-  meta?: Meta;
+  meta: Meta;
   startLine?: number;
   endLine?: number;
   filePath?: string;

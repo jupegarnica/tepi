@@ -12,6 +12,7 @@ Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
     const block: Block = {
+      meta: {},
       text: `
         GET http://httpbin.org/status/400
 
@@ -30,6 +31,7 @@ Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
     const block: Block = {
+      meta: {},
       text: `
 GET http://httpbin.org/status/400
 
@@ -48,6 +50,7 @@ Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
     const block: Block = {
+      meta: {},
       text: `
 GET http://httpbin.org/status/400
 
@@ -64,6 +67,7 @@ HTTP/1.1 400 Forbidden
 
 Deno.test("[fetchBlock] with expectedResponse plain test body", async () => {
   const block = {
+    meta: {},
     text: `
             POST http://httpbin.org/text
             Content-Type: text/plain
@@ -88,6 +92,7 @@ Deno.test(
   // { ignore: true },
   async () => {
     const block: Block = {
+      meta: {},
       text: `
             POST https://faker.deno.dev/pong?quite=true
             Content-Type: application/json
@@ -115,7 +120,7 @@ Deno.test(
   // { ignore: true },
   async () => {
     await assertRejects(async () => {
-      await fetchBlock({ text: "" });
+      await fetchBlock({ meta: {}, text: "" });
     });
   },
 );
