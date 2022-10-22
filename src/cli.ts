@@ -154,7 +154,7 @@ export async function runner(
   let ignoredBlocks = 0;
   const blocksWithErrors: Block[] = [];
   let fullSpinner;
-
+  const startGlobalTime = Date.now();
   for (const file of files) {
     const relativePath = relative(Deno.cwd(), file.path);
 
@@ -291,6 +291,7 @@ export async function runner(
       : fmt.bgBrightGreen(" PASS ");
 
     const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
+    const elapsedGlobalTime = Date.now() - startGlobalTime;
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
@@ -298,7 +299,7 @@ export async function runner(
         fmt.green(String(passedBlocks))
       } passed, ${fmt.red(String(failedBlocks))} failed, ${
         fmt.yellow(String(ignoredBlocks))
-      } ignored`,
+      } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
     );
   }
   return files;
