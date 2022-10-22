@@ -45,10 +45,10 @@ async function cli() {
         const codeDelimiter = isReadme ? "`" : "";
         const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
         const codeBlockDelimiter = isReadme ? "```" : "";
-        const codeBlock = (t: string, lang = 'http') => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
+        const codeBlock = (t: string, lang = 'rest') => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
         const helpText =
             `
-${fmt.bold(fmt.brightYellow(ascii))}
+${codeBlock(fmt.bold(fmt.brightYellow(ascii)),'')}
 
 ${g('# Install:')}
 

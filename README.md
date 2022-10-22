@@ -1,5 +1,5 @@
 
-
+```
  _   _  _____  _____             _   
 | | | ||_   _||_   _|           | |  
 | |_| |  | |    | |    ___  ___ | |_ 
@@ -8,7 +8,7 @@
 \_| |_/  \_/    \_/   \___||___/ \__|
                                      
                                      
-
+```
 
 # Install:
 
@@ -64,7 +64,7 @@ httest [OPTIONS] [FILES|GLOBS...]
 
 You can use the standard HTTP syntax in your .http files as follow:
 
-```http
+```rest
 POST https://example.com/
 Authorization: Bearer 123
 Content-Type: application/json
