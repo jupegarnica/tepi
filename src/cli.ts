@@ -11,36 +11,36 @@ import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { printBlock, printError } from "./print.ts";
 import {
-  parseMetaFromText,
-  parseRequestFromText,
-  parseResponseFromText,
+    parseMetaFromText,
+    parseRequestFromText,
+    parseResponseFromText,
 } from "./parseBlockText.ts";
 
 import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
 
 let exitCode = 0;
-const noop = (..._: unknown[]): void => {};
+const noop = (..._: unknown[]): void => { };
 
 if (import.meta.main) {
-  const args: Args = parse(Deno.args, {
-    default: {
-      display: "default",
-      help: false,
-    },
-    collect: ["watch"],
-    boolean: ["help", "failFast"],
-    alias: {
-      h: "help",
-      w: "watch",
-      t: "timeout",
-      f: "failFast",
-      d: "display",
-      "fail-fast": "failFast",
-    },
-  });
-  if (args.help) {
-    console.log(
-      `Usage: httest [options] [file|glob]...
+    const args: Args = parse(Deno.args, {
+        default: {
+            display: "default",
+            help: false,
+        },
+        collect: ["watch"],
+        boolean: ["help", "failFast"],
+        alias: {
+            h: "help",
+            w: "watch",
+            t: "timeout",
+            f: "failFast",
+            d: "display",
+            "fail-fast": "failFast",
+        },
+    });
+    if (args.help) {
+        console.log(
+            `Usage: httest [options] [file|glob]...
 
 Examples:
     httest
@@ -63,244 +63,252 @@ Options:
 // TODO:
     -c, --concurrency   number of concurrent requests
     `,
-    );
-    Deno.exit(0);
-  }
+        );
+        Deno.exit(0);
+    }
 
-  const displays = [
-    "none",
-    "minimal",
-    "default",
-    "full",
-  ];
-  const defaultMeta: Meta = {
-    timeout: 0,
-    display: args.display as string,
-    get displayIndex(): number {
-      return displays.indexOf(this.display as string);
-    },
-  };
-  if (defaultMeta.displayIndex === -1) {
-    console.error(
-      `Invalid display mode: ${args.display}. Must be one of: ${
-        displays.join(", ")
-      }`,
-    );
-    Deno.exit(1);
-  }
+    const displays = [
+        "none",
+        "minimal",
+        "default",
+        "full",
+    ];
+    const defaultMeta: Meta = {
+        timeout: 0,
+        display: args.display as string,
+        get displayIndex(): number {
+            return displays.indexOf(this.display as string);
+        },
+    };
+    if (defaultMeta.displayIndex === -1) {
+        console.error(
+            `Invalid display mode: ${args.display}. Must be one of: ${displays.join(", ")
+            }`,
+        );
+        Deno.exit(1);
+    }
 
-  const globs: string = args._.length ? args._.join(" ") : "**/*.http";
-  const filePathsToRun = await globsToFilePaths(globs.split(" "));
+    const globs: string = args._.length ? args._.join(" ") : "**/*.http";
+    const filePathsToRun = await globsToFilePaths(globs.split(" "));
 
-  await runner(filePathsToRun, defaultMeta, args.failFast);
-  if (args.watch) {
-    const filePathsToJustWatch = await globsToFilePaths(
-      args.watch.filter((i: boolean | string) => typeof i === "string"),
-    );
-    watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta).catch(
-      console.error,
-    );
-  } else {
-    Deno.exit(exitCode);
-  }
+    await runner(filePathsToRun, defaultMeta, args.failFast);
+    if (args.watch) {
+        const filePathsToJustWatch = await globsToFilePaths(
+            args.watch.filter((i: boolean | string) => typeof i === "string"),
+        );
+        watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta).catch(
+            console.error,
+        );
+    } else {
+        Deno.exit(exitCode);
+    }
 }
 
 function logWatchingPaths(filePaths: string[], filePathsToJustWatch: string[]) {
-  console.info(fmt.dim("\nWatching and Running tests from:"));
-  filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((
-    filePath,
-  ) => console.info(fmt.cyan(`  ${filePath}`)));
-  if (filePathsToJustWatch.length) {
-    console.info(fmt.dim("\nRerun when changes from:"));
-    filePathsToJustWatch.map((filePath) => relative(Deno.cwd(), filePath))
-      .forEach((filePath) => console.info(fmt.cyan(`  ${filePath}`)));
-  }
+    console.info(fmt.dim("\nWatching and Running tests from:"));
+    filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((
+        filePath,
+    ) => console.info(fmt.cyan(`  ${filePath}`)));
+    if (filePathsToJustWatch.length) {
+        console.info(fmt.dim("\nRerun when changes from:"));
+        filePathsToJustWatch.map((filePath) => relative(Deno.cwd(), filePath))
+            .forEach((filePath) => console.info(fmt.cyan(`  ${filePath}`)));
+    }
 }
 
 async function watchAndRun(
-  filePaths: string[],
-  filePathsToJustWatch: string[],
-  defaultMeta: Meta,
+    filePaths: string[],
+    filePathsToJustWatch: string[],
+    defaultMeta: Meta,
 ) {
-  const allFilePaths = filePaths.concat(filePathsToJustWatch);
-  const watcher = Deno.watchFs(allFilePaths);
-  logWatchingPaths(filePaths, filePathsToJustWatch);
+    const allFilePaths = filePaths.concat(filePathsToJustWatch);
+    const watcher = Deno.watchFs(allFilePaths);
+    logWatchingPaths(filePaths, filePathsToJustWatch);
 
-  for await (const event of watcher) {
-    if (event.kind === "access") {
-      if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
-        // run all
-        console.clear();
-        await runner(filePaths, defaultMeta);
-        logWatchingPaths(filePaths, filePathsToJustWatch);
-      } else {
-        // run just this file
-        console.clear();
-        await runner(event.paths, defaultMeta);
-        logWatchingPaths(filePaths, filePathsToJustWatch);
-      }
+    for await (const event of watcher) {
+        if (event.kind === "access") {
+            if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
+                // run all
+                console.clear();
+                await runner(filePaths, defaultMeta);
+                logWatchingPaths(filePaths, filePathsToJustWatch);
+            } else {
+                // run just this file
+                console.clear();
+                await runner(event.paths, defaultMeta);
+                logWatchingPaths(filePaths, filePathsToJustWatch);
+            }
+        }
     }
-  }
 }
 
 export async function runner(
-  filePaths: string[],
-  defaultMeta: Meta,
-  failFast = false,
+    filePaths: string[],
+    defaultMeta: Meta,
+    failFast = false,
 ): Promise<File[]> {
-  const files: File[] = await filePathsToFiles(filePaths);
-  let passedBlocks = 0;
-  let failedBlocks = 0;
-  let ignoredBlocks = 0;
-  const blocksWithErrors: Block[] = [];
-  let fullSpinner;
-  const startGlobalTime = Date.now();
-  for (const file of files) {
-    const relativePath = relative(Deno.cwd(), file.path);
+    const files: File[] = await filePathsToFiles(filePaths);
+    let passedBlocks = 0;
+    let failedBlocks = 0;
+    let ignoredBlocks = 0;
+    const blocksWithErrors: Block[] = [];
+    let fullSpinner;
+    const startGlobalTime = Date.now();
+    for (const file of files) {
+        const relativePath = relative(Deno.cwd(), file.path);
 
-    if ((defaultMeta?.displayIndex as number) === 0) {
-      // do not display anything
-    } else if ((defaultMeta?.displayIndex as number) >= 1) {
-      console.info(fmt.dim(`${relativePath}`));
-    } else {
-      fullSpinner = wait({ text: "" });
-      fullSpinner.start();
-      fullSpinner.text = fmt.dim(`${relativePath}`);
+        if ((defaultMeta?.displayIndex as number) === 0) {
+            // do not display anything
+        } else if ((defaultMeta?.displayIndex as number) >= 1) {
+            console.info(fmt.dim(`${relativePath}`));
+        } else {
+            fullSpinner = wait({ text: "" });
+            fullSpinner.start();
+            fullSpinner.text = fmt.dim(`${relativePath}`);
+        }
+
+        let isFirstBlock = true;
+        const globalFile = { meta: {} };
+        for (const block of file.blocks) {
+            block.meta.relativePath = relativePath;
+            block.meta.isFirstBlock = isFirstBlock;
+            if (isFirstBlock) isFirstBlock = false;
+            await runBlock(block, defaultMeta, globalFile);
+
+            if (block.error) {
+                blocksWithErrors.push(block);
+                failedBlocks++;
+            }
+            if (failFast && failedBlocks) {
+                blocksWithErrors.forEach(printError);
+                const status = block.actualResponse?.status || 1;
+                console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
+                Deno.exit(status);
+            }
+        }
+
+        fullSpinner?.stopAndPersist();
     }
+    if ((defaultMeta?.displayIndex as number) !== 0) {
+        blocksWithErrors.forEach(printError);
+        exitCode = failedBlocks;
 
-    let firstBlock = true;
-    let globalFileMeta = {};
-    for (const block of file.blocks) {
-      block.meta ??= {};
-      block.meta.relativePath = relativePath;
+        const statusText = exitCode
+            ? fmt.bgRed(" FAIL ")
+            : fmt.bgBrightGreen(" PASS ");
 
-      const startTime = Date.now();
-      try {
+        const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
+        const elapsedGlobalTime = Date.now() - startGlobalTime;
+        console.info();
+        console.info(
+            fmt.bold(`${statusText}`),
+            `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(passedBlocks))
+            } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
+            } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
+        );
+    }
+    return files;
+}
+
+
+async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Meta }) {
+
+    const startTime = Date.now();
+    try {
         const meta = await parseMetaFromText(block.text, {
-          ...block,
-          ...assertions,
+            ...block,
+            ...assertions,
         });
-        block.meta = { ...defaultMeta, ...block.meta, ...globalFileMeta, ...meta };
+        block.meta = { ...defaultMeta, ...block.meta, ...globalFile.meta, ...meta };
 
         block.request = await parseRequestFromText(block, {
-          ...block,
-          ...assertions,
+            ...block,
+            ...assertions,
         });
-      } catch (error) {
+    } catch (error) {
         block.error = error;
-        blocksWithErrors.push(block);
-        failedBlocks++;
-        continue;
-      }
-      if (firstBlock) {
-        if (!block.request) {
-          globalFileMeta = block.meta;
-        }
-        firstBlock = false;
-      }
+        return;
+    }
+    if (block.meta.isFirstBlock && !block.request) {
+        globalFile.meta = block.meta;
+    }
 
-      if (!block.request) continue;
-      block.description = block.meta.name as string ||
+    if (!block.request) {
+        block.meta.isEmptyBlock = true;
+        return;
+    }
+
+    block.description = block.meta.name as string ||
         `${block.request?.method} ${block.request?.url}`;
 
-      let spinner;
-      if ((block.meta.displayIndex as number) >= 2) {
+    let spinner;
+    if ((block.meta.displayIndex as number) >= 2) {
         spinner = wait({
-          prefix: fmt.dim("-"),
-          text: fmt.white(block.description),
-          color: "cyan",
-          spinner: "dots4",
-          interval: 200,
-          discardStdin: true,
+            prefix: fmt.dim("-"),
+            text: fmt.white(block.description),
+            color: "cyan",
+            spinner: "dots4",
+            interval: 200,
+            discardStdin: true,
         });
-      } else {
+    } else {
         spinner = {
-          start: noop,
-          stopAndPersist: noop,
-          update: noop,
+            start: noop,
+            stopAndPersist: noop,
+            update: noop,
         };
-      }
+    }
 
-      try {
+    try {
         spinner.start();
 
         if (block.meta.ignore) {
-          ignoredBlocks++;
-          spinner.stopAndPersist({
-            symbol: fmt.yellow("-"),
-            text: fmt.yellow(block.description),
-          });
-          continue;
+            block.meta.isIgnoredBlock = true;
+            spinner.stopAndPersist({
+                symbol: fmt.yellow("-"),
+                text: fmt.yellow(block.description),
+            });
+            return;
         }
 
         await fetchBlock(block);
         await block.actualResponse?.extractBody();
 
         block.expectedResponse = await parseResponseFromText(
-          block.text,
-          {
-            ...block,
-            response: block.actualResponse,
-            ...assertions,
-          },
+            block.text,
+            {
+                ...block,
+                response: block.actualResponse,
+                ...assertions,
+            },
         );
         if (block.expectedResponse) {
-          await assertResponse(block);
+            await assertResponse(block);
         }
+
         const elapsedTime = Date.now() - startTime;
         block.meta.elapsedTime = elapsedTime;
 
         spinner.stopAndPersist({
-          symbol: fmt.green("✔"),
-          text: fmt.green(block.description) + fmt.dim(` ${elapsedTime}ms`),
+            symbol: fmt.green("✔"),
+            text: fmt.green(block.description) + fmt.dim(` ${elapsedTime}ms`),
         });
 
-        passedBlocks++;
-      } catch (error) {
+        block.meta.isSuccessfulBlock = true;
+    } catch (error) {
         block.error = error;
-        blocksWithErrors.push(block);
 
         const elapsedTime = Date.now() - startTime;
         block.meta.elapsedTime = elapsedTime;
         spinner.stopAndPersist({
-          symbol: fmt.brightRed("✖"),
-          text: fmt.red(block.description) + fmt.dim(` ${elapsedTime}ms`),
+            symbol: fmt.brightRed("✖"),
+            text: fmt.red(block.description) + fmt.dim(` ${elapsedTime}ms`),
         });
-        failedBlocks++;
-      } finally {
+        block.meta.isFailedBlock = true;
+    } finally {
         await printBlock(block);
         await consumeBodies(block);
 
-        if (failFast && failedBlocks) {
-          blocksWithErrors.forEach(printError);
-          const status = block.actualResponse?.status || 1;
-          console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
-          Deno.exit(status);
-        }
-      }
+
     }
-
-    fullSpinner?.stopAndPersist();
-  }
-  if ((defaultMeta?.displayIndex as number) !== 0) {
-    blocksWithErrors.forEach(printError);
-    exitCode = failedBlocks;
-
-    const statusText = exitCode
-      ? fmt.bgRed(" FAIL ")
-      : fmt.bgBrightGreen(" PASS ");
-
-    const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
-    const elapsedGlobalTime = Date.now() - startGlobalTime;
-    console.info();
-    console.info(
-      fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${
-        fmt.green(String(passedBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${
-        fmt.yellow(String(ignoredBlocks))
-      } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
-    );
-  }
-  return files;
 }
