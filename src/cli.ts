@@ -169,7 +169,7 @@ export async function runner(
     }
 
     let firstBlock = true;
-    let globalMeta = {};
+    let globalFileMeta = {};
     for (const block of file.blocks) {
       block.meta ??= {};
       block.meta.relativePath = relativePath;
@@ -180,7 +180,7 @@ export async function runner(
           ...block,
           ...assertions,
         });
-        block.meta = { ...defaultMeta, ...block.meta, ...globalMeta, ...meta };
+        block.meta = { ...defaultMeta, ...block.meta, ...globalFileMeta, ...meta };
 
         block.request = await parseRequestFromText(block, {
           ...block,
@@ -194,7 +194,7 @@ export async function runner(
       }
       if (firstBlock) {
         if (!block.request) {
-          globalMeta = block.meta;
+          globalFileMeta = block.meta;
         }
         firstBlock = false;
       }

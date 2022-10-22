@@ -13,9 +13,8 @@ function printTitle(title: string, fmtMethod = "blue") {
   const titleStr = fmt[fmtMethod](` ${title} `) as string;
   const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   const separator = fmt.dim("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${
-    separator.repeat(padLength)
-  }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
+    }`;
   console.info(output);
 }
 
@@ -91,10 +90,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-    ? fmt.yellow
-    : response.status >= 400 && response.status < 500
-    ? fmt.red
-    : fmt.bgRed;
+      ? fmt.yellow
+      : response.status >= 400 && response.status < 500
+        ? fmt.red
+        : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -112,20 +111,16 @@ export function headersToText(headers: Headers): string {
     maxLengthValue = Math.max(maxLengthValue, value.length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${
-      fmt.dim(value.padEnd(maxLengthValue + 1))
-    }\n`;
+    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(value.padEnd(maxLengthValue + 1))
+      }\n`;
   }
 
   return result;
 }
 export async function printBody(re: _Response | _Request): Promise<void> {
-  await extractBody(re);
-
-  // console.log('re.constructor.name', re.constructor.name);
-  // console.log('re.bodyExtracted', re.bodyExtracted);
-  // console.log('re. bodyRaw', re.bodyRaw);
-  console.info(await bodyToText(re), "\n");
+  let body = await bodyToText(re);
+  body &&= body.trim() + "\n";
+  console.info(body);
 }
 
 async function bodyToText(re: _Request | _Response): Promise<string> {
