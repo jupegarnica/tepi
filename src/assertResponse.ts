@@ -13,33 +13,25 @@ export async function assertResponse(block: Omit<Block, "meta">) {
     throw new Error("block.actualResponse is undefined");
   }
 
-  if (!expectedResponse.bodyExtracted) {
-    await expectedResponse.extractBody();
-  }
-  if (!actualResponse.bodyExtracted) {
-    await actualResponse.extractBody();
-  }
-
   if (expectedResponse.status) {
     assertEquals(expectedResponse.status, actualResponse.status);
   }
   if (expectedResponse.statusText) {
     assertEquals(expectedResponse.statusText, actualResponse.statusText);
   }
-
-  if (expectedResponse.bodyExtracted) {
+  if (await expectedResponse.getBody()) {
     if (
-      typeof expectedResponse.bodyExtracted === "object" &&
-      typeof actualResponse.bodyExtracted === "object"
+      typeof await expectedResponse.getBody() === "object" &&
+      typeof await actualResponse.getBody() === "object"
     ) {
       assertObjectMatch(
-        actualResponse.bodyExtracted as Record<string, unknown>,
-        expectedResponse.bodyExtracted as Record<string, unknown>,
+        await actualResponse.getBody() as Record<string, unknown>,
+        await expectedResponse.getBody() as Record<string, unknown>,
       );
     } else {
       assertEquals(
-        actualResponse.bodyExtracted,
-        expectedResponse.bodyExtracted,
+        await actualResponse.getBody(),
+        await expectedResponse.getBody(),
       );
     }
   }

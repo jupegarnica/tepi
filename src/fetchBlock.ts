@@ -45,6 +45,9 @@ export async function extractBody(
   const includes = (ct: string) => contentType.includes(ct);
 
   if (re.bodyUsed) {
+    if (re.bodyExtracted !== undefined) {
+      return re;
+    }
     if (typeof re.bodyRaw === "string") {
       const requestExtracted = mimesToJSON.some((ct) =>
           contentType.includes(ct)

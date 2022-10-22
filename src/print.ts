@@ -5,7 +5,6 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 import { _Request, _Response, Block } from "./types.ts";
-import { extractBody } from "./fetchBlock.ts";
 
 function printTitle(title: string, fmtMethod = "blue") {
   const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
@@ -124,9 +123,8 @@ export async function printBody(re: _Response | _Request): Promise<void> {
 }
 
 async function bodyToText(re: _Request | _Response): Promise<string> {
-  if (!re.bodyUsed) await re.extractBody();
 
-  const body = re.bodyExtracted;
+  const body = await re.getBody();
 
   const contentType = re.headers.get("content-type") || "";
   if (!contentType || !body) {

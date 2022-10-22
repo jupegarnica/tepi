@@ -276,8 +276,6 @@ async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData)
         }
 
         await fetchBlock(block);
-        await block.actualResponse?.extractBody();
-
         block.expectedResponse = await parseResponseFromText(
             block.text,
             {

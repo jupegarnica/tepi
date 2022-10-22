@@ -3,14 +3,17 @@ import { extractBody } from "./fetchBlock.ts";
 export interface RequestInterface extends Request {
   bodyRaw?: BodyInit | null;
   bodyExtracted?: unknown;
-  extractBody?: () => Promise<unknown>;
+  getBody?: () => Promise<unknown>;
 }
 
 export interface ResponseInterface extends Response {
   bodyRaw?: BodyInit | null;
   bodyExtracted?: unknown;
-  extractBody?: () => Promise<unknown>;
+  getBody?: () => Promise<unknown>;
 }
+
+
+
 
 export class _Response extends Response implements ResponseInterface {
   bodyRaw?: BodyInit | null;
@@ -25,9 +28,9 @@ export class _Response extends Response implements ResponseInterface {
     super(body, init);
     this.bodyRaw = body;
   }
-  async extractBody(): Promise<void> {
-    if (this.bodyUsed) return;
+  async getBody(): Promise<unknown> {
     await extractBody(this);
+    return this.#bodyExtracted;
   }
   get bodyExtracted() {
     return this.#bodyExtracted;
@@ -44,11 +47,10 @@ export class _Request extends Request implements RequestInterface {
     super(input, init);
     this.bodyRaw = init?.body;
   }
-  async extractBody(): Promise<void> {
-    if (this.bodyUsed) return;
+  async getBody(): Promise<unknown> {
     await extractBody(this);
+    return this.#bodyExtracted;
   }
-
   get bodyExtracted() {
     return this.#bodyExtracted;
   }

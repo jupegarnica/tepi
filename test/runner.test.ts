@@ -36,20 +36,16 @@ Deno.test("[runner] interpolation", async () => {
         firstBlock.expectedResponse?.headers.get("content-type"),
         "text/plain;charset=UTF-8",
     );
-    await firstBlock.actualResponse?.extractBody();
-    assertEquals(firstBlock.actualResponse?.bodyExtracted, "Hola Garn!");
-
+    assertEquals(await firstBlock.actualResponse?.getBody(), "Hola Garn!");
     const secondBlock = files[0].blocks[1];
     assertEquals(secondBlock.request?.headers.get('read-from-name'), 'Garn');
     assertEquals(secondBlock.expectedResponse?.body, undefined);
 
     const thirdBlock = files[0].blocks[2];
-    await thirdBlock.expectedResponse?.extractBody();
-    assertEquals(thirdBlock.expectedResponse?.bodyExtracted, undefined);
+    assertEquals(await thirdBlock.expectedResponse?.getBody(), undefined);
     assertEquals(thirdBlock.error?.message, "ups");
     const fourthBlock = files[0].blocks[3];
-    await fourthBlock.expectedResponse?.extractBody();
-    assertEquals(fourthBlock.expectedResponse?.bodyExtracted, "hola");
+    assertEquals(await fourthBlock.expectedResponse?.getBody(), "hola");
     assertEquals(fourthBlock.error, undefined);
 });
 
@@ -122,8 +118,9 @@ Deno.test("[runner] ref", { only: true }, async () => {
     const firstBlock = files[0].blocks[0];
     // console.log(firstBlock);
 
+    assertEquals(firstBlock.meta.name, 'block1');
     assertEquals(firstBlock.meta.isFetchedBlock, true);
-    assertEquals(firstBlock.request?.bodyExtracted, "block3?");
+    assertEquals(await firstBlock.request?.getBody(), "block3?");
 
     const secondBlock = files[0].blocks[1];
     // assertEquals(secondBlock.meta.timeout, "0");
