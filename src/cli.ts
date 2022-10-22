@@ -6,7 +6,9 @@ import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 
-import { runner } from "./runner";
+
+import { runner } from "./runner.ts";
+import { generateFromString } from "https://deno.land/x/ascii_captcha@v1.0.2/mod.ts"
 
 
 if (import.meta.main) {
@@ -27,31 +29,68 @@ if (import.meta.main) {
         },
     });
     if (args.help) {
-        console.log(
-            `Usage: httest [options] [file|glob]...
+        const { ascii } = await generateFromString("HTTest");
 
-Examples:
-    httest
-    httest api.http
-    httest test.http test2.http
-    httest **/*.http
+        const b = fmt.bold;
+        const w = fmt.brightWhite;
+        const d = fmt.dim;
+        const g = fmt.brightGreen;
+        const helpText =
+            `
+${b(fmt.brightYellow(ascii))}
 
-Options:
+${g('# Install:')}
 
-    -h, --help          output usage information
-    -w, --watch         watch files for changes
-    -f, --fail-fast     fail on error
-    -d, --display       display mode, (defaults: only-error)
-                            none: display nothing
-                            minimal: display only final result
-                            default: display list results and errors
-                            full: display all requests and responses
-    -t, --timeout       global timeout for all requests in ms
+${w('deno install -A -f -n httest https://deno.land/x/httest/cli.ts')}
 
-// TODO:
-    -c, --concurrency   number of concurrent requests
-    `,
-        );
+
+
+${g("# Usage:")}
+
+${w(`httest [OPTIONS] [FILES|GLOBS...]`)}
+
+${g("# Options:")}
+
+-w, ${w('--watch')}         ${d("Watch files for changes and rerun tests.")}
+-t, ${w('--timeout')}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")}
+-f, ${w('--fail-fast')}     ${d("Stop running tests after the first failure.")}
+-d, ${w('--display')}       ${d("Set the display mode. (none, minimal, default and full)")}
+                            none:${d(` display nothing`)}
+                            minimal:${d(` display only final result`)}
+                            default:${d(` display list results and errors`)}
+                            full:${d(` display all requests and responses`)}
+-h, ${w('--help')}         ${d("output usage information")}
+
+${g("# Examples:")}
+
+${'`httest`'}
+${d(`> Run all .http in the current directory and folders. (same as httest ./**/*.http)`)}
+
+
+${'`httest test.http ./test2.http`'}
+${d(`> Run test.http and test2.http`)}
+
+
+${'`httest **/*.http`'}
+${d(`> Run all .http in the current directory and folders.`)}
+
+
+${'`httest rest.http --watch`'}
+${d(`> Run rest.http and rerun when it changes`)}
+
+
+
+${'`httest rest.http  --watch "src/**/*.ts"`'}
+${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
+
+
+${'`httest rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`'}
+${d(`> You can use multiple --watch flags.`)}
+${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
+
+`
+
+        console.info(helpText);
         Deno.exit(0);
     }
 

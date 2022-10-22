@@ -2,6 +2,7 @@
   "tasks": {
     "test": "NO_LOG=1 deno test -A --unstable",
     "test-watch": "FORCE_COLOR=1 deno test -A --unstable --watch test",
-    "install": "deno install -fA --unstable --name httest ./src/cli.ts"
+    "install": "deno install -fA --unstable --name httest ./src/cli.ts",
+    "readme": "NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help > README.md"
   }
 }
