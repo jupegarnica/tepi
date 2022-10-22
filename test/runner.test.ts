@@ -112,16 +112,19 @@ Deno.test("[runner] timeout", async () => {
 
 Deno.test("[runner] ref", { only: true }, async () => {
     const files = await runner(["test/data/ref.http"], {
-        displayIndex: 0,
+        displayIndex: 1,
     });
 
     const firstBlock = files[0].blocks[0];
-    // console.log(firstBlock);
-
     assertEquals(firstBlock.meta.name, 'block1');
-    assertEquals(firstBlock.meta.isFetchedBlock, true);
-    assertEquals(await firstBlock.request?.getBody(), "block3?");
+    assertEquals(firstBlock.meta.isDoneBlock, true);
+    assertEquals(firstBlock.error, undefined);
+    assertEquals(await firstBlock.request?.getBody(), "block2?");
 
     const secondBlock = files[0].blocks[1];
-    // assertEquals(secondBlock.meta.timeout, "0");
+    assertEquals(secondBlock.meta.name, 'block2');
+    assertEquals(secondBlock.meta.isDoneBlock, true);
+    assertEquals(secondBlock.error, undefined);
+    assertEquals(await secondBlock.request?.getBody(), "block1??");
+
 });

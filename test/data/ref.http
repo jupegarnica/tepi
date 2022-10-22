@@ -3,9 +3,13 @@
 POST faker.deno.dev/pong
 x-quiet: true
 
-fas
+<%= block2.meta?.name + '?' %>
 
 ###
 # @name  block2
-GET faker.deno.dev/pong
+# @ref block1
+# @description must not enter on infinite loop
+POST faker.deno.dev/pong
 x-quiet: true
+
+<%= block1.meta?.name + '??' %>

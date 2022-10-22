@@ -151,10 +151,32 @@ export async function runner(
     let successfulBlocks = 0;
     let failedBlocks = 0;
     let ignoredBlocks = 0;
-    const blocksRun: Block[] = [];
+    const blocksDone: Block[] = [];
     let fullSpinner;
     const startGlobalTime = Date.now();
-    const globalData: GlobalData = { meta: {} };
+    const globalData: GlobalData = {
+        meta: { ...defaultMeta },
+        _files: files,
+        _blocksDone: {},
+        _blocksAlreadyReferenced: {},
+    };
+
+    // parse all metadata first
+    for (const file of files) {
+        for (const block of file.blocks) {
+            const meta = await parseMetaFromText(block.text, {
+                ...globalData,
+                ...block,
+                ...assertions,
+            });
+            block.meta = {
+                ...globalData.meta,
+                ...block.meta,
+                ...meta
+            };
+        }
+    }
+
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
 
@@ -172,22 +194,21 @@ export async function runner(
             block.meta.relativePath = relativePath;
             block.meta.isFirstBlock = isFirstBlock;
             if (isFirstBlock) isFirstBlock = false;
-            const blockDone = await runBlock(block, defaultMeta, globalData);
-            blocksRun.push(blockDone);
+            const [...blocks] = await runBlock(block, globalData);
+            blocksDone.push(...blocks);
 
             if (block.meta.isIgnoredBlock) {
                 ignoredBlocks++;
             }
             if (block.meta.isFailedBlock) {
                 failedBlocks++;
-                blocksRun.push(block);
             }
             if (block.meta.isSuccessfulBlock) {
                 successfulBlocks++;
             }
 
             if (failFast && failedBlocks) {
-                blocksRun.forEach(printError);
+                blocksDone.forEach(printError);
                 const status = block.actualResponse?.status || 1;
                 console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
                 Deno.exit(status);
@@ -197,7 +218,7 @@ export async function runner(
         fullSpinner?.stopAndPersist();
     }
     if ((defaultMeta?.displayIndex as number) !== 0) {
-        blocksRun.forEach(printError);
+        blocksDone.forEach(printError);
         exitCode = failedBlocks;
 
         const statusText = exitCode
@@ -218,19 +239,38 @@ export async function runner(
 }
 
 
-async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData): Promise<Block> {
+async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> {
+    console.log('runBlock', block.meta.name);
+
     const startTime = Date.now();
     let spinner;
+    const blocksDone = [block];
+    if (block.meta.isDoneBlock) return [];
     try {
-        const meta = await parseMetaFromText(block.text, {
-            ...globalData,
-            ...block,
-            ...assertions,
-        });
-        block.meta = { ...defaultMeta, ...block.meta, ...globalData.meta, ...meta };
+        if (block.meta.ref) {
+
+            const blockReferenced = globalData._files.flatMap((file) => file.blocks).find(b => b.meta.name === block.meta.ref);
+            if (!blockReferenced) {
+                // TODO thinks about this. maybe not throw error?
+                throw new Error(`Block referenced not found: ${block.meta.ref}`);
+            } else {
+                // Evict infinity loop
+                if (globalData._blocksAlreadyReferenced[blockReferenced.meta.name as string]) {
+                    return [];
+                    // throw new Error(`Block referenced already referenced: ${block.meta.ref}`);
+                }
+                globalData._blocksAlreadyReferenced[block.meta.ref as string] = blockReferenced;
+                const [...blocks] = await runBlock(blockReferenced, globalData);
+                blocksDone.push(...blocks);
+            }
+        }
+        block.meta = {
+            ...globalData.meta,
+            ...block.meta,
+        };
 
         block.request = await parseRequestFromText(block, {
-            ...globalData,
+            ...globalData._blocksDone,
             ...block,
             ...assertions,
         });
@@ -240,7 +280,7 @@ async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData)
 
         if (!block.request) {
             block.meta.isEmptyBlock = true;
-            return block;
+            return blocksDone;
         }
 
         block.description = block.meta.name as string ||
@@ -272,16 +312,18 @@ async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData)
                 symbol: fmt.yellow("-"),
                 text: fmt.yellow(block.description),
             });
-            return block;
+            return blocksDone;
         }
 
         await fetchBlock(block);
         block.expectedResponse = await parseResponseFromText(
             block.text,
             {
+                ...globalData._blocksDone,
                 ...block,
-                response: block.actualResponse,
                 ...assertions,
+                response: block.actualResponse,
+
             },
         );
         if (block.expectedResponse) {
@@ -297,7 +339,7 @@ async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData)
         });
 
         block.meta.isSuccessfulBlock = true;
-        return block;
+        return blocksDone;
     } catch (error) {
         block.error = error;
 
@@ -308,14 +350,14 @@ async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData)
             text: fmt.red(block.description || '') + fmt.dim(` ${elapsedTime}ms`),
         });
         block.meta.isFailedBlock = true;
-        return block;
+        return blocksDone;
     } finally {
         await printBlock(block);
         await consumeBodies(block);
-        block.meta.isFetchedBlock = true;
+        block.meta.isDoneBlock = true;
         if (block.meta.name) {
             const name = block.meta.name as string;
-            globalData[name] = block;
+            globalData._blocksDone[name] = block;
         }
 
     }

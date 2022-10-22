@@ -65,6 +65,12 @@ export type Meta = {
   endLine?: number;
   filePath?: string;
   relativeFilePath?: string;
+
+  isDoneBlock?: boolean;
+  isSuccessfulBlock?: boolean;
+  isFailedBlock?: boolean;
+  isIgnoredBlock?: boolean;
+
   [key: string]: number | string | boolean | undefined;
 };
 
@@ -88,7 +94,13 @@ export type File = {
 
 export type GlobalData = {
   meta: Meta,
-  [key: string]: unknown;
+  _files: File[],
+  _blocksAlreadyReferenced: {
+    [key: string]: Block
+  },
+  _blocksDone: {
+    [key: string]: Block;
+  }
 }
 
 // FETCH VALID HTTP METHODS
