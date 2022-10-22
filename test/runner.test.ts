@@ -112,7 +112,22 @@ Deno.test("[runner] timeout", async () => {
 
 Deno.test("[runner] ref", { only: true }, async () => {
     const files = await runner(["test/data/ref.http"], {
-        displayIndex: 1,
+        displayIndex: 0,
+    });
+
+    const firstBlock = files[0].blocks[0];
+    assertEquals(firstBlock.meta.name, 'block1');
+    assertEquals(firstBlock.meta.isDoneBlock, true);
+    assertEquals(firstBlock.error, undefined);
+    assertEquals(await firstBlock.request?.getBody(), "RESPONSE!?");
+
+});
+
+
+
+Deno.test("[runner] ref loop", async () => {
+    const files = await runner(["test/data/ref.loop.http"], {
+        displayIndex: 0,
     });
 
     const firstBlock = files[0].blocks[0];

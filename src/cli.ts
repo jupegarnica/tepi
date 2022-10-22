@@ -240,8 +240,6 @@ export async function runner(
 
 
 async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> {
-    console.log('runBlock', block.meta.name);
-
     const startTime = Date.now();
     let spinner;
     const blocksDone = [block];
@@ -326,6 +324,8 @@ async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> 
 
             },
         );
+        block.response = block.actualResponse;
+
         if (block.expectedResponse) {
             await assertResponse(block);
         }

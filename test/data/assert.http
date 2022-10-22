@@ -23,7 +23,7 @@ hello
 HTTP/1.1 200 OK
 
 hello
-<% assertEquals(response.bodyExtracted, "hello", 'not body extracted') %>
+<% assertEquals(await response.getBody(), "hello", 'not body extracted') %>
 
 
 ###
@@ -35,7 +35,7 @@ hello
 HTTP/1.1 200 OK
 
 hello
-<% assertEquals(response.bodyExtracted, "hola", 'failed!') %>
+<% assertEquals(await response.getBody(), "hola", 'failed!') %>
 
 
 

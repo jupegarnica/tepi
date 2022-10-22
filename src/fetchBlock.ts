@@ -25,7 +25,7 @@ export async function fetchBlock(
 
   try {
     const response = await fetch(request, { signal });
-    const actualResponse = _Response.fromResponse(response);
+    const actualResponse = _Response.fromResponse(response, request.bodyRaw);
     block.actualResponse = actualResponse;
   } catch (error) {
     if (error.name === "AbortError") {
@@ -59,6 +59,7 @@ export async function extractBody(
     }
     return re;
   }
+
   if (!contentType) {
     re.bodyExtracted = undefined;
     return re;

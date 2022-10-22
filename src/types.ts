@@ -19,9 +19,9 @@ export class _Response extends Response implements ResponseInterface {
   bodyRaw?: BodyInit | null;
   #bodyExtracted?: unknown;
 
-  static fromResponse(response: Response): _Response {
+  static fromResponse(response: Response, bodyRaw?: BodyInit | null): _Response {
     const _response = new _Response(response.body, response);
-    _response.bodyRaw = response.body;
+    _response.bodyRaw = bodyRaw;
     return _response;
   }
   constructor(body?: BodyInit | null | undefined, init?: ResponseInit) {
@@ -48,8 +48,9 @@ export class _Request extends Request implements RequestInterface {
     this.bodyRaw = init?.body;
   }
   async getBody(): Promise<unknown> {
+
     await extractBody(this);
-    return this.#bodyExtracted;
+    return this.bodyExtracted;
   }
   get bodyExtracted() {
     return this.#bodyExtracted;
@@ -83,6 +84,7 @@ export type Block = {
   request?: _Request;
   expectedResponse?: _Response;
   actualResponse?: _Response;
+  response?: _Response;
   meta: Meta;
   error?: Error;
 };

@@ -3,12 +3,13 @@
 POST faker.deno.dev/pong
 x-quiet: true
 
-<%= await block2.response.getBody() + '?'  %>
+<%= block2.meta?.name + '?' %>
 
 ###
 # @name  block2
+# @ref block1
 # @description must not enter on infinite loop
 POST faker.deno.dev/pong
 x-quiet: true
 
-RESPONSE!
+<%= block1.meta?.name + '??' %>
