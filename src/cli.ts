@@ -12,6 +12,10 @@ import { generateFromString } from "https://deno.land/x/ascii_captcha@v1.0.2/mod
 
 
 if (import.meta.main) {
+    await cli();
+}
+
+async function cli() {
     const args: Args = parse(Deno.args, {
         default: {
             display: "default",
@@ -30,14 +34,21 @@ if (import.meta.main) {
     });
     if (args.help) {
         const { ascii } = await generateFromString("HTTest");
+        const isReadme = !!Deno.env.get("NO_COLOR");
 
-        const b = fmt.bold;
+        const b = fmt.cyan;
         const w = fmt.brightWhite;
+        // const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
         const d = fmt.dim;
         const g = fmt.brightGreen;
+        const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
+        const codeDelimiter = isReadme ? "`" : "";
+        const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
+        const codeBlockDelimiter = isReadme ? "```" : "";
+        const codeBlock = (t: string, lang = 'http') => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
         const helpText =
             `
-${b(fmt.brightYellow(ascii))}
+${fmt.bold(fmt.brightYellow(ascii))}
 
 ${g('# Install:')}
 
@@ -51,47 +62,75 @@ ${w(`httest [OPTIONS] [FILES|GLOBS...]`)}
 
 ${g("# Options:")}
 
--w, ${w('--watch')}         ${d("Watch files for changes and rerun tests.")}
--t, ${w('--timeout')}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")}
--f, ${w('--fail-fast')}     ${d("Stop running tests after the first failure.")}
--d, ${w('--display')}       ${d("Set the display mode. (none, minimal, default and full)")}
+${d('* ')}-w, ${b('--watch')}         ${d("Watch files for changes and rerun tests.")}
+${d('* ')}-t, ${b('--timeout')}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")}
+${d('* ')}-f, ${b('--fail-fast')}     ${d("Stop running tests after the first failure.")}
+${d('* ')}-d, ${b('--display')}       ${d("Set the display mode. (none, minimal, default and full)")}
                             none:${d(` display nothing`)}
                             minimal:${d(` display only final result`)}
                             default:${d(` display list results and errors`)}
                             full:${d(` display all requests and responses`)}
--h, ${w('--help')}         ${d("output usage information")}
+${d('* ')}-h, ${b('--help')}         ${d("output usage information")}
+${d('* ')}  , ${b('--init')}      ${d("create example.http test file")}
 
 ${g("# Examples:")}
 
-${'`httest`'}
+${c(`httest`)}
 ${d(`> Run all .http in the current directory and folders. (same as httest ./**/*.http)`)}
 
-
-${'`httest test.http ./test2.http`'}
+${c(`httest test.http ./test2.http`)}
 ${d(`> Run test.http and test2.http`)}
 
 
-${'`httest **/*.http`'}
+${c(`httest **/*.http`)}
 ${d(`> Run all .http in the current directory and folders.`)}
 
 
-${'`httest rest.http --watch`'}
+${c(`httest rest.http --watch`)}
 ${d(`> Run rest.http and rerun when it changes`)}
 
 
 
-${'`httest rest.http  --watch "src/**/*.ts"`'}
+${c(`httest rest.http  --watch "src/**/*.ts"`)}
 ${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
 
 
-${'`httest rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`'}
+${c(`httest rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
 ${d(`> You can use multiple --watch flags.`)}
 ${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
+
+
+${g("# HTTP syntax:")}
+
+${(`You can use the standard HTTP syntax in your .http files as follow:`)}
+
+${codeBlock(`
+${w(`POST https://example.com/`)}
+${w(`Authorization: Bearer 123`)}
+${w(`Content-Type: application/json`)}
+
+${w(`{"name": "Garn"}`)}
+
+${w(`### separate requests with 3 #`)}
+${w(`# comment a line with`)}
+${w(`# use @ tu include metadata`)}
+${w(`# @name example`)}
+
+${w(`GET /?body=hola`)}
+${w(`host: https://faker.deno.dev`)}
+
+${d(`# write the expected response to validate the actual response`)}
+${w(`HTTP/1.1 200 OK`)}
+
+${w(`{"name": "Garn"}`)}
+`)}
+
+${(`Run ${c(`httest --init`)} to create a example.http file to know more about the syntax.`)}
 
 `
 
         console.info(helpText);
-        Deno.exit(0);
+        return;
     }
 
     const displays = [

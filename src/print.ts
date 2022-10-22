@@ -5,6 +5,7 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 import { _Request, _Response, Block } from "./types.ts";
+import denoFiglet from "https://deno.land/x/deno_figlet@0.0.5/mod.js";
 
 function printTitle(title: string, fmtMethod = "blue") {
   const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
@@ -60,12 +61,65 @@ export async function printBlock(block: Block): Promise<void> {
   }
 }
 
+// TODO USE THIS?
+export function printErrorsMinimalSummary(blocks: Block[]): void {
+  const blocksWidthErrors = blocks.filter((b) => b.error);
+  const halfViewport =( Deno.consoleSize(Deno.stdout.rid).columns / 2) - 5;
+
+  if (blocksWidthErrors.length) {
+    console.info();
+    printTitle("⬇   Failures   ⬇", "brightRed");
+  }
+  for (const { error, meta } of blocksWidthErrors) {
+    if (!error) {
+      continue;
+    }
+    const indexOfNewLine = error.message.indexOf("\n");
+    const len = indexOfNewLine > 0 ? Math.min(indexOfNewLine,halfViewport) : halfViewport;
+    let message = error.message.slice(0, len)
+    message = `${message}${message.length < error.message.length ? ("...") : "   "}`.padEnd(halfViewport+3);
+    const relativePath = meta.relativeFilePath;
+    console.error(
+      fmt.red("✖"),
+      fmt.magenta(message),
+      fmt.dim("at:"),
+      fmt.cyan(`${relativePath}:${1 + (meta.startLine || 0)}`),
+    );
+
+  }
+
+}
+export function printErrorsSummary(blocks: Block[]): void {
+  const blocksWidthErrors = blocks.filter((b) => b.error);
+
+  if (blocksWidthErrors.length) {
+    console.info();
+    printTitle("⬇   Failures   ⬇", "brightRed");
+  }
+  for (const { error, meta } of blocksWidthErrors) {
+    if (!error) {
+      continue;
+    }
+    const message = error.message;
+    const relativePath = meta.relativeFilePath;
+    console.error(
+      fmt.red("✖"),
+      fmt.white(message),
+      fmt.dim("\n\nat:"),
+      fmt.cyan(`${relativePath}:${1 + (meta.startLine || 0)}`),
+      '\n',
+    );
+
+  }
+
+}
+
 export function printError(block: Block): void {
   const error = block.error;
   if (!error) return;
   if (block.meta.displayIndex as number < 2) return;
 
-  const relativePath = block.meta.relativePath;
+  const relativePath = block.meta.relativeFilePath;
 
   printTitle("⬇   Error    ⬇", "brightRed");
 

@@ -5,7 +5,7 @@ import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
-import { printBlock, printError } from "./print.ts";
+import { printBlock, printError, printErrorsSummary, printErrorSummary } from "./print.ts";
 import {
   parseMetaFromText,
   parseRequestFromText,
@@ -70,7 +70,7 @@ export async function runner(
 
     let isFirstBlock = true;
     for (const block of file.blocks) {
-      block.meta.relativePath = relativePath;
+      block.meta.relativeFilePath = relativePath;
       block.meta.isFirstBlock = isFirstBlock;
       if (isFirstBlock)
         isFirstBlock = false;
@@ -88,7 +88,9 @@ export async function runner(
       }
 
       if (failFast && failedBlocks) {
-        blocksDone.forEach(printError);
+        if (defaultMeta?.displayIndex !== 0) {
+          printErrorsSummary(blocksDone);
+        }
         const status = block.actualResponse?.status || 1;
         console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
         Deno.exit(status);
@@ -98,7 +100,9 @@ export async function runner(
     fullSpinner?.stopAndPersist();
   }
   if ((defaultMeta?.displayIndex as number) !== 0) {
-    blocksDone.forEach(printError);
+
+    printErrorsSummary(blocksDone);
+
     const statusText = failedBlocks
       ? fmt.bgRed(" FAIL ")
       : fmt.bgBrightGreen(" PASS ");

@@ -1,0 +1,26 @@
+# @host https://faker.deno.dev
+# @explanation If the first block does not have a request its metadata will be use globally
+
+###
+# @description you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
+
+# @redirect follow
+# @ignore
+# @run as `httest --display full` to watch the imagen render on the terminal
+GET /image/avatar
+quiet: true
+
+###
+# @description test the response body json declaring an expected response
+# @name MUST FAIL because the response it not has all the keys.
+GET https://httpbin.org/json
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "slideshow": {
+    "title": "Sample Slide Show"
+  },
+  "unexpected": "this should not be here"
+}

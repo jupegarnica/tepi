@@ -3,6 +3,7 @@
     "test": "NO_LOG=1 deno test -A --unstable",
     "test-watch": "FORCE_COLOR=1 deno test -A --unstable --watch test",
     "install": "deno install -fA --unstable --name httest ./src/cli.ts",
-    "readme": "NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help > README.md"
+    "readme": "NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help > README.md",
+    "help": " deno run -A --unstable --watch ./src/cli.ts --help"
   }
 }
