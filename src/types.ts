@@ -83,6 +83,11 @@ export type File = {
   blocks: Block[];
 };
 
+export type GlobalData = {
+  meta: Meta,
+  [key: string]: unknown;
+}
+
 // FETCH VALID HTTP METHODS
 
 export const httpMethods = [

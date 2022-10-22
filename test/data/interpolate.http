@@ -15,7 +15,7 @@ Hola Garn!
 ###
 GET https://faker.deno.dev/pong?quiet=true
 x-data: <%= meta.ignore %>
-
+read-from-name: <%= hasData.meta.data %>
 ###
 # @name must fail
 

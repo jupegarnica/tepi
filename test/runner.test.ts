@@ -26,7 +26,7 @@ Deno.test(
     },
 );
 
-Deno.test("[runner] interpolation", async () => {
+Deno.test("[runner] interpolation", { only: true }, async () => {
     const files = await runner(["test/data/interpolate.http"], {
         displayIndex: 0,
     });
@@ -40,6 +40,7 @@ Deno.test("[runner] interpolation", async () => {
     assertEquals(firstBlock.actualResponse?.bodyExtracted, "Hola Garn!");
 
     const secondBlock = files[0].blocks[1];
+    assertEquals(secondBlock.request?.headers.get('read-from-name'), 'Garn');
     assertEquals(secondBlock.expectedResponse?.body, undefined);
 
     const thirdBlock = files[0].blocks[2];
@@ -113,7 +114,7 @@ Deno.test("[runner] timeout", async () => {
 
 
 
-Deno.test("[runner] ref", { only: true }, async () => {
+Deno.test("[runner] ref", { ignore: true }, async () => {
     const files = await runner(["test/data/ref.http"], {
         displayIndex: 0,
     });

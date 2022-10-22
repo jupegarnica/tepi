@@ -1,6 +1,6 @@
 import { type Args, parse } from "https://deno.land/std@0.159.0/flags/mod.ts";
 import { filePathsToFiles } from "./filePathsToFiles.ts";
-import type { Block, File, Meta } from "./types.ts";
+import type { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
@@ -154,6 +154,7 @@ export async function runner(
     const blocksRun: Block[] = [];
     let fullSpinner;
     const startGlobalTime = Date.now();
+    const globalData: GlobalData = { meta: {} };
     for (const file of files) {
         const relativePath = relative(Deno.cwd(), file.path);
 
@@ -167,12 +168,11 @@ export async function runner(
         }
 
         let isFirstBlock = true;
-        const globalFile = { meta: {} };
         for (const block of file.blocks) {
             block.meta.relativePath = relativePath;
             block.meta.isFirstBlock = isFirstBlock;
             if (isFirstBlock) isFirstBlock = false;
-            const blockDone = await runBlock(block, defaultMeta, globalFile);
+            const blockDone = await runBlock(block, defaultMeta, globalData);
             blocksRun.push(blockDone);
 
             if (block.meta.isIgnoredBlock) {
@@ -218,22 +218,24 @@ export async function runner(
 }
 
 
-async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Meta }): Promise<Block> {
+async function runBlock(block: Block, defaultMeta: Meta, globalData: GlobalData): Promise<Block> {
     const startTime = Date.now();
     let spinner;
     try {
         const meta = await parseMetaFromText(block.text, {
+            ...globalData,
             ...block,
             ...assertions,
         });
-        block.meta = { ...defaultMeta, ...block.meta, ...globalFile.meta, ...meta };
+        block.meta = { ...defaultMeta, ...block.meta, ...globalData.meta, ...meta };
 
         block.request = await parseRequestFromText(block, {
+            ...globalData,
             ...block,
             ...assertions,
         });
         if (block.meta.isFirstBlock && !block.request) {
-            globalFile.meta = block.meta;
+            globalData.meta = { ...globalData.meta, ...block.meta };
         }
 
         if (!block.request) {
@@ -312,6 +314,11 @@ async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Met
     } finally {
         await printBlock(block);
         await consumeBodies(block);
+        block.meta.isFetchedBlock = true;
+        if (block.meta.name) {
+            const name = block.meta.name as string;
+            globalData[name] = block;
+        }
 
     }
 }
