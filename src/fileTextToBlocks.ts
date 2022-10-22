@@ -1,31 +1,26 @@
 import { Block } from "./types.ts";
 
-
-
-
-
 export function fileTextToBlocks(txt: string, filePath: string): Block[] {
-
   const blocks: Block[] = [];
-  const lines = txt.replaceAll('\r', '\n').split("\n");
-  let currentBlockText = '';
+  const lines = txt.replaceAll("\r", "\n").split("\n");
+  let currentBlockText = "";
   let blockStartLine = 0;
   let blockEndLine = NaN;
   const blockSeparator = /^###/;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    currentBlockText += line + '\n';
+    currentBlockText += line + "\n";
     if (blockSeparator.test(line)) {
       blockEndLine = i;
       const block = {
         text: currentBlockText,
         startLine: blockStartLine,
         endLine: blockEndLine,
-        filePath ,
+        filePath,
       };
       blocks.push(block);
-      currentBlockText = '';
+      currentBlockText = "";
       blockStartLine = i + 1;
     }
     // final block
@@ -35,11 +30,10 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
         text: currentBlockText,
         startLine: blockStartLine,
         endLine: blockEndLine,
-        filePath ,
+        filePath,
       };
       blocks.push(block);
     }
   }
   return blocks;
-
 }
