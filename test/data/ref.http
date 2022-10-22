@@ -1,13 +1,9 @@
 # @name  block1
 # @ref block2
-GET faker.deno.dev/pong
+POST faker.deno.dev/pong
 x-quiet: true
 
-<%= block2.meta.name + '?' %>
-
-HTTP/1.1 200 OK
-
-block2?
+fas
 
 ###
 # @name  block2

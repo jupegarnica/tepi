@@ -8,10 +8,11 @@ Deno.test("[filePathsToFiles] must not have request", async () => {
 Deno.test("[filePathsToFiles] must have a basic block", async () => {
   const files = await filePathsToFiles([`./test/data/test1.http`]);
   assertEquals(files?.[0].blocks?.[0], {
-    endLine: 2,
-    startLine: 0,
-    meta: {},
+    meta: {
+      endLine: 2,
+      startLine: 0,
+      filePath: "./test/data/test1.http",
+    },
     text: "GET https://httpbin.org/html\n\n###\n",
-    filePath: "./test/data/test1.http",
   });
 });

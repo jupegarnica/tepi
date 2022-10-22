@@ -59,6 +59,10 @@ export class _Request extends Request implements RequestInterface {
 
 export type Meta = {
   elapsedTime?: number | string;
+  startLine?: number;
+  endLine?: number;
+  filePath?: string;
+  relativeFilePath?: string;
   [key: string]: number | string | boolean | undefined;
 };
 
@@ -72,9 +76,6 @@ export type Block = {
   expectedResponse?: _Response;
   actualResponse?: _Response;
   meta: Meta;
-  startLine?: number;
-  endLine?: number;
-  filePath?: string;
   error?: Error;
 };
 

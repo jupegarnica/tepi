@@ -26,7 +26,7 @@ Deno.test(
     },
 );
 
-Deno.test("[runner] interpolation", { only: true }, async () => {
+Deno.test("[runner] interpolation", async () => {
     const files = await runner(["test/data/interpolate.http"], {
         displayIndex: 0,
     });
@@ -114,13 +114,16 @@ Deno.test("[runner] timeout", async () => {
 
 
 
-Deno.test("[runner] ref", { ignore: true }, async () => {
+Deno.test("[runner] ref", { only: true }, async () => {
     const files = await runner(["test/data/ref.http"], {
         displayIndex: 0,
     });
 
     const firstBlock = files[0].blocks[0];
-    assertEquals(firstBlock.request?.bodyRaw, "block2?");
+    // console.log(firstBlock);
+
+    assertEquals(firstBlock.meta.isFetchedBlock, true);
+    assertEquals(firstBlock.request?.bodyExtracted, "block3?");
 
     const secondBlock = files[0].blocks[1];
     // assertEquals(secondBlock.meta.timeout, "0");

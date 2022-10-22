@@ -15,10 +15,12 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
       blockEndLine = i;
       const block = {
         text: currentBlockText,
-        startLine: blockStartLine,
-        endLine: blockEndLine,
-        filePath,
-        meta: {}
+        meta: {
+          startLine: blockStartLine,
+          endLine: blockEndLine,
+          filePath,
+
+        }
       };
       blocks.push(block);
       currentBlockText = "";
@@ -29,10 +31,11 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
       blockEndLine = i;
       const block = {
         text: currentBlockText,
-        startLine: blockStartLine,
-        endLine: blockEndLine,
-        filePath,
-        meta: {}
+        meta: {
+          startLine: blockStartLine,
+          endLine: blockEndLine,
+          filePath,
+        }
       };
       blocks.push(block);
     }
