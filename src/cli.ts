@@ -148,10 +148,10 @@ export async function runner(
     failFast = false,
 ): Promise<File[]> {
     const files: File[] = await filePathsToFiles(filePaths);
-    let passedBlocks = 0;
+    let successfulBlocks = 0;
     let failedBlocks = 0;
     let ignoredBlocks = 0;
-    const blocksWithErrors: Block[] = [];
+    const blocksRun: Block[] = [];
     let fullSpinner;
     const startGlobalTime = Date.now();
     for (const file of files) {
@@ -162,9 +162,8 @@ export async function runner(
         } else if ((defaultMeta?.displayIndex as number) >= 1) {
             console.info(fmt.dim(`${relativePath}`));
         } else {
-            fullSpinner = wait({ text: "" });
+            fullSpinner = wait({ text: fmt.dim(`${relativePath}`) });
             fullSpinner.start();
-            fullSpinner.text = fmt.dim(`${relativePath}`);
         }
 
         let isFirstBlock = true;
@@ -173,14 +172,22 @@ export async function runner(
             block.meta.relativePath = relativePath;
             block.meta.isFirstBlock = isFirstBlock;
             if (isFirstBlock) isFirstBlock = false;
-            await runBlock(block, defaultMeta, globalFile);
+            const blockDone = await runBlock(block, defaultMeta, globalFile);
+            blocksRun.push(blockDone);
 
-            if (block.error) {
-                blocksWithErrors.push(block);
-                failedBlocks++;
+            if (block.meta.isIgnoredBlock) {
+                ignoredBlocks++;
             }
+            if (block.meta.isFailedBlock) {
+                failedBlocks++;
+                blocksRun.push(block);
+            }
+            if (block.meta.isSuccessfulBlock) {
+                successfulBlocks++;
+            }
+
             if (failFast && failedBlocks) {
-                blocksWithErrors.forEach(printError);
+                blocksRun.forEach(printError);
                 const status = block.actualResponse?.status || 1;
                 console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
                 Deno.exit(status);
@@ -190,19 +197,19 @@ export async function runner(
         fullSpinner?.stopAndPersist();
     }
     if ((defaultMeta?.displayIndex as number) !== 0) {
-        blocksWithErrors.forEach(printError);
+        blocksRun.forEach(printError);
         exitCode = failedBlocks;
 
         const statusText = exitCode
             ? fmt.bgRed(" FAIL ")
             : fmt.bgBrightGreen(" PASS ");
 
-        const totalBlocks = passedBlocks + failedBlocks + ignoredBlocks;
+        const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
         const elapsedGlobalTime = Date.now() - startGlobalTime;
         console.info();
         console.info(
             fmt.bold(`${statusText}`),
-            `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(passedBlocks))
+            `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
             } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
             } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
         );
@@ -211,9 +218,9 @@ export async function runner(
 }
 
 
-async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Meta }) {
-
+async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Meta }): Promise<Block> {
     const startTime = Date.now();
+    let spinner;
     try {
         const meta = await parseMetaFromText(block.text, {
             ...block,
@@ -225,50 +232,45 @@ async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Met
             ...block,
             ...assertions,
         });
-    } catch (error) {
-        block.error = error;
-        return;
-    }
-    if (block.meta.isFirstBlock && !block.request) {
-        globalFile.meta = block.meta;
-    }
+        if (block.meta.isFirstBlock && !block.request) {
+            globalFile.meta = block.meta;
+        }
 
-    if (!block.request) {
-        block.meta.isEmptyBlock = true;
-        return;
-    }
+        if (!block.request) {
+            block.meta.isEmptyBlock = true;
+            return block;
+        }
 
-    block.description = block.meta.name as string ||
-        `${block.request?.method} ${block.request?.url}`;
+        block.description = block.meta.name as string ||
+            `${block.request?.method} ${block.request?.url}`;
 
-    let spinner;
-    if ((block.meta.displayIndex as number) >= 2) {
-        spinner = wait({
-            prefix: fmt.dim("-"),
-            text: fmt.white(block.description),
-            color: "cyan",
-            spinner: "dots4",
-            interval: 200,
-            discardStdin: true,
-        });
-    } else {
-        spinner = {
-            start: noop,
-            stopAndPersist: noop,
-            update: noop,
-        };
-    }
+        if ((block.meta.displayIndex as number) >= 2) {
+            spinner = wait({
+                prefix: fmt.dim("-"),
+                text: fmt.white(block.description),
+                color: "cyan",
+                spinner: "dots4",
+                interval: 200,
+                discardStdin: true,
+            });
+        } else {
+            spinner = {
+                start: noop,
+                stopAndPersist: noop,
+                update: noop,
+            };
+        }
 
-    try {
-        spinner.start();
+
+        spinner?.start();
 
         if (block.meta.ignore) {
             block.meta.isIgnoredBlock = true;
-            spinner.stopAndPersist({
+            spinner?.stopAndPersist({
                 symbol: fmt.yellow("-"),
                 text: fmt.yellow(block.description),
             });
-            return;
+            return block;
         }
 
         await fetchBlock(block);
@@ -289,26 +291,27 @@ async function runBlock(block: Block, defaultMeta: Meta, globalFile: { meta: Met
         const elapsedTime = Date.now() - startTime;
         block.meta.elapsedTime = elapsedTime;
 
-        spinner.stopAndPersist({
+        spinner?.stopAndPersist({
             symbol: fmt.green("✔"),
             text: fmt.green(block.description) + fmt.dim(` ${elapsedTime}ms`),
         });
 
         block.meta.isSuccessfulBlock = true;
+        return block;
     } catch (error) {
         block.error = error;
 
         const elapsedTime = Date.now() - startTime;
         block.meta.elapsedTime = elapsedTime;
-        spinner.stopAndPersist({
+        spinner?.stopAndPersist({
             symbol: fmt.brightRed("✖"),
-            text: fmt.red(block.description) + fmt.dim(` ${elapsedTime}ms`),
+            text: fmt.red(block.description || '') + fmt.dim(` ${elapsedTime}ms`),
         });
         block.meta.isFailedBlock = true;
+        return block;
     } finally {
         await printBlock(block);
         await consumeBodies(block);
-
 
     }
 }
