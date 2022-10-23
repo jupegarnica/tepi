@@ -9,17 +9,16 @@ import { printBlock, printErrorsSummary } from "./print.ts";
 import {
   parseMetaFromText,
   parseRequestFromText,
-  parseResponseFromText
+  parseResponseFromText,
 } from "./parseBlockText.ts";
 import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
-const noop = (..._: unknown[]): void => { };
-
+const noop = (..._: unknown[]): void => {};
 
 export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
-  failFast = false
-): Promise<{ files: File[], exitCode: number }> {
+  failFast = false,
+): Promise<{ files: File[]; exitCode: number }> {
   const files: File[] = await filePathsToFiles(filePaths);
   let successfulBlocks = 0;
   let failedBlocks = 0;
@@ -46,7 +45,7 @@ export async function runner(
         block.meta = {
           ...globalData.meta,
           ...block.meta,
-          ...meta
+          ...meta,
         };
       } catch (error) {
         block.error = error;
@@ -72,8 +71,9 @@ export async function runner(
     for (const block of file.blocks) {
       block.meta.relativeFilePath = relativePath;
       block.meta.isFirstBlock = isFirstBlock;
-      if (isFirstBlock)
+      if (isFirstBlock) {
         isFirstBlock = false;
+      }
       const [...blocks] = await runBlock(block, globalData);
       blocksDone.push(...blocks);
 
@@ -100,7 +100,6 @@ export async function runner(
     fullSpinner?.stopAndPersist();
   }
   if ((defaultMeta?.displayIndex as number) !== 0) {
-
     printErrorsSummary(blocksDone);
 
     const statusText = failedBlocks
@@ -112,33 +111,44 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))} ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`
+      `${fmt.white(String(totalBlocks))} tests, ${
+        fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${
+        fmt.yellow(String(ignoredBlocks))
+      } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
     );
   }
   return { files, exitCode: failedBlocks };
 }
 
-
-async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> {
+async function runBlock(
+  block: Block,
+  globalData: GlobalData,
+): Promise<Block[]> {
   const startTime = Date.now();
   let spinner;
   const blocksDone = [block];
-  if (block.meta.isDoneBlock)
+  if (block.meta.isDoneBlock) {
     return [];
+  }
   try {
     if (block.meta.ref) {
-
-      const blockReferenced = globalData._files.flatMap((file) => file.blocks).find(b => b.meta.name === block.meta.ref);
+      const blockReferenced = globalData._files.flatMap((file) => file.blocks)
+        .find((b) => b.meta.name === block.meta.ref);
       if (!blockReferenced) {
         // TODO thinks about this. maybe not throw error?
         throw new Error(`Block referenced not found: ${block.meta.ref}`);
       } else {
         // Evict infinity loop
-        if (globalData._blocksAlreadyReferenced[blockReferenced.meta.name as string]) {
+        if (
+          globalData
+            ._blocksAlreadyReferenced[blockReferenced.meta.name as string]
+        ) {
           return [];
           // throw new Error(`Block referenced already referenced: ${block.meta.ref}`);
         }
-        globalData._blocksAlreadyReferenced[block.meta.ref as string] = blockReferenced;
+        globalData._blocksAlreadyReferenced[block.meta.ref as string] =
+          blockReferenced;
         const [...blocks] = await runBlock(blockReferenced, globalData);
         blocksDone.push(...blocks);
       }
@@ -182,7 +192,6 @@ async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> 
       };
     }
 
-
     spinner?.start();
 
     if (block.meta.ignore) {
@@ -202,7 +211,7 @@ async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> 
         ...block,
         ...assertions,
         response: block.actualResponse,
-      }
+      },
     );
     block.response = block.actualResponse;
 
@@ -227,7 +236,7 @@ async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> 
     block.meta.elapsedTime = elapsedTime;
     spinner?.stopAndPersist({
       symbol: fmt.brightRed("✖"),
-      text: fmt.red(block.description || '') + fmt.dim(` ${elapsedTime}ms`),
+      text: fmt.red(block.description || "") + fmt.dim(` ${elapsedTime}ms`),
     });
     block.meta.isFailedBlock = true;
     return blocksDone;
@@ -243,7 +252,5 @@ async function runBlock(block: Block, globalData: GlobalData): Promise<Block[]> 
       const name = block.meta.name as string;
       globalData._blocksDone[name] = block;
     }
-
-
   }
 }

@@ -12,14 +12,14 @@ export interface ResponseInterface extends Response {
   getBody?: () => Promise<unknown>;
 }
 
-
-
-
 export class _Response extends Response implements ResponseInterface {
   bodyRaw?: BodyInit | null;
   #bodyExtracted?: unknown;
 
-  static fromResponse(response: Response, bodyRaw?: BodyInit | null): _Response {
+  static fromResponse(
+    response: Response,
+    bodyRaw?: BodyInit | null,
+  ): _Response {
     const _response = new _Response(response.body, response);
     _response.bodyRaw = bodyRaw;
     return _response;
@@ -48,7 +48,6 @@ export class _Request extends Request implements RequestInterface {
     this.bodyRaw = init?.body;
   }
   async getBody(): Promise<unknown> {
-
     await extractBody(this);
     return this.bodyExtracted;
   }
@@ -78,7 +77,6 @@ export type Meta = {
 export type BodyExtracted = { body: unknown; contentType: string };
 
 export type Block = {
-
   text?: string;
   description?: string;
   request?: _Request;
@@ -95,15 +93,15 @@ export type File = {
 };
 
 export type GlobalData = {
-  meta: Meta,
-  _files: File[],
+  meta: Meta;
+  _files: File[];
   _blocksAlreadyReferenced: {
-    [key: string]: Block
-  },
+    [key: string]: Block;
+  };
   _blocksDone: {
     [key: string]: Block;
-  }
-}
+  };
+};
 
 // FETCH VALID HTTP METHODS
 

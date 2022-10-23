@@ -19,8 +19,7 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
           startLine: blockStartLine,
           endLine: blockEndLine,
           filePath,
-
-        }
+        },
       };
       blocks.push(block);
       currentBlockText = "";
@@ -35,7 +34,7 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
           startLine: blockStartLine,
           endLine: blockEndLine,
           filePath,
-        }
+        },
       };
       blocks.push(block);
     }

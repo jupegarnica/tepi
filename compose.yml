@@ -15,10 +15,9 @@ services:
   test:
     networks:
       - tepi-net
-    image: denoland/deno
-    volumes:
-      - .:/app
-    working_dir: /app
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - HOST=http://faker:80
       - HOST_HTTPBIN=http://httpbin:80

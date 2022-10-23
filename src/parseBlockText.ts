@@ -140,7 +140,6 @@ export async function parseRequestFromText(
       continue;
     }
     if (lookingFor === "headers" && isHeaderLine(line)) {
-
       const [key, value] = extractHeader(trimmed);
       headers.set(key, value);
       continue;
