@@ -8,7 +8,7 @@ import { globsToFilePaths } from "./globsToFilePaths.ts";
 
 
 import { runner } from "./runner.ts";
-import { generateFromString } from "https://deno.land/x/ascii_captcha@v1.0.2/mod.ts"
+// import { generateFromString } from "https://deno.land/x/ascii_captcha@v1.0.2/mod.ts"
 
 
 if (import.meta.main) {
@@ -33,7 +33,13 @@ async function cli() {
         },
     });
     if (args.help) {
-        const { ascii } = await generateFromString("HTTest");
+    const title = `
+===================
+${fmt.bgBrightGreen(` HTTest `)}
+
+An HTTP Test Runner
+===================`
+        // const { ascii } = await generateFromString("HTTest");
         const isReadme = !!Deno.env.get("NO_COLOR");
 
         const b = fmt.cyan;
@@ -48,11 +54,11 @@ async function cli() {
         const codeBlock = (t: string, lang = 'rest') => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
         const helpText =
             `
-${codeBlock(fmt.bold(fmt.brightYellow(ascii)),'')}
+${fmt.bold(title)}
 
 ${g('# Install:')}
 
-${w('deno install -A -f -n httest https://deno.land/x/httest/cli.ts')}
+${w('deno install --allow-read --allow-env -f -n httest https://deno.land/x/httest/cli.ts')}
 
 
 
