@@ -1,24 +1,22 @@
 
 ```
- _   _  _____  _____             _   
-| | | ||_   _||_   _|           | |  
-| |_| |  | |    | |    ___  ___ | |_ 
-|  _  |  | |    | |   / _ \/ __|| __|
-| | | |  | |    | |  |  __/\__ \| |_ 
-\_| |_/  \_/    \_/   \___||___/ \__|
-                                     
-                                     
+-------------------------
+--------- TEPI ----------
+-------------------------
+-- An HTTP Test Runner --
+-------------------------
+
 ```
 
 # Install:
 
-deno install -A -f -n httest https://deno.land/x/httest/cli.ts
+deno install --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts
 
 
 
 # Usage:
 
-httest [OPTIONS] [FILES|GLOBS...]
+tepi [OPTIONS] [FILES|GLOBS...]
 
 # Options:
 
@@ -35,27 +33,27 @@ httest [OPTIONS] [FILES|GLOBS...]
 
 # Examples:
 
-`httest`
-> Run all .http in the current directory and folders. (same as httest ./**/*.http)
+`tepi`
+> Run all .http in the current directory and folders. (same as tepi ./**/*.http)
 
-`httest test.http ./test2.http`
+`tepi test.http ./test2.http`
 > Run test.http and test2.http
 
 
-`httest **/*.http`
+`tepi **/*.http`
 > Run all .http in the current directory and folders.
 
 
-`httest rest.http --watch`
+`tepi rest.http --watch`
 > Run rest.http and rerun when it changes
 
 
 
-`httest rest.http  --watch "src/**/*.ts"`
+`tepi rest.http  --watch "src/**/*.ts"`
 > Run rest.http and rerun when any .ts file in the src folder changes.
 
 
-`httest rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`
+`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`
 > You can use multiple --watch flags.
 > Note: You can use globs here too, but use quotes to avoid the shell expanding them.
 
@@ -76,15 +74,15 @@ Content-Type: application/json
 # use @ tu include metadata
 # @name example
 
-GET /?body=hola
+GET /?body=hola&status=400
 host: https://faker.deno.dev
 
 # write the expected response to validate the actual response
-HTTP/1.1 200 OK
+HTTP/1.1 400 Bad Request
 
-{"name": "Garn"}
+hola
 ```
 
-Run `httest --init` to create a example.http file to know more about the syntax.
+Run `tepi --init` to create a example.http file to know more about the syntax.
 
 

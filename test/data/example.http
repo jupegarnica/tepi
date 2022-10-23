@@ -6,7 +6,7 @@
 
 # @redirect follow
 # @ignore
-# @run as `httest --display full` to watch the imagen render on the terminal
+# @run as `tepi --display full` to watch the imagen render on the terminal
 GET /image/avatar
 quiet: true
 

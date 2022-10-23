@@ -33,12 +33,8 @@ async function cli() {
         },
     });
     if (args.help) {
-    const title = `
-===================
-${fmt.bgBrightGreen(` HTTest `)}
 
-An HTTP Test Runner
-===================`
+
         // const { ascii } = await generateFromString("HTTest");
         const isReadme = !!Deno.env.get("NO_COLOR");
 
@@ -52,19 +48,28 @@ An HTTP Test Runner
         const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
         const codeBlockDelimiter = isReadme ? "```" : "";
         const codeBlock = (t: string, lang = 'rest') => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
+
+        const title = `
+${g(`-------------------------`)}
+${g(`--------- ${fmt.bold('TEPI')} ----------`)}
+${g(`-------------------------`)}
+${g(`-- An HTTP Test Runner --`)}
+${g(`-------------------------`)}
+
+`;
         const helpText =
             `
-${fmt.bold(title)}
+${(codeBlock(title,''))}
 
 ${g('# Install:')}
 
-${w('deno install --allow-read --allow-env -f -n httest https://deno.land/x/httest/cli.ts')}
+${w('deno install --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts')}
 
 
 
 ${g("# Usage:")}
 
-${w(`httest [OPTIONS] [FILES|GLOBS...]`)}
+${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
 
 ${g("# Options:")}
 
@@ -81,27 +86,27 @@ ${d('* ')}  , ${b('--init')}      ${d("create example.http test file")}
 
 ${g("# Examples:")}
 
-${c(`httest`)}
-${d(`> Run all .http in the current directory and folders. (same as httest ./**/*.http)`)}
+${c(`tepi`)}
+${d(`> Run all .http in the current directory and folders. (same as tepi ./**/*.http)`)}
 
-${c(`httest test.http ./test2.http`)}
+${c(`tepi test.http ./test2.http`)}
 ${d(`> Run test.http and test2.http`)}
 
 
-${c(`httest **/*.http`)}
+${c(`tepi **/*.http`)}
 ${d(`> Run all .http in the current directory and folders.`)}
 
 
-${c(`httest rest.http --watch`)}
+${c(`tepi rest.http --watch`)}
 ${d(`> Run rest.http and rerun when it changes`)}
 
 
 
-${c(`httest rest.http  --watch "src/**/*.ts"`)}
+${c(`tepi rest.http  --watch "src/**/*.ts"`)}
 ${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
 
 
-${c(`httest rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
+${c(`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
 ${d(`> You can use multiple --watch flags.`)}
 ${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
 
@@ -122,16 +127,16 @@ ${w(`# comment a line with`)}
 ${w(`# use @ tu include metadata`)}
 ${w(`# @name example`)}
 
-${w(`GET /?body=hola`)}
+${w(`GET /?body=hola&status=400`)}
 ${w(`host: https://faker.deno.dev`)}
 
 ${d(`# write the expected response to validate the actual response`)}
-${w(`HTTP/1.1 200 OK`)}
+${w(`HTTP/1.1 400 Bad Request`)}
 
-${w(`{"name": "Garn"}`)}
+${w(`hola`)}
 `)}
 
-${(`Run ${c(`httest --init`)} to create a example.http file to know more about the syntax.`)}
+${(`Run ${c(`tepi --init`)} to create a example.http file to know more about the syntax.`)}
 
 `
 
