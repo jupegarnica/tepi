@@ -5,7 +5,7 @@ import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
-import { printBlock, printError, printErrorsSummary, printErrorSummary } from "./print.ts";
+import { printBlock, printErrorsSummary } from "./print.ts";
 import {
   parseMetaFromText,
   parseRequestFromText,

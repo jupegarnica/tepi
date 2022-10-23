@@ -1,7 +1,9 @@
 
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+###
 
 # @name must read same response
-POST http://faker.deno.dev/pong
+POST /pong
 quiet: true
 
 body

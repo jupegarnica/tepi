@@ -1,7 +1,8 @@
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 # @name ignored
 # @ignore
-POST https://faker.deno.dev/pong?quiet=true&status=400
+POST /pong?quiet=true&status=400
 content-type: application/json
 
 {

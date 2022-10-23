@@ -1,14 +1,17 @@
-GET https://httpbin.org/html
+# @host <%= Deno.env.get('HOST_HTTPBIN') || 'https://httpbin.org' %>
+###
+
+GET /html
 
 ###
 
-GET https://httpbin.org/status/204
+GET /status/204
 
 ###
-GET https://httpbin.org/gzip
+GET /gzip
 
 ###
-POST https://httpbin.org/status/400
+POST /status/400
 Content-Type: text/plain
 
 must throw
@@ -16,7 +19,7 @@ must throw
 HTTP/1.1 200 OK
 
 ###
-POST http://httpbin.org/anything
+POST /anything
 Content-Type: text/plain
 
 hola mundo

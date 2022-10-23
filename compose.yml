@@ -4,28 +4,29 @@ services:
     ports:
       - 80:8000
     networks:
-      - fetch-net
+      - tepi-net
   httpbin:
     image: kennethreitz/httpbin
     ports:
       - "81:80"
     networks:
-      - fetch-net
+      - tepi-net
 
   test:
     networks:
-      - fetch-net
+      - tepi-net
     image: denoland/deno
     volumes:
       - .:/app
     working_dir: /app
     environment:
       - HOST=http://faker:80
-    # command: deno task test
-    command: deno task test-watch
+      - HOST_HTTPBIN=http://httpbin:80
+    command: deno task test
     depends_on:
       - faker
+      - httpbin
 
 networks:
-  fetch-net:
+  tepi-net:
     driver: bridge

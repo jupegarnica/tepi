@@ -1,4 +1,4 @@
-# @host https://faker.deno.dev/
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 # @version 0.1.0
 
 ###

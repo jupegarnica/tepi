@@ -1,4 +1,7 @@
-POST faker.deno.dev/pong?quiet=true
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+###
+
+POST /pong?quiet=true
 Content-Type: application/json
 x-powered-by: Deno
 
@@ -16,7 +19,7 @@ x-powered-by: Deno
 
 ###
 # @name must work
-POST faker.deno.dev/pong?quiet=true
+POST /pong?quiet=true
 
 hello
 
@@ -28,7 +31,7 @@ hello
 
 ###
 # @name must fail with custom error
-POST faker.deno.dev/pong?quiet=true
+POST /pong?quiet=true
 
 hello
 
@@ -41,7 +44,7 @@ hello
 
 ###
 # @name must fail because of headers
-GET faker.deno.dev/pong?quiet=true
+GET /pong?quiet=true
 x-quiet: true
 
 HTTP/1.1 200 OK

@@ -1,6 +1,9 @@
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+###
+
 # @name  block1
 # @ref block2
-POST faker.deno.dev/pong
+POST /pong
 x-quiet: true
 
 <%= await block2.response.getBody() + '?'  %>
@@ -8,7 +11,7 @@ x-quiet: true
 ###
 # @name  block2
 # @description must not enter on infinite loop
-POST faker.deno.dev/pong
+POST /pong
 x-quiet: true
 
 RESPONSE!

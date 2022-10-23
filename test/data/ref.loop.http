@@ -1,6 +1,9 @@
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+###
+
 # @name  block1
 # @ref block2
-POST faker.deno.dev/pong
+POST /pong
 x-quiet: true
 
 <%= block2.meta?.name + '?' %>
@@ -9,7 +12,7 @@ x-quiet: true
 # @name  block2
 # @ref block1
 # @description must not enter on infinite loop
-POST faker.deno.dev/pong
+POST /pong
 x-quiet: true
 
 <%= block1.meta?.name + '??' %>

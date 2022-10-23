@@ -1,6 +1,8 @@
+# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+###
 
-# @timeout 500
-GET faker.deno.dev/pong?delay=1000
+# @timeout 100
+GET /pong?delay=200
 x-quiet: true
 
 HTTP/1.1 200 OK
@@ -8,11 +10,11 @@ HTTP/1.1 200 OK
 ###
 # @name force no timeout
 # @timeout 0
-GET faker.deno.dev/pong?delay=1000
+GET /pong?delay=200
 x-quiet: true
 
 
 ###
 # @name no timeout
-GET faker.deno.dev/pong?delay=1000
+GET /pong?delay=200
 x-quiet: true
