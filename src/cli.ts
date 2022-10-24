@@ -5,36 +5,51 @@ import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
-
+import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
-// import { generateFromString } from "https://deno.land/x/ascii_captcha@v1.0.2/mod.ts"
 
 if (import.meta.main) {
   await cli();
 }
 
 async function cli() {
-  const args: Args = parse(Deno.args, {
+  const options = {
     default: {
       display: "default",
       help: false,
     },
-    collect: ["watch"],
-    boolean: ["help", "failFast","no-color"],
+    collect: ["watch", "envFile"],
+    boolean: ["help", "failFast", "noColor"],
+    string: ["display", "envFile"],
+
     alias: {
       h: "help",
       w: "watch",
       t: "timeout",
       f: "failFast",
       d: "display",
-      "fail-fast": "failFast",
+      e: "envFile",
+      envFile: "env-file",
+      noColor: "no-color",
+      failFast: "fail-fast",
     },
-  });
-  if (args['no-color']) {
+  }
+  const args: Args = parse(Deno.args, options);
+
+  if (args.noColor) {
     fmt.setColorEnabled(false);
+    // DON'T WHY THIS IS NOT WORKING
     // Deno.env.set('NO_COLOR', 'true');
 
   }
+  for (const path of args.envFile) {
+    const vars = await config({ export: true, path , safe: true,allowEmptyValues: true });
+    for (const key in vars) {
+      console.info(fmt.gray(`Loaded env ${key} from ${path}`));
+    }
+  }
+  args.envFile.length && console.info("");
+
 
   if (args.help) {
     help();
@@ -47,7 +62,7 @@ async function cli() {
     "default",
     "full",
   ];
-  if (args.display === true) {
+  if (args.display === "") {
     args.display = "full";
   }
 
@@ -178,6 +193,7 @@ ${d("* ")}-d, ${c("--display")}       ${d("Set the display mode. (none, minimal,
 ${d("* ")}-h, ${c("--help")}          ${d("output usage information")}
 ${d("* ")}    ${c("--init")}          ${d("create example.http test file")}
 ${d("* ")}    ${c("---no-color")}     ${d("output without color")}
+${d("* ")}-e, ${c("---env-file")}     ${d("load environment variables from a .env file")}
 
 ${g("# Examples:")}
 

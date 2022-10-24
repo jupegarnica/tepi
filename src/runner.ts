@@ -12,7 +12,7 @@ import {
   parseResponseFromText,
 } from "./parseBlockText.ts";
 import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
-const noop = (..._: unknown[]): void => {};
+const noop = (..._: unknown[]): void => { };
 
 export async function runner(
   filePaths: string[],
@@ -23,8 +23,8 @@ export async function runner(
   let successfulBlocks = 0;
   let failedBlocks = 0;
   let ignoredBlocks = 0;
-  const blocksDone: Block[] = [];
   let fullSpinner;
+  const blocksDone: Block[] = [];
   const startGlobalTime = Date.now();
   const globalData: GlobalData = {
     meta: { ...defaultMeta },
@@ -32,6 +32,9 @@ export async function runner(
     _blocksDone: {},
     _blocksAlreadyReferenced: {},
   };
+  if (defaultMeta.displayIndex === 0) {
+    fullSpinner = wait({ text: '' }).start();
+  }
 
   // parse all metadata first
   for (const file of files) {
@@ -56,14 +59,16 @@ export async function runner(
 
   for (const file of files) {
     const relativePath = relative(Deno.cwd(), file.path);
+    const path = fmt.dim(`running ${relativePath}`);
+    let pathSpinner;
 
     if ((defaultMeta?.displayIndex as number) === 0) {
-      // do not display anything
-    } else if ((defaultMeta?.displayIndex as number) >= 1) {
-      console.info(fmt.dim(`${relativePath}`));
+      fullSpinner && (fullSpinner.text = path);
+    } else if ((defaultMeta?.displayIndex as number) === 1) {
+      pathSpinner = wait({ text: path });
+      pathSpinner.start();
     } else {
-      fullSpinner = wait({ text: fmt.dim(`${relativePath}`) });
-      fullSpinner.start();
+      console.info(path);
     }
 
     let isFirstBlock = true;
@@ -96,7 +101,7 @@ export async function runner(
       }
     }
 
-    fullSpinner?.stopAndPersist();
+    pathSpinner?.stopAndPersist();
   }
   if ((defaultMeta?.displayIndex as number) !== 0) {
     printErrorsSummary(blocksDone);
@@ -110,13 +115,12 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${
-        fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${
-        fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
       } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
     );
   }
+  fullSpinner?.clear();
   return { files, exitCode: failedBlocks };
 }
 
