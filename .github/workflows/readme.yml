@@ -19,4 +19,3 @@ jobs:
           author_email: ${{ github.actor }}@users.noreply.github.com
           message: "docs: update readme"
           add: "README.md"
-          push: true
