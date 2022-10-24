@@ -167,19 +167,22 @@ Deno.test("[runner] ref loop", async () => {
 
 Deno.test(
   "[runner] redirect ",
-  // { ignore: !!Deno.env.get("HOST") },
   async () => {
     const { files } = await runner(["test/data/redirect.http"], {
       displayIndex: 0,
     });
 
     const firstBlock = files[0].blocks[1];
-    assertEquals(firstBlock.meta?.redirect, "follow");
     assertEquals(firstBlock.request?.url, HOST + "/image/avatar");
+    assertEquals(firstBlock.meta?.redirect, "follow");
+    assertEquals(firstBlock.response?.headers.get('content-type'), 'image/jpeg');
+    assertEquals(firstBlock.response?.redirected, false, 'NOT REDIRECTED BECAUSE WHERE ARE EVALUATING THE FINAL RESPONSE');
     assertEquals(firstBlock.response?.status, 200);
-    // assertEquals(firstBlock.response?.headers.get("content-type"), "image/jpeg");
+
     const secondBlock = files[0].blocks[2];
     assertEquals(secondBlock.meta?.redirect, "manual");
+    assertEquals(secondBlock.response?.redirected, false);
+    assertEquals(secondBlock.response?.headers.get('content-type'), 'application/json; charset=utf-8');
     assertEquals(secondBlock.response?.status, 307);
     assertEquals(
       secondBlock.response?.headers.get("Location")?.startsWith("http"),
