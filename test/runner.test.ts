@@ -7,7 +7,8 @@ import { runner } from "../src/runner.ts";
 const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
 const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 
-// console.log(`HOST: ${HOST}`);
+// console.debug(`HOST: ${HOST}`);
+// console.debug(`HOST_HTTPBIN: ${HOST_HTTPBIN}`);
 
 
 Deno.test("[runner] find one file", async () => {
@@ -103,16 +104,16 @@ Deno.test("[runner] host meta data", async () => {
   );
 
   const thirdBlock = files[0].blocks[2];
-  assertEquals(thirdBlock.request?.url, HOST + "/");
+  assertEquals(thirdBlock.request?.url, HOST + "/", 'thirdBlock');
 
   const fourthBlock = files[0].blocks[3];
-  assertEquals(fourthBlock.request?.url, HOST + "/ping");
+  assertEquals(fourthBlock.request?.url, HOST + "/ping", 'fourthBlock');
 
   const fifthBlock = files[0].blocks[4];
-  assertEquals(fifthBlock.request?.url, HOST_HTTPBIN + "/get");
+  assertEquals(fifthBlock.request?.url, HOST_HTTPBIN + "/get", 'fifthBlock');
 
   const sixthBlock = files[0].blocks[5];
-  assertEquals(sixthBlock.request?.url, HOST_HTTPBIN + "/post");
+  assertEquals(sixthBlock.request?.url, HOST_HTTPBIN + "/post", 'sixthBlock');
 });
 
 Deno.test("[runner] timeout", async () => {
@@ -166,11 +167,12 @@ Deno.test("[runner] ref loop", async () => {
 
 Deno.test(
   "[runner] redirect ",
-  { ignore: !!Deno.env.get("HOST") },
+  // { ignore: !!Deno.env.get("HOST") },
   async () => {
     const { files } = await runner(["test/data/redirect.http"], {
       displayIndex: 0,
     });
+
     const firstBlock = files[0].blocks[1];
     assertEquals(firstBlock.meta?.redirect, "follow");
     assertEquals(firstBlock.request?.url, HOST + "/image/avatar");

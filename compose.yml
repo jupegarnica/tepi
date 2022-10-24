@@ -15,12 +15,15 @@ services:
   test:
     networks:
       - tepi-net
+
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - .:/app
     environment:
-      - HOST=http://faker:80
-      - HOST_HTTPBIN=http://httpbin:80
+      - HOST=http://faker:8000
+      - HOST_HTTPBIN=http://httpbin
     command: deno task test
     depends_on:
       - faker
