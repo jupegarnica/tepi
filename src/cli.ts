@@ -20,7 +20,7 @@ async function cli() {
       help: false,
     },
     collect: ["watch"],
-    boolean: ["help", "failFast"],
+    boolean: ["help", "failFast","no-color"],
     alias: {
       h: "help",
       w: "watch",
@@ -30,128 +30,13 @@ async function cli() {
       "fail-fast": "failFast",
     },
   });
+  if (args['no-color']) {
+    fmt.setColorEnabled(false);
+    // Deno.env.set('NO_COLOR', 'true');
+
+  }
   if (args.help) {
-    // const { ascii } = await generateFromString("HTTest");
-    const isReadme = !!Deno.env.get("NO_COLOR");
-
-    const b = fmt.cyan;
-    const w = fmt.brightWhite;
-    // const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
-    const d = fmt.dim;
-    const g = fmt.brightGreen;
-    const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
-    const codeDelimiter = isReadme ? "`" : "";
-    const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
-    const codeBlockDelimiter = isReadme ? "```" : "";
-    const codeBlock = (
-      t: string,
-      lang = "rest",
-    ) => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
-
-    const title = `
-${g(`-------------------------`)}
-${g(`--------- ${fmt.bold("TEPI")} ----------`)}
-${g(`-------------------------`)}
-${g(`-- An HTTP Test Runner --`)}
-${g(`-------------------------`)}
-
-`;
-    const helpText = `
-${(codeBlock(title, ""))}
-
-${g("# Install:")}
-
-${w("deno install --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts")}
-
-
-
-${g("# Usage:")}
-
-${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
-
-${g("# Options:")}
-
-${d("* ")}-w, ${b("--watch")}         ${
-      d("Watch files for changes and rerun tests.")
-    }
-${d("* ")}-t, ${b("--timeout")}       ${
-      d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
-    }
-${d("* ")}-f, ${b("--fail-fast")}     ${
-      d("Stop running tests after the first failure.")
-    }
-${d("* ")}-d, ${b("--display")}       ${
-      d("Set the display mode. (none, minimal, default and full)")
-    }
-                            none:${d(` display nothing`)}
-                            minimal:${d(` display only final result`)}
-                            default:${d(` display list results and errors`)}
-                            full:${d(` display all requests and responses`)}
-${d("* ")}-h, ${b("--help")}         ${d("output usage information")}
-${d("* ")}  , ${b("--init")}      ${d("create example.http test file")}
-
-${g("# Examples:")}
-
-${c(`tepi`)}
-${d(`> Run all .http in the current directory and folders. (same as tepi ./**/*.http)`)}
-
-${c(`tepi test.http ./test2.http`)}
-${d(`> Run test.http and test2.http`)}
-
-
-${c(`tepi **/*.http`)}
-${d(`> Run all .http in the current directory and folders.`)}
-
-
-${c(`tepi rest.http --watch`)}
-${d(`> Run rest.http and rerun when it changes`)}
-
-
-
-${c(`tepi rest.http  --watch "src/**/*.ts"`)}
-${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
-
-
-${c(`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
-${d(`> You can use multiple --watch flags.`)}
-${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
-
-
-${g("# HTTP syntax:")}
-
-${(`You can use the standard HTTP syntax in your .http files as follow:`)}
-
-${
-      codeBlock(`
-${w(`POST https://example.com/`)}
-${w(`Authorization: Bearer 123`)}
-${w(`Content-Type: application/json`)}
-
-${w(`{"name": "Garn"}`)}
-
-${w(`### separate requests with 3 #`)}
-${w(`# comment a line with`)}
-${w(`# use @ tu include metadata`)}
-${w(`# @name example`)}
-
-${w(`GET /?body=hola&status=400`)}
-${w(`host: https://faker.deno.dev`)}
-
-${d(`# write the expected response to validate the actual response`)}
-${w(`HTTP/1.1 400 Bad Request`)}
-
-${w(`hola`)}
-`)
-    }
-
-${(`Run ${
-      c(`tepi --init`)
-    } to create a example.http file to know more about the syntax.`)}
-
-`;
-
-    console.info(helpText);
-    return;
+    return help();
   }
 
   const displays = [
@@ -169,12 +54,12 @@ ${(`Run ${
   };
   if (defaultMeta.displayIndex === -1) {
     console.error(
-      `Invalid display mode: ${args.display}. Must be one of: ${
-        displays.join(", ")
+      `Invalid display mode: ${args.display}. Must be one of: ${displays.join(", ")
       }`,
     );
     Deno.exit(1);
   }
+
 
   const globs: string = args._.length ? args._.join(" ") : "**/*.http";
   const filePathsToRun = await globsToFilePaths(globs.split(" "));
@@ -228,4 +113,124 @@ async function watchAndRun(
       }
     }
   }
+}
+
+
+function help() {
+  // const { ascii } = await generateFromString("HTTest");
+  const isReadme = !!Deno.env.get("NO_COLOR");
+
+  const b = fmt.cyan;
+  const w = fmt.brightWhite;
+  // const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
+  const d = fmt.dim;
+  const g = fmt.brightGreen;
+  const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
+  const codeDelimiter = isReadme ? "`" : "";
+  const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
+  const codeBlockDelimiter = isReadme ? "```" : "";
+  const codeBlock = (
+    t: string,
+    lang = "rest",
+  ) => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
+
+  const title = `
+${g(`-------------------------`)}
+${g(`--------- ${fmt.bold("TEPI")} ----------`)}
+${g(`-------------------------`)}
+${g(`-- An HTTP Test Runner --`)}
+${g(`-------------------------`)}
+
+`;
+  const helpText = `
+${(codeBlock(title, ""))}
+
+${g("# Install:")}
+
+${w("deno install --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts")}
+
+
+
+${g("# Usage:")}
+
+${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
+
+${g("# Options:")}
+
+${d("* ")}-w, ${c("--watch")}         ${d("Watch files for changes and rerun tests.")
+    }
+${d("* ")}-t, ${c("--timeout")}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
+    }
+${d("* ")}-f, ${c("--fail-fast")}     ${d("Stop running tests after the first failure.")
+    }
+${d("* ")}-d, ${c("--display")}       ${d("Set the display mode. (none, minimal, default and full)")
+    }
+                           none:${d(` display nothing`)}
+                           minimal:${d(` display only final result`)}
+                           default:${d(` display list results and errors`)}
+                           full:${d(` display all requests and responses`)}
+${d("* ")}-h, ${c("--help")}          ${d("output usage information")}
+${d("* ")}    ${c("--init")}          ${d("create example.http test file")}
+${d("* ")}    ${c("---no-color")}     ${d("output without color")}
+
+${g("# Examples:")}
+
+${c(`tepi`)}
+${d(`> Run all .http in the current directory and folders. (same as tepi ./**/*.http)`)}
+
+${c(`tepi test.http ./test2.http`)}
+${d(`> Run test.http and test2.http`)}
+
+
+${c(`tepi **/*.http`)}
+${d(`> Run all .http in the current directory and folders.`)}
+
+
+${c(`tepi rest.http --watch`)}
+${d(`> Run rest.http and rerun when it changes`)}
+
+
+
+${c(`tepi rest.http  --watch "src/**/*.ts"`)}
+${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
+
+
+${c(`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
+${d(`> You can use multiple --watch flags.`)}
+${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
+
+
+${g("# HTTP syntax:")}
+
+${(`You can use the standard HTTP syntax in your .http files as follow:`)}
+
+${codeBlock(`
+${w(`POST https://example.com/`)}
+${w(`Authorization: Bearer 123`)}
+${w(`Content-Type: application/json`)}
+
+${w(`{"name": "Garn"}`)}
+
+${w(`### separate requests with 3 #`)}
+${w(`# comment a line with`)}
+${w(`# use @ tu include metadata`)}
+${w(`# @name example`)}
+
+${w(`GET /?body=hola&status=400`)}
+${w(`host: https://faker.deno.dev`)}
+
+${d(`# write the expected response to validate the actual response`)}
+${w(`HTTP/1.1 400 Bad Request`)}
+
+${w(`hola`)}
+`)
+    }
+
+${(`Run ${c(`tepi --init`)
+      } to create a example.http file to know more about the syntax.`)}
+
+`;
+
+  console.info(helpText);
+  return;
 }

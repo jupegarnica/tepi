@@ -178,8 +178,10 @@ Deno.test(
     assertEquals(firstBlock.response?.headers.get('content-type'), 'image/jpeg');
     assertEquals(firstBlock.response?.redirected, false, 'NOT REDIRECTED BECAUSE WHERE ARE EVALUATING THE FINAL RESPONSE');
     assertEquals(firstBlock.response?.status, 200);
+    assertEquals(firstBlock.response?.type,  "default");
 
     const secondBlock = files[0].blocks[2];
+    assertEquals(secondBlock.response?.type,  "default");
     assertEquals(secondBlock.meta?.redirect, "manual");
     assertEquals(secondBlock.response?.redirected, false);
     assertEquals(secondBlock.response?.headers.get('content-type'), 'application/json; charset=utf-8');
