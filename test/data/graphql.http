@@ -1,0 +1,24 @@
+
+POST https://rickandmortyapi.com/graphql
+Content-Type: application/json
+
+query Query {
+  characters(page: 2, filter: {name: "Morty"}) {
+    info {
+      count
+    }
+    results {
+      name
+    }
+  }
+  location(id: 1) {
+    id
+  }
+  episodesByIds(ids: [1, 2]) {
+    id
+  }
+}
+
+HTTP/1.1 400 Bad Request
+
+body

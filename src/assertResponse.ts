@@ -14,25 +14,36 @@ export async function assertResponse(block: Omit<Block, "meta">) {
   }
 
   if (expectedResponse.status) {
-    assertEquals(expectedResponse.status, actualResponse.status);
+    try {
+      assertEquals(expectedResponse.status, actualResponse.status);
+    } catch (error) {
+      throw new Error(`Status code mismatch\n${error.message}`);
+    }
   }
   if (expectedResponse.statusText) {
-    assertEquals(expectedResponse.statusText, actualResponse.statusText);
+    try {
+      assertEquals(expectedResponse.statusText, actualResponse.statusText);
+    } catch (error) {
+      throw new Error(`Status text mismatch\n${error.message}`);
+    }
   }
+
   if (await expectedResponse.getBody()) {
+    let assertBody: typeof assertEquals | typeof assertObjectMatch
+      = assertEquals;
     if (
       typeof await expectedResponse.getBody() === "object" &&
       typeof await actualResponse.getBody() === "object"
     ) {
-      assertObjectMatch(
+      assertBody = assertObjectMatch;
+    }
+    try {
+      assertBody(
         await actualResponse.getBody() as Record<string, unknown>,
         await expectedResponse.getBody() as Record<string, unknown>,
       );
-    } else {
-      assertEquals(
-        await actualResponse.getBody(),
-        await expectedResponse.getBody(),
-      );
+    } catch (error) {
+      throw new Error(`Body mismatch\n${error.message}`);
     }
   }
   if (expectedResponse.headers) {
