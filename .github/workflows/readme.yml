@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/use-deno@v1
+      - uses: denoland/setup-deno@v1
       - run: deno task readme
       - uses: EndBug/add-and-commit@v4
         with:
