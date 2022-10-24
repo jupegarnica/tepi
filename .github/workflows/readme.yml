@@ -15,7 +15,5 @@ jobs:
       - run: deno task readme
       - uses: EndBug/add-and-commit@v4
         with:
-          author_name: ${{ github.actor }}
-          author_email: ${{ github.actor }}@users.noreply.github.com
           message: "docs: update readme"
           add: "README.md"
