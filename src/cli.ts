@@ -35,8 +35,10 @@ async function cli() {
     // Deno.env.set('NO_COLOR', 'true');
 
   }
+
   if (args.help) {
-    return help();
+    help();
+    return
   }
 
   const displays = [
@@ -45,6 +47,10 @@ async function cli() {
     "default",
     "full",
   ];
+  if (args.display === true) {
+    args.display = "full";
+  }
+
   const defaultMeta: Meta = {
     timeout: 0,
     display: args.display as string,
@@ -120,7 +126,7 @@ function help() {
   // const { ascii } = await generateFromString("HTTest");
   const isReadme = !!Deno.env.get("NO_COLOR");
 
-  const b = fmt.cyan;
+  // const b = fmt.cyan;
   const w = fmt.brightWhite;
   // const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
   const d = fmt.dim;

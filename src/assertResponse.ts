@@ -1,30 +1,31 @@
 import { _Response, Block } from "./types.ts";
 import {
   assertEquals,
+  AssertionError,
   assertObjectMatch,
 } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 
 export async function assertResponse(block: Omit<Block, "meta">) {
   const { expectedResponse, actualResponse } = block;
   if (!expectedResponse) {
-    throw new Error("block.expectedResponse is undefined");
+    throw new AssertionError("block.expectedResponse is undefined");
   }
   if (!actualResponse) {
-    throw new Error("block.actualResponse is undefined");
+    throw new AssertionError("block.actualResponse is undefined");
   }
 
   if (expectedResponse.status) {
     try {
       assertEquals(expectedResponse.status, actualResponse.status);
     } catch (error) {
-      throw new Error(`Status code mismatch\n${error.message}`);
+      throw new AssertionError(`Status code mismatch\n${error.message}`);
     }
   }
   if (expectedResponse.statusText) {
     try {
       assertEquals(expectedResponse.statusText, actualResponse.statusText);
     } catch (error) {
-      throw new Error(`Status text mismatch\n${error.message}`);
+      throw new AssertionError(`Status text mismatch\n${error.message}`);
     }
   }
 
@@ -43,7 +44,7 @@ export async function assertResponse(block: Omit<Block, "meta">) {
         await expectedResponse.getBody() as Record<string, unknown>,
       );
     } catch (error) {
-      throw new Error(`Body mismatch\n${error.message}`);
+      throw new AssertionError(`Body mismatch\n${error.message}`);
     }
   }
   if (expectedResponse.headers) {

@@ -70,6 +70,7 @@ export type Meta = {
   isSuccessfulBlock?: boolean;
   isFailedBlock?: boolean;
   isIgnoredBlock?: boolean;
+  errorDisplayed?: boolean;
 
   [key: string]: number | string | boolean | undefined;
 };

@@ -49,7 +49,6 @@ export async function runner(
         };
       } catch (error) {
         block.error = error;
-        block.meta.isDoneBlock = true;
         block.meta.isErrorBlock = true;
       }
     }
@@ -132,6 +131,7 @@ async function runBlock(
     return [];
   }
   try {
+
     if (block.meta.ref) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)
         .find((b) => b.meta.name === block.meta.ref);
@@ -194,6 +194,7 @@ async function runBlock(
 
     spinner?.start();
 
+
     if (block.meta.ignore) {
       block.meta.isIgnoredBlock = true;
       spinner?.stopAndPersist({
@@ -202,6 +203,11 @@ async function runBlock(
       });
       return blocksDone;
     }
+
+    if (block.error) {
+      throw block.error;
+    }
+
 
     await fetchBlock(block);
     block.expectedResponse = await parseResponseFromText(
@@ -241,11 +247,8 @@ async function runBlock(
     block.meta.isFailedBlock = true;
     return blocksDone;
   } finally {
-    try {
-      await printBlock(block);
-    } catch (error) {
-      console.error("Error printing block", error);
-    }
+    await printBlock(block);
+
     await consumeBodies(block);
     block.meta.isDoneBlock = true;
     if (block.meta.name) {

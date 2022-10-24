@@ -5,39 +5,41 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 import { _Request, _Response, Block } from "./types.ts";
-import denoFiglet from "https://deno.land/x/deno_figlet@0.0.5/mod.js";
 
-function printTitle(title: string, fmtMethod = "blue") {
+
+type FmtMethod = keyof typeof fmt;
+
+function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
   const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
-  // @ts-ignore TODO fix this
-  const titleStr = fmt[fmtMethod](` ${title} `) as string;
+  // @ts-ignore // TODO: fix this
+  const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   const separator = fmt.dim("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${
-    separator.repeat(padLength)
-  }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
+    }`;
   console.info(output);
 }
 
 export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error } = block;
-  if (!request) {
-    return;
-  }
+
   if (block.meta.ignore) {
     return;
   }
   if (block.meta.displayIndex as number < 3) {
     return;
   }
-  console.group();
-  console.info("");
-  printTitle("⬇   Request    ⬇");
+  if (request) {
+    console.group();
+    console.info("");
+    printTitle("⬇   Request    ⬇");
 
-  console.info(requestToText(request));
-  console.info(headersToText(request.headers));
-  await printBody(request);
-  console.groupEnd();
+    console.info(requestToText(request));
+    console.info(headersToText(request.headers));
+    await printBody(request);
+    console.groupEnd();
+  }
+
   if (actualResponse) {
     console.group();
     printTitle("⬇   Response   ⬇");
@@ -62,56 +64,34 @@ export async function printBlock(block: Block): Promise<void> {
   }
 }
 
-// TODO USE THIS?
-export function printErrorsMinimalSummary(blocks: Block[]): void {
-  const blocksWidthErrors = blocks.filter((b) => b.error);
-  const halfViewport = (Deno.consoleSize(Deno.stdout.rid).columns / 2) - 5;
-
-  if (blocksWidthErrors.length) {
-    console.info();
-    printTitle("⬇   Failures   ⬇", "brightRed");
-  }
-  for (const { error, meta } of blocksWidthErrors) {
-    if (!error) {
-      continue;
-    }
-    const indexOfNewLine = error.message.indexOf("\n");
-    const len = indexOfNewLine > 0
-      ? Math.min(indexOfNewLine, halfViewport)
-      : halfViewport;
-    let message = error.message.slice(0, len);
-    message = `${message}${
-      message.length < error.message.length ? ("...") : "   "
-    }`.padEnd(halfViewport + 3);
-    const relativePath = meta.relativeFilePath;
-    console.error(
-      fmt.red("✖"),
-      fmt.magenta(message),
-      fmt.dim("at:"),
-      fmt.cyan(`${relativePath}:${1 + (meta.startLine || 0)}`),
-    );
-  }
-}
 export function printErrorsSummary(blocks: Block[]): void {
   const blocksWidthErrors = blocks.filter((b) => b.error);
 
   if (blocksWidthErrors.length) {
     console.info();
-    printTitle("⬇   Failures   ⬇", "brightRed");
+    printTitle("⬇   Failures Summary   ⬇", "brightRed");
+    console.info();
   }
+  let firstError = true;
   for (const { error, meta } of blocksWidthErrors) {
     if (!error) {
       continue;
     }
     const message = error.message;
-    const relativePath = meta.relativeFilePath;
+    const path = meta.relativeFilePath;
+    if (!meta.errorDisplayed) {
+      firstError || console.error(fmt.dim('------------------'));
+      console.error(
+        fmt.red("✖"),
+        fmt.white(message),
+      )
+    }
     console.error(
-      fmt.red("✖"),
-      fmt.white(message),
-      fmt.dim("\n\nat:"),
-      fmt.cyan(`${relativePath}:${1 + (meta.startLine || 0)}`),
-      "\n",
+      fmt.dim("at:"),
+      fmt.cyan(`${path}:${1 + (meta.startLine || 0)}`),
     );
+    firstError = false;
+
   }
 }
 
@@ -120,19 +100,21 @@ export function printError(block: Block): void {
   if (!error) return;
   if (block.meta.displayIndex as number < 2) return;
 
-  const relativePath = block.meta.relativeFilePath;
+  const path = block.meta.relativeFilePath;
 
-  printTitle("⬇   Error    ⬇", "brightRed");
+  printTitle("⬇   Error    ⬇");
 
   block.description && console.error(fmt.brightRed(block.description));
   console.error(
     fmt.dim("At:\n"),
-    fmt.cyan(`${relativePath}:${1 + (block.meta.startLine || 0)}`),
+    fmt.cyan(`${path}:${1 + (block.meta.startLine || 0)}`),
   );
   console.error(fmt.dim("Message:\n"), fmt.white(error?.message));
   // error?.stack && console.error(fmt.dim('Trace:\n'), fmt.dim(error?.stack));
   error?.cause &&
     console.error(fmt.dim("Cause:\n"), fmt.dim(String(error?.cause)));
+  block.meta.errorDisplayed = true;
+
 }
 
 export function requestToText(request: Request): string {
@@ -144,10 +126,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-    ? fmt.yellow
-    : response.status >= 400 && response.status < 500
-    ? fmt.red
-    : fmt.bgRed;
+      ? fmt.yellow
+      : response.status >= 400 && response.status < 500
+        ? fmt.red
+        : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -165,17 +147,22 @@ export function headersToText(headers: Headers): string {
     maxLengthValue = Math.max(maxLengthValue, value.length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${
-      fmt.dim(value.padEnd(maxLengthValue + 1))
-    }\n`;
+    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(value.padEnd(maxLengthValue + 1))
+      }\n`;
   }
 
   return result;
 }
 export async function printBody(re: _Response | _Request): Promise<void> {
-  let body = await bodyToText(re);
-  body &&= body.trim() + "\n";
-  console.info(body);
+  try {
+    let body = await bodyToText(re);
+    body &&= body.trim() + "\n";
+    console.info(body);
+  } catch (error) {
+    console.error(fmt.bgYellow(" Error printing block "));
+    console.error(fmt.red(error.name), error.message);
+    // console.error(error.stack);
+  }
 }
 
 async function bodyToText(re: _Request | _Response): Promise<string> {
