@@ -192,22 +192,21 @@ ${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
 
 ${g("# Options:")}
 
-${d("* ")}-w, ${c("--watch")}         ${d("Watch files for changes and rerun tests.")
+${d("* ")}-w ${c("--watch")}         ${d("Watch files for changes and rerun tests.")
     }
-${d("* ")}-t, ${c("--timeout")}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
+${d("* ")}-t ${c("--timeout")}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
     }
-${d("* ")}-f, ${c("--fail-fast")}     ${d("Stop running tests after the first failure.")
+${d("* ")}-f ${c("--fail-fast")}     ${d("Stop running tests after the first failure.")
     }
-${d("* ")}-d, ${c("--display")}       ${d("Set the display mode. (none, minimal, default and full)")
+${d("* ")}-d ${c("--display")}       ${d("Set the display mode. (none, minimal, default and full)")
     }
                            none:${d(` display nothing`)}
                            minimal:${d(` display only final result`)}
                            default:${d(` display list results and errors`)}
                            full:${d(` display all requests and responses`)}
-${d("* ")}-h, ${c("--help")}          ${d("output usage information")}
-${d("* ")}    ${c("--init")}          ${d("create example.http test file")}
-${d("* ")}    ${c("---no-color")}     ${d("output without color")}
-${d("* ")}-e, ${c("---env-file")}     ${d("load environment variables from a .env file")}
+${d("* ")}-h ${c("--help")}          ${d("output usage information")}
+${d("* ")}-e ${c("---env-file")}     ${d("load environment variables from a .env file")}
+${d("* ")}   ${c("---no-color")}     ${d("output without color")}
 
 ${g("# Examples:")}
 
@@ -273,9 +272,6 @@ ${w(`HTTP/1.1 400 Bad Request`)}
 ${w(`hola`)}
 `)
     }
-
-${(`Run ${c(`tepi --init`)
-      } to create a example.http file to know more about the syntax.`)}
 
 `;
 
