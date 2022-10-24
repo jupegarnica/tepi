@@ -235,6 +235,18 @@ ${c(`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
 ${d(`> You can use multiple --watch flags.`)}
 ${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
 
+${c(`tepi --timeout 10000`)}
+${d(`> Set the timeout for each test in milliseconds. After the timeout, the test will fail.`)}
+
+${c(`tepi --fail-fast`)}
+${d(`> Stop running tests after the first failure.`)}
+
+${c(`tepi --display minimal`)}
+${d(`> Set the display mode. (none, minimal, default and full)`)}
+
+${c(`tepi --env-file .env --env-file .env.test`)}
+${d(`> Load environment variables from a .env and .env.test`)}
+
 
 ${g("# HTTP syntax:")}
 
