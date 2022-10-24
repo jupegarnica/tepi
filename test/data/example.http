@@ -2,6 +2,21 @@
 # @explanation If the first block does not have a request its metadata will be use globally
 
 ###
+# @name optional name
+
+GET https://example.com
+
+
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+
+
+
+
+
+
+
+###
 # @description you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
 
 # @redirect follow

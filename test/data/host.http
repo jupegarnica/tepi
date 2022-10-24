@@ -1,5 +1,5 @@
 # @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
-# @hostHttpbin <%= Deno.env.get('HOST_HTTPBIN') || 'https://httpbin.org' %>
+# @hostHttpbin <%= Deno.env.get('HOST_HTTPBIN') || 'http://httpbin.org' %>
 # @version 0.1.0
 
 ###
@@ -26,4 +26,4 @@ host: <%= meta.hostHttpbin %>
 ###
 
 GET /post
-host: <%= meta.hostHttpbin.replace('https://','') %>
+host: <%= meta.hostHttpbin.replace('http://','') %>

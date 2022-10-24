@@ -7,6 +7,9 @@ import { runner } from "../src/runner.ts";
 const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
 const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 
+// console.log(`HOST: ${HOST}`);
+
+
 Deno.test("[runner] find one file", async () => {
   const { files } = await runner(["test/data/test1.http"], { displayIndex: 0 });
   assertEquals(files.length, 1);
@@ -169,8 +172,6 @@ Deno.test(
       displayIndex: 0,
     });
     const firstBlock = files[0].blocks[1];
-    console.log(firstBlock.request?.url);
-
     assertEquals(firstBlock.meta?.redirect, "follow");
     assertEquals(firstBlock.request?.url, HOST + "/image/avatar");
     assertEquals(firstBlock.response?.status, 200);
