@@ -114,6 +114,7 @@ export function printError(block: Block): void {
   error?.cause &&
     console.error(fmt.dim("Cause:\n"), fmt.dim(String(error?.cause)));
   block.meta.errorDisplayed = true;
+  console.error();
 
 }
 
