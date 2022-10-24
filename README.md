@@ -59,6 +59,18 @@ tepi [OPTIONS] [FILES|GLOBS...]
 > You can use multiple --watch flags.
 > Note: You can use globs here too, but use quotes to avoid the shell expanding them.
 
+`tepi --timeout 10000`
+> Set the timeout for each test in milliseconds. After the timeout, the test will fail.
+
+`tepi --fail-fast`
+> Stop running tests after the first failure.
+
+`tepi --display minimal`
+> Set the display mode. (none, minimal, default and full)
+
+`tepi --env-file .env --env-file .env.test`
+> Load environment variables from a .env and .env.test
+
 
 # HTTP syntax:
 
