@@ -77,19 +77,33 @@ export function printErrorsSummary(blocks: Block[]): void {
     if (!error) {
       continue;
     }
-    const message = error.message;
-    const path = meta.relativeFilePath;
+    const maximumLength = Deno.consoleSize(Deno.stdout.rid).columns / 2;
+    const path = `${meta.relativeFilePath}:${1 + (meta.startLine || 0)}`
+    const messagePath = `${fmt.dim("at:")} ${fmt.cyan(path)}`;
+    // const messageText = `${fmt.red("✖")} ${fmt.white(error.message)}`;
+    let message = '';
+
     if (!meta.errorDisplayed) {
       firstError || console.error(fmt.dim('------------------'));
-      console.error(
-        fmt.red("✖"),
-        fmt.white(message),
-      )
+      if (meta.displayIndex === 1) {
+        // console.log(messageText,fmt.blue('------------------\n'));
+       const messageText = fmt.stripColor(error.message);
+        const trimmedMessage = messageText.trim().replaceAll(/\s+/g, ' ');
+        const messageLength = trimmedMessage.length;
+        const needsToTruncate = messageLength > maximumLength;
+        const truncatedMessage = needsToTruncate
+          ? `${trimmedMessage.slice(0, maximumLength - 3)}...`
+          : trimmedMessage;
+        const messagePadded = truncatedMessage.padEnd(maximumLength);
+        message = `${fmt.red("✖")} ${fmt.white(messagePadded)} ${messagePath}`;
+
+      } else {
+        message = `${fmt.red("✖")} ${fmt.white(error.message)} \n${messagePath}`;
+      }
+    } else {
+      message = messagePath;
     }
-    console.error(
-      fmt.dim("at:"),
-      fmt.cyan(`${path}:${1 + (meta.startLine || 0)}`),
-    );
+    console.error(message);
     firstError = false;
 
   }
@@ -98,7 +112,6 @@ export function printErrorsSummary(blocks: Block[]): void {
 export function printError(block: Block): void {
   const error = block.error;
   if (!error) return;
-  if (block.meta.displayIndex as number < 2) return;
 
   const path = block.meta.relativeFilePath;
 

@@ -36,26 +36,23 @@ async function cli() {
   }
   const args: Args = parse(Deno.args, options);
 
+  // --no-color
+  /////////////
   if (args.noColor) {
     fmt.setColorEnabled(false);
     // DON'T WHY THIS IS NOT WORKING
     // Deno.env.set('NO_COLOR', 'true');
 
   }
-  for (const path of args.envFile) {
-    const vars = await config({ export: true, path , safe: true,allowEmptyValues: true });
-    for (const key in vars) {
-      console.info(fmt.gray(`Loaded env ${key} from ${path}`));
-    }
-  }
-  args.envFile.length && console.info("");
 
-
+  // --help
+  /////////////
   if (args.help) {
     help();
     return
   }
-
+  // --display
+  /////////////
   const displays = [
     "none",
     "minimal",
@@ -75,17 +72,34 @@ async function cli() {
   };
   if (defaultMeta.displayIndex === -1) {
     console.error(
-      `Invalid display mode: ${args.display}. Must be one of: ${displays.join(", ")
-      }`,
+      fmt.brightRed(`Invalid display mode ${args.display}\n Must be one of: ${displays.map(t=>fmt.bold(t)).join(", ")
+        }`),
     );
     Deno.exit(1);
   }
+  // --env-file
+  /////////////
+  const keysLoaded = []
+  for (const path of args.envFile) {
+    const vars = await config({ export: true, path, safe: true, allowEmptyValues: true });
+    for (const key in vars) {
+      keysLoaded.push({ key, value: vars[key], path })
+    }
+  }
+  if (keysLoaded.length && defaultMeta.displayIndex as number > 0) {
+    console.log(fmt.gray(`Loaded ${keysLoaded.length} environment variables from: \n${keysLoaded.map(({ path }) => path).join(', ')}`));
+  }
 
-
+  // runner
+  /////////////
   const globs: string = args._.length ? args._.join(" ") : "**/*.http";
   const filePathsToRun = await globsToFilePaths(globs.split(" "));
 
   const { exitCode } = await runner(filePathsToRun, defaultMeta, args.failFast);
+
+
+  // --watch
+  /////////////
   if (args.watch) {
     const filePathsToJustWatch = await globsToFilePaths(
       args.watch.filter((i: boolean | string) => typeof i === "string"),

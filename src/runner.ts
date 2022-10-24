@@ -23,7 +23,6 @@ export async function runner(
   let successfulBlocks = 0;
   let failedBlocks = 0;
   let ignoredBlocks = 0;
-  let fullSpinner;
   const blocksDone: Block[] = [];
   const startGlobalTime = Date.now();
   const globalData: GlobalData = {
@@ -32,8 +31,7 @@ export async function runner(
     _blocksDone: {},
     _blocksAlreadyReferenced: {},
   };
-  if (defaultMeta.displayIndex === 0) {
-    fullSpinner = wait({ text: '' }).start();
+  if (defaultMeta.displayIndex === 1) {
   }
 
   // parse all metadata first
@@ -63,7 +61,7 @@ export async function runner(
     let pathSpinner;
 
     if ((defaultMeta?.displayIndex as number) === 0) {
-      fullSpinner && (fullSpinner.text = path);
+      // display none
     } else if ((defaultMeta?.displayIndex as number) === 1) {
       pathSpinner = wait({ text: path });
       pathSpinner.start();
@@ -101,7 +99,8 @@ export async function runner(
       }
     }
 
-    pathSpinner?.stopAndPersist();
+    pathSpinner?.stop();
+    pathSpinner?.clear();
   }
   if ((defaultMeta?.displayIndex as number) !== 0) {
     printErrorsSummary(blocksDone);
@@ -120,7 +119,6 @@ export async function runner(
       } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
     );
   }
-  fullSpinner?.clear();
   return { files, exitCode: failedBlocks };
 }
 

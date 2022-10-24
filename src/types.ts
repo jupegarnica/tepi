@@ -60,6 +60,7 @@ export class _Request extends Request implements RequestInterface {
 }
 
 export type Meta = {
+  displayIndex?: number;
   elapsedTime?: number | string;
   startLine?: number;
   endLine?: number;
