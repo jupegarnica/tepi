@@ -8,13 +8,16 @@ import { parseBlockText } from "../src/parseBlockText.ts";
 import { Block } from "../src/types.ts";
 Deno.env.get("NO_LOG") && stub(console, "info");
 
+const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
+const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
+
 Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
     const block: Block = {
       meta: {},
       text: `
-        GET http://httpbin.org/status/400
+        GET ${HOST_HTTPBIN}/status/400
 
         HTTP/1.1 403 Forbidden
         `,
@@ -33,7 +36,7 @@ Deno.test(
     const block: Block = {
       meta: {},
       text: `
-GET http://httpbin.org/status/400
+GET ${HOST_HTTPBIN}/status/400
 
 HTTP/1.1 400 Forbidden
 `,
@@ -52,7 +55,7 @@ Deno.test(
     const block: Block = {
       meta: {},
       text: `
-GET http://httpbin.org/status/400
+GET ${HOST_HTTPBIN}/status/400
 
 HTTP/1.1 400 Forbidden
 `,
@@ -69,7 +72,7 @@ Deno.test("[fetchBlock] with expectedResponse plain test body", async () => {
   const block = {
     meta: {},
     text: `
-            POST http://httpbin.org/text
+            POST ${HOST_HTTPBIN}/text
             Content-Type: text/plain
 
             hola mundo
@@ -94,7 +97,7 @@ Deno.test(
     const block: Block = {
       meta: {},
       text: `
-            POST https://faker.deno.dev/pong?quite=true
+            POST ${HOST}/pong?quiet=true
             Content-Type: application/json
 
             {"foo":"bar"}
@@ -133,7 +136,7 @@ Deno.test(
 //     async () => {
 //         const response = await fetchBlock(
 //             `
-// POST https://faker.deno.dev/pong?quite=true
+// POST ${HOST}/pong?quiet=true
 // Content-Type: application/json
 
 // { "foo":"bar" ,  "bar": "foo" }
@@ -154,7 +157,7 @@ Deno.test(
 //         await assertRejects(async () => {
 //             await fetchBlock(
 //                 `
-// POST https://faker.deno.dev/pong?quite=true
+// POST ${HOST}/pong?quiet=true
 // Content-Type: application/json
 
 // { "foo":"bar" ,  "bar": "foo" }
