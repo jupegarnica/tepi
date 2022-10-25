@@ -106,6 +106,8 @@ async function cli() {
     } else {
       console.info(fmt.red(`\n${fmt.bold("Only")} mode is enabled. Some tests failed, but exit code is 1 because at least one test was run in ${fmt.bold("only")} mode.`));
     }
+  } else if (onlyMode) {
+    exitCode ||= 1;
   }
 
   // --watch
