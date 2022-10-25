@@ -15,10 +15,8 @@ Content-Type: text/html; charset=UTF-8
 
 ###
 ---
-description: you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
 redirect: follow
-ignore: true
-run: as `tepi --display full` to watch the imagen render on the terminal
+description: you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
 ---
 GET /image/avatar
 quiet: true
