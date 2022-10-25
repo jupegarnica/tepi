@@ -159,11 +159,11 @@ function help() {
   const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
   const codeDelimiter = isReadme ? "`" : "";
   const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
-  const codeBlockDelimiter = isReadme ? "```" : "";
+  const codeBlockDelimiter = isReadme ? "\n```" : "";
   const codeBlock = (
     t: string,
     lang = "",
-  ) => (codeBlockDelimiter + (isReadme ? lang : '') + t + codeBlockDelimiter);
+  ) => (codeBlockDelimiter + (isReadme ? lang : '')+'\n' + t + codeBlockDelimiter);
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
 
   const title = `
@@ -194,8 +194,10 @@ ${g("## Features:")}
 
 ${g("## Install:")}
 
-${w("deno install --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts")}
+${codeBlock("deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts", 'bash')}
 
+Or run remotely width:
+${codeBlock("deno run --unstable --allow-read --allow-env https://deno.land/x/tepi/cli.ts", 'bash')}
 
 ${g("## Usage:")}
 
@@ -301,7 +303,7 @@ All the std assertion module is available: https://deno.land/std/testing/asserts
 Use ${c("<% %>")} to run custom assertions. For example:
 
 ${codeBlock(`
-### GET  http://localhost:3000/users
+GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
 `)}
