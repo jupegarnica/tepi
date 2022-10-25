@@ -6,6 +6,8 @@ import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { printBlock, printErrorsSummary } from "./print.ts";
+// import { ms } from "https://raw.githubusercontent.com/denolib/ms/master/ms.ts";
+import ms  from "npm:ms";
 import {
   parseMetaFromText,
   parseRequestFromText,
@@ -111,12 +113,13 @@ export async function runner(
 
     const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
     const elapsedGlobalTime = Date.now() - startGlobalTime;
+    const prettyGlobalTime =fmt.dim(`(${ms(elapsedGlobalTime)})`);
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
       `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
       } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
-      } ignored ${fmt.dim(`(${elapsedGlobalTime}ms)`)}`,
+      } ignored ${prettyGlobalTime}`,
     );
   }
   return { files, exitCode: failedBlocks };
@@ -242,9 +245,10 @@ async function runBlock(
 
     const elapsedTime = Date.now() - startTime;
     block.meta.elapsedTime = elapsedTime;
+    const prettyTime = fmt.dim(` ${ms(elapsedTime)}`);
     spinner?.stopAndPersist({
       symbol: fmt.brightRed("✖"),
-      text: fmt.red(block.description || "") + fmt.dim(` ${elapsedTime}ms`),
+      text: fmt.red(block.description || "") + prettyTime,
     });
     block.meta.isFailedBlock = true;
     return blocksDone;
