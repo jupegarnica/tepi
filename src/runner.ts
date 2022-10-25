@@ -54,8 +54,6 @@ export async function runner(
           ...assertions,
         });
         if (meta.only) {
-          console.log("only mode", meta);
-
           onlyMode = true;
         }
         block.meta = {

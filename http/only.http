@@ -1,5 +1,7 @@
 ---
 host: <%= Deno.env.get("HOST") || "https://faker.deno.dev "%>
+only: true # must be ignored
+ignore: true # must be ignored
 ---
 ###
 ---
