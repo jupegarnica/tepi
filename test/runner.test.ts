@@ -12,7 +12,7 @@ const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 
 
 Deno.test("[runner] find one file", async () => {
-  const { files } = await runner(["test/data/test1.http"], { displayIndex: 0 });
+  const { files } = await runner(["http/test1.http"], { displayIndex: 0 });
   assertEquals(files.length, 1);
   assertEquals(files[0].blocks.length, 6);
 });
@@ -21,7 +21,7 @@ Deno.test(
   "[runner] must have found request, expected response, meta and actualResponse",
   // { only: true },
   async () => {
-    const { files } = await runner(["test/data/test2.http"], {
+    const { files } = await runner(["http/test2.http"], {
       displayIndex: 0,
     });
     const firstBlock = files[0].blocks[1];
@@ -36,7 +36,7 @@ Deno.test(
 );
 
 Deno.test("[runner] interpolation", async () => {
-  const { files } = await runner(["test/data/interpolate.http"], {
+  const { files } = await runner(["http/interpolate.http"], {
     displayIndex: 0,
   });
   const firstBlock = files[0].blocks[1];
@@ -82,7 +82,7 @@ Deno.test("[runner] interpolation", async () => {
 });
 
 Deno.test("[runner] asserts ", async () => {
-  const { files } = await runner(["test/data/assert.http"], {
+  const { files } = await runner(["http/assert.http"], {
     displayIndex: 0,
   });
   const firstBlock = files[0].blocks[1];
@@ -99,7 +99,7 @@ Deno.test("[runner] asserts ", async () => {
 });
 
 Deno.test("[runner] host meta data", async () => {
-  const { files } = await runner(["test/data/host.http"], { displayIndex: 0 });
+  const { files } = await runner(["http/host.http"], { displayIndex: 0 });
 
   const firstBlock = files[0].blocks[0];
   assertEquals(firstBlock.meta.host, HOST);
@@ -124,7 +124,7 @@ Deno.test("[runner] host meta data", async () => {
 });
 
 Deno.test("[runner] timeout", async () => {
-  const { files } = await runner(["test/data/timeout.http"], {
+  const { files } = await runner(["http/timeout.http"], {
     displayIndex: 0,
     timeout: 100,
   });
@@ -143,7 +143,7 @@ Deno.test("[runner] timeout", async () => {
 });
 
 Deno.test("[runner] ref", async () => {
-  const { files } = await runner(["test/data/ref.http"], {
+  const { files } = await runner(["http/ref.http"], {
     displayIndex: 0,
   });
 
@@ -155,7 +155,7 @@ Deno.test("[runner] ref", async () => {
 });
 
 Deno.test("[runner] ref loop", async () => {
-  const { files } = await runner(["test/data/ref.loop.http"], {
+  const { files } = await runner(["http/ref.loop.http"], {
     displayIndex: 0,
   });
 
@@ -175,7 +175,7 @@ Deno.test("[runner] ref loop", async () => {
 Deno.test(
   "[runner] redirect ",
   async () => {
-    const { files } = await runner(["test/data/redirect.http"], {
+    const { files } = await runner(["http/redirect.http"], {
       displayIndex: 0,
     });
 
