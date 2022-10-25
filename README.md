@@ -24,13 +24,13 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * -t `--timeout`       Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * -f `--fail-fast`     Stop running tests after the first failure.
 * -d `--display`       Set the display mode. (none, minimal, default and full)
-                           none: display nothing
-                           minimal: display only final result
-                           default: display list results and errors
-                           full: display all requests and responses
+    * none: display nothing
+    * minimal: display only final result
+    * default: display list results and errors
+    * full: display all requests and responses
 * -h `--help`          output usage information
-* -e `---env-file`     load environment variables from a .env file
-*    `---no-color`     output without color
+* -e `--env-file`     load environment variables from a .env file
+*    `--no-color`     output without color
 
 # Examples:
 
@@ -95,5 +95,3 @@ HTTP/1.1 400 Bad Request
 
 hola
 ```
-
-

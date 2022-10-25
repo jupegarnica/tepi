@@ -2,7 +2,6 @@ import { type Args, parse } from "https://deno.land/std@0.159.0/flags/mod.ts";
 import type { Meta } from "./types.ts";
 import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 // import ora from "npm:ora";
-
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
@@ -40,9 +39,6 @@ async function cli() {
   /////////////
   if (args.noColor) {
     fmt.setColorEnabled(false);
-    // DON'T WHY THIS IS NOT WORKING
-    // Deno.env.set('NO_COLOR', 'true');
-
   }
 
   // --help
@@ -72,7 +68,7 @@ async function cli() {
   };
   if (defaultMeta.displayIndex === -1) {
     console.error(
-      fmt.brightRed(`Invalid display mode ${args.display}\n Must be one of: ${displays.map(t=>fmt.bold(t)).join(", ")
+      fmt.brightRed(`Invalid display mode ${args.display}\n Must be one of: ${displays.map(t => fmt.bold(t)).join(", ")
         }`),
     );
     Deno.exit(1);
@@ -166,8 +162,9 @@ function help() {
   const codeBlockDelimiter = isReadme ? "```" : "";
   const codeBlock = (
     t: string,
-    lang = "rest",
-  ) => (codeBlockDelimiter + lang + t + codeBlockDelimiter);
+    lang = "",
+  ) => (codeBlockDelimiter + (isReadme ? lang : '') + t + codeBlockDelimiter);
+  // const httpHighlight = (t: string) => highlight(t, { language: "http" });
 
   const title = `
 ${g(`-------------------------`)}
@@ -200,13 +197,13 @@ ${d("* ")}-f ${c("--fail-fast")}     ${d("Stop running tests after the first fai
     }
 ${d("* ")}-d ${c("--display")}       ${d("Set the display mode. (none, minimal, default and full)")
     }
-                           none:${d(` display nothing`)}
-                           minimal:${d(` display only final result`)}
-                           default:${d(` display list results and errors`)}
-                           full:${d(` display all requests and responses`)}
+${d("         * ")} none:${d(` display nothing`)}
+${d("         * ")} minimal:${d(` display only final result`)}
+${d("         * ")} default:${d(` display list results and errors`)}
+${d("         * ")} full:${d(` display all requests and responses`)}
 ${d("* ")}-h ${c("--help")}          ${d("output usage information")}
-${d("* ")}-e ${c("---env-file")}     ${d("load environment variables from a .env file")}
-${d("* ")}   ${c("---no-color")}     ${d("output without color")}
+${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")}
+${d("* ")}   ${c("--no-color")}     ${d("output without color")}
 
 ${g("# Examples:")}
 
@@ -252,26 +249,25 @@ ${g("# HTTP syntax:")}
 ${(`You can use the standard HTTP syntax in your .http files as follow:`)}
 
 ${codeBlock(`
-${w(`POST https://example.com/`)}
-${w(`Authorization: Bearer 123`)}
-${w(`Content-Type: application/json`)}
+${(`POST https://httpbin.org/status/401`)}
+${(`Authorization: Bearer 123`)}
+${(`Content-Type: application/json`)}
 
-${w(`{"name": "Garn"}`)}
+${(`{"name": "Garn"}`)}
 
-${w(`### separate requests with 3 #`)}
-${w(`# comment a line with`)}
-${w(`# use @ tu include metadata`)}
-${w(`# @name example`)}
+${(`# write the expected response to validate the actual response`)}
+${(`HTTP/1.1 401 Unauthorized`)}
 
-${w(`GET /?body=hola&status=400`)}
-${w(`host: https://faker.deno.dev`)}
 
-${d(`# write the expected response to validate the actual response`)}
-${w(`HTTP/1.1 400 Bad Request`)}
+${(`###  requests separator`)}
 
-${w(`hola`)}
-`)
-    }
+${(`# use @ tu include metadata`)}
+${(`# @name optional name to be displayed`)}
+
+${(`GET /?body=hola&status=400`)}
+${(`host: https://faker.deno.dev`)}
+
+`)}
 
 `;
 
