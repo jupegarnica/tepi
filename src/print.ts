@@ -4,7 +4,7 @@ import { highlight, supportsLanguage } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
-import { _Request, _Response, Block } from "./types.ts";
+import { _Request, _Response, Block, Meta } from "./types.ts";
 
 type FmtMethod = keyof typeof fmt;
 
@@ -14,9 +14,8 @@ function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   const separator = fmt.dim("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${
-    separator.repeat(padLength)
-  }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
+    }`;
   console.info(output);
 }
 
@@ -32,7 +31,7 @@ export async function printBlock(block: Block): Promise<void> {
   if (meta) {
     console.group();
     printTitle("⬇   Meta    ⬇");
-    console.table(meta);
+    console.info(metaToText(meta));
     console.groupEnd();
   }
   if (request) {
@@ -69,6 +68,24 @@ export async function printBlock(block: Block): Promise<void> {
     console.groupEnd();
   }
 }
+function metaToText(meta: Meta): string {
+  let output = "";
+  let maxLengthKey = 0;
+  for (const key in meta) {
+    if (key.startsWith("_") || meta[key] === undefined) continue;
+
+    if (key.length > maxLengthKey) {
+      maxLengthKey = key.length;
+    }
+  }
+  for (const key in meta) {
+    if (key.startsWith("_") || meta[key] === undefined) continue;
+    const _key = key + ':';
+
+    output += fmt.dim(`${_key.padEnd(maxLengthKey + 3)} ${meta[key]}\n`);
+  }
+  return output;
+}
 
 export function printErrorsSummary(blocks: Block[]): void {
   const blocksWidthErrors = blocks.filter((b) => b.error);
@@ -103,9 +120,8 @@ export function printErrorsSummary(blocks: Block[]): void {
         const messagePadded = truncatedMessage.padEnd(maximumLength);
         message = `${fmt.red("✖")} ${fmt.white(messagePadded)} ${messagePath}`;
       } else {
-        message = `${fmt.red("✖")} ${
-          fmt.white(error.message)
-        } \n${messagePath}`;
+        message = `${fmt.red("✖")} ${fmt.white(error.message)
+          } \n${messagePath}`;
       }
     } else {
       message = messagePath;
@@ -145,10 +161,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-    ? fmt.yellow
-    : response.status >= 400 && response.status < 500
-    ? fmt.red
-    : fmt.bgRed;
+      ? fmt.yellow
+      : response.status >= 400 && response.status < 500
+        ? fmt.red
+        : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -166,9 +182,8 @@ export function headersToText(headers: Headers): string {
     maxLengthValue = Math.max(maxLengthValue, value.length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${
-      fmt.dim(value.padEnd(maxLengthValue + 1))
-    }\n`;
+    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(value.padEnd(maxLengthValue + 1))
+      }\n`;
   }
 
   return result;

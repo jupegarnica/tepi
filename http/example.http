@@ -15,6 +15,7 @@ Content-Type: text/html; charset=UTF-8
 
 ###
 ---
+display: full
 redirect: follow
 description: you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
 ---

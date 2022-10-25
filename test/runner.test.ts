@@ -209,7 +209,6 @@ Deno.test(
 
 Deno.test(
   "[runner] only mode",
-  { only: true },
   async () => {
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
       _displayIndex: 0,
@@ -222,6 +221,6 @@ Deno.test(
     assertEquals(files[0].blocks[2].meta.only, true);
 
     assertEquals(exitCode, 0);
-    assertEquals(onlyMode, ["http/only.http:15"]);
+    assertEquals(onlyMode, ["http/only.http:13"]);
   },
 );
