@@ -73,7 +73,8 @@ export type Meta = {
   isIgnoredBlock?: boolean;
   errorDisplayed?: boolean;
 
-  [key: string]: number | string | boolean | undefined;
+  // deno-lint-ignore no-explicit-any
+  [key: string]: any
 };
 
 export type BodyExtracted = { body: unknown; contentType: string };

@@ -1,4 +1,6 @@
-# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
 ###
 
 POST /pong?quiet=true
@@ -18,7 +20,7 @@ x-powered-by: Deno
  }
 
 ###
-# @name must work
+
 POST /pong?quiet=true
 
 hello
@@ -30,7 +32,9 @@ hello
 
 
 ###
-# @name must fail with custom error
+---
+name: must fail with custom error
+---
 POST /pong?quiet=true
 
 hello
@@ -43,7 +47,9 @@ hello
 
 
 ###
-# @name must fail because of headers
+---
+name: must fail because of headers
+---
 GET /pong?quiet=true
 x-quiet: true
 

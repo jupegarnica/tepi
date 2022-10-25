@@ -1,9 +1,11 @@
-# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
 ###
-
-# @data Garn
-# @name hasData
-
+---
+data: Garn
+name: hasData
+---
 POST /pong?quiet=true
 x-data: <%= meta.data %>
 
@@ -20,8 +22,9 @@ GET /pong?quiet=true
 read-from-name: <%= hasData.meta.data %>
 
 ###
-# @name must fail
-
+---
+name: must fail
+---
 GET /pong
 quiet: true
 
@@ -29,8 +32,9 @@ quiet: true
 
 
 ###
-# @name must work
-
+---
+name: must work
+---
 POST /pong?quiet=true
 
 hola
@@ -43,8 +47,9 @@ HTTP/1.1 200 OK
 
 
 ###
-# @name must read another request
-
+---
+name: must read another request
+---
 POST /pong
 quiet: true
 x-payload: <%= hasData.request.headers.get('x-data') + '?' %>
@@ -58,7 +63,9 @@ Garn!
 
 
 ###
-# @name must read same request
+---
+name: must read same request
+---
 POST /pong
 quiet: true
 
@@ -70,7 +77,9 @@ HTTP/1.1 200 OK
 
 
 ###
-# @name must read same response
+---
+name: must read same response
+---
 POST /pong
 quiet: true
 adios: mundo

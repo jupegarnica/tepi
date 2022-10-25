@@ -1,6 +1,10 @@
-# @host <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
 ###
-# @boolean
+---
+boolean: true
+---
 POST /pong?quiet=true&delay=0
 Content-Type: text/plain
 

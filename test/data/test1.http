@@ -1,4 +1,6 @@
-# @host <%= Deno.env.get('HOST_HTTPBIN') || 'https://httpbin.org' %>
+---
+host: <%= Deno.env.get('HOST_HTTPBIN') || 'https://httpbin.org' %>
+---
 ###
 
 GET /html

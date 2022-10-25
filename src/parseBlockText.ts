@@ -1,7 +1,7 @@
 import type { Block, Meta } from "./types.ts";
 import { _Request, _Response, httpMethods } from "./types.ts";
 import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts";
-
+import { extract } from "https://deno.land/std@0.160.0/encoding/front_matter.ts";
 async function renderTemplate(template: string, data: Record<string, unknown>) {
   const result = await eta.render(
     template,
@@ -34,39 +34,23 @@ export async function parseBlockText(block: Block): Promise<Block> {
   return block;
 }
 
+
+const findFrontMatterTextRegex = /^---\s*([\s\S]*?)\s*---\s*/gm;
 export async function parseMetaFromText(
   textRaw = "",
   dataToInterpolate = {},
 ): Promise<Meta> {
   const meta: Meta = {};
-  let lines: string[] = splitLines(textRaw);
-
-  let requestStartLine = lines.findIndex(isRequestStartLine);
-
+  const lines: string[] = splitLines(textRaw);
+  const requestStartLine = lines.findIndex(isRequestStartLine);
   const metaText = lines.slice(0, requestStartLine).join("\n");
   const text = await renderTemplate(metaText, dataToInterpolate) || "";
 
-  lines = splitLines(text);
-  if (requestStartLine === -1) {
-    requestStartLine = lines.length;
-  }
-  for (let i = 0; i < requestStartLine; i++) {
-    const line = lines[i];
-    const trimmed = line.trim();
-    if (trimmed.startsWith("#")) {
-      const clean = trimmed.replace(/^#+\s*/g, "");
-      if (!clean) continue;
-      let key = clean.match(/^@\w+/)?.[0] || "";
-      if (key) {
-        let value: string | boolean = clean.replace(key, "").replace("=", "")
-          .trim();
-        key = key.replace("@", "");
-        if (!value) value = true;
-        if (value === "true") value = true;
-        if (value === "false") value = false;
-        meta[key] = value;
-      }
-    }
+  const frontMatterText = text.match(findFrontMatterTextRegex)?.[0] || "";
+
+  if (frontMatterText) {
+    const data = extract(frontMatterText);
+    Object.assign(meta, data.attrs);
   }
   return meta;
 }

@@ -24,10 +24,10 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * -t `--timeout`       Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * -f `--fail-fast`     Stop running tests after the first failure.
 * -d `--display`       Set the display mode. (none, minimal, default and full)
-    * none: display nothing
-    * minimal: display only final result
-    * default: display list results and errors
-    * full: display all requests and responses
+         *  none: display nothing
+         *  minimal: display only a minimal summary
+         *  default: list results and full error summary
+         *  full: display also all HTTP requests and responses
 * -h `--help`          output usage information
 * -e `--env-file`     load environment variables from a .env file
 *    `--no-color`     output without color
@@ -75,23 +75,25 @@ tepi [OPTIONS] [FILES|GLOBS...]
 
 You can use the standard HTTP syntax in your .http files as follow:
 
-```rest
-POST https://example.com/
+```
+POST https://httpbin.org/status/401
 Authorization: Bearer 123
 Content-Type: application/json
 
 {"name": "Garn"}
 
-### separate requests with 3 #
-# comment a line with
-# use @ tu include metadata
-# @name example
+# write the expected response to validate the actual response
+HTTP/1.1 401 Unauthorized
+
+
+###  requests separator
+
+# use yaml front matter to include metadata
+---
+name: optional name
+---
 
 GET /?body=hola&status=400
 host: https://faker.deno.dev
 
-# write the expected response to validate the actual response
-HTTP/1.1 400 Bad Request
-
-hola
 ```

@@ -110,7 +110,7 @@ Deno.test("[parseBlockText request] with body raw", async () => {
 });
 
 Deno.test(
-  "[parseBlockText request] with comments and body", // { only: true },
+  "[parseBlockText request] with comments and body", //
   async () => {
     const block = {
       meta: {},
@@ -137,7 +137,7 @@ HTTP/1.1 200 OK
 
 Deno.test(
   "[parseBlockText request] with comments and body and final separator",
-  // { only: true },
+  //
   async () => {
     const block = {
       meta: {},
@@ -163,7 +163,7 @@ hola
 );
 
 Deno.test(
-  "[parseBlockText expectedResponse] with status", // { only: true },
+  "[parseBlockText expectedResponse] with status", //
   async () => {
     const block = {
       meta: {},
@@ -186,7 +186,7 @@ Deno.test(
 );
 
 Deno.test(
-  "[parseBlockText expectedResponse] with headers", // { only: true },
+  "[parseBlockText expectedResponse] with headers", //
   async () => {
     const block = {
       meta: {},
@@ -209,7 +209,7 @@ hola mundo
 );
 
 Deno.test(
-  "[parseBlockText expectedResponse] with statusText", // { only: true },
+  "[parseBlockText expectedResponse] with statusText", //
   async () => {
     const block = {
       meta: {},
@@ -232,7 +232,7 @@ hola mundo
 );
 
 Deno.test(
-  "[parseBlockText expectedResponse] with body ", // { only: true },
+  "[parseBlockText expectedResponse] with body ", //
   async () => {
     const block = {
       meta: {},
@@ -255,7 +255,7 @@ Deno.test(
 );
 
 Deno.test(
-  "[parseBlockText expectedResponse] without body ", // { only: true },
+  "[parseBlockText expectedResponse] without body ", //
   async () => {
     const block = {
       meta: {},
@@ -274,7 +274,7 @@ Deno.test(
 );
 
 Deno.test(
-  "[parseBlockText expectedResponse] with body multiline ", // { only: true },
+  "[parseBlockText expectedResponse] with body multiline ", //
   async () => {
     const block = {
       meta: {},
@@ -301,14 +301,28 @@ mundo
   },
 );
 
-Deno.test("[parseBlockText meta] with metadata ", async () => {
+Deno.test("[parseBlockText meta] with front matter yml ", async () => {
   const block = {
     meta: {},
     text: `
-# @name=test
-# @description hello world
-# @boolean
-# @boolean2=false
+---
+name: test
+description: hello world
+null:
+null2: null
+
+boolean: true
+booleanFalse: false
+
+number: 1
+array: [1,2,3]
+obj: {a: 1}
+obj2:
+  a: 2
+list:
+    - 1
+    - a
+---
 
 GET faker.deno.dev
 # hola
@@ -321,7 +335,37 @@ GET faker.deno.dev
   assertEquals(meta, {
     name: "test",
     description: "hello world",
+    null: null,
+    null2: null,
     boolean: true,
-    boolean2: false,
+    booleanFalse: false,
+    array: [1, 2, 3],
+    number: 1,
+    obj: {a:1},
+    list: [1, "a"],
+    obj2: {a: 2},
+  });
+});
+
+
+
+Deno.test("[parseBlockText meta] with interpolation", async () => {
+  const block = {
+    meta: {},
+    text: `
+---
+number: <%= 1 + 1 %>
+---
+
+GET faker.deno.dev
+# hola
+
+###
+`,
+  };
+  const { meta } = await parseBlockText(block);
+
+  assertEquals(meta, {
+    number: 2,
   });
 });

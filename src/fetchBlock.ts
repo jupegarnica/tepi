@@ -29,12 +29,14 @@ export async function fetchBlock(
     block.actualResponse = actualResponse;
   } catch (error) {
     if (error.name === "AbortError") {
-      throw new Error(`Timeout of ${block.meta.timeout}ms exceeded`);
+
+      throw new error.constructor(`Timeout of ${block.meta.timeout}ms exceeded`);
     }
 
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  clearTimeout(timeoutId);
   return block;
 }
 
@@ -50,8 +52,8 @@ export async function extractBody(
     }
     if (typeof re.bodyRaw === "string") {
       const requestExtracted = mimesToJSON.some((ct) =>
-          contentType.includes(ct)
-        )
+        contentType.includes(ct)
+      )
         ? JSON.parse(re.bodyRaw as string)
         : re.bodyRaw;
       re.bodyExtracted = requestExtracted;

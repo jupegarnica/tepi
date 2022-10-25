@@ -170,24 +170,40 @@ function help() {
 ${g(`-------------------------`)}
 ${g(`--------- ${fmt.bold("TEPI")} ----------`)}
 ${g(`-------------------------`)}
-${g(`-- An HTTP Test Runner --`)}
+${g(`-- A .http Test Runner --`)}
 ${g(`-------------------------`)}
 
 `;
   const helpText = `
 ${(codeBlock(title, ""))}
 
-${g("# Install:")}
+${fmt.bold("Test your HTTP APIs with ease")}
+
+
+${g("## Features:")}
+  - ${g("📝")} Write end to end API REST tests in ${c(".http")} files
+  - ${g("🏃")} Run GET, POST, PUT, PATCH, DELETE requests
+  - ${g("🔎")} Validate response status, headers and body.
+  - ${g("🔥")} Interpolate js or ts in requests and responses with eta template ${c("<%= %>")}
+  - ${g("📦")} Reference by name another tests to run them in advance
+  - ${g("⏱")}  Set a timeout for each test in milliseconds. After the timeout, the test will fail.
+  - ${g("🚨")} Stop running tests after the first failure.
+  - ${g("🍯")} Use ${("env files")} to load environment variables
+  - ${g("👓")} Set the display mode. (none, minimal, default and full)
+  - ${g("♻")} Watch files for changes and rerun tests.
+
+  `;`
+
+${g("## Install:")}
 
 ${w("deno install --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts")}
 
 
-
-${g("# Usage:")}
+${g("## Usage:")}
 
 ${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
 
-${g("# Options:")}
+${g("## Options:")}
 
 ${d("* ")}-w ${c("--watch")}         ${d("Watch files for changes and rerun tests.")
     }
@@ -205,7 +221,7 @@ ${d("* ")}-h ${c("--help")}          ${d("output usage information")}
 ${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")}
 ${d("* ")}   ${c("--no-color")}     ${d("output without color")}
 
-${g("# Examples:")}
+${g("## Examples:")}
 
 ${c(`tepi`)}
 ${d(`> Run all .http in the current directory and folders. (same as tepi ./**/*.http)`)}
@@ -244,30 +260,36 @@ ${c(`tepi --env-file .env --env-file .env.test`)}
 ${d(`> Load environment variables from a .env and .env.test`)}
 
 
-${g("# HTTP syntax:")}
+${g("## HTTP syntax:")}
 
 ${(`You can use the standard HTTP syntax in your .http files as follow:`)}
 
 ${codeBlock(`
-${(`POST https://httpbin.org/status/401`)}
-${(`Authorization: Bearer 123`)}
-${(`Content-Type: application/json`)}
+POST https://httpbin.org/status/401
+Authorization: Bearer 123
+Content-Type: application/json
 
-${(`{"name": "Garn"}`)}
+{"name": "Garn"}
 
-${(`# write the expected response to validate the actual response`)}
-${(`HTTP/1.1 401 Unauthorized`)}
+# write the expected response to validate the actual response
+HTTP/1.1 401 Unauthorized
 
 
-${(`###  requests separator`)}
+###  requests separator
 
-${(`# use @ tu include metadata`)}
-${(`# @name optional name to be displayed`)}
-
-${(`GET /?body=hola&status=400`)}
-${(`host: https://faker.deno.dev`)}
+# use yaml front matter before the request to include metadata
+---
+name: optional name
+---
+GET /?body=hola&status=400
+host: https://faker.deno.dev
 
 `)}
+
+
+
+
+
 
 `;
 
