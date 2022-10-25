@@ -1,6 +1,8 @@
-import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { assertEquals, assertRejects } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 import { parseBlockText } from "../src/parseBlockText.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
+import { YAMLError } from "https://deno.land/std@0.160.0/encoding/_yaml/error.ts";
+
 Deno.env.get("NO_LOG") && stub(console, "info");
 
 // const http = String.raw
@@ -325,9 +327,6 @@ list:
 ---
 
 GET faker.deno.dev
-# hola
-
-###
 `,
   };
   const { meta } = await parseBlockText(block);
@@ -368,4 +367,43 @@ GET faker.deno.dev
   assertEquals(meta, {
     number: 2,
   });
+});
+
+
+Deno.test("[parseBlockText meta] with comments", async () => {
+  const block = {
+    meta: {},
+    text: `
+---
+number: 100 # this is a comment
+ups: text # this is a comment
+textWithComment: "hello # this is a comment"
+---
+
+GET faker.deno.dev
+`,
+  };
+  const { meta } = await parseBlockText(block);
+
+  assertEquals(meta, {
+    number: 100,
+    ups: "text",
+    textWithComment: "hello # this is a comment",
+  });
+});
+
+
+Deno.test("[parseBlockText meta] fail parsing", async () => {
+  const block = {
+    meta: {},
+    text: `
+---
+number: 100
+ups text # this is a comment
+---
+
+GET faker.deno.dev
+`,
+  };
+  await assertRejects(async () => await parseBlockText(block), YAMLError);
 });

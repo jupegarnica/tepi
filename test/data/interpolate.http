@@ -91,3 +91,15 @@ hola: mundo
 <% response.headers.forEach((v, k) => { %> <%= k %>: <%= v +'\n'%> <% }) %>
 
 <%= await response.getBody() + '!'  %>
+
+
+
+###
+---
+name: must interpolate ts
+---
+POST /pong?quiet=true
+x-quiet: true
+
+<% const a = 1; %>
+<%= a %>

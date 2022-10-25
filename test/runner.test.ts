@@ -72,6 +72,13 @@ Deno.test("[runner] interpolation", async () => {
   assertEquals(seventhBlock.expectedResponse?.statusText, "OK");
   assertEquals(seventhBlock.expectedResponse?.headers.get("hola"), "mundo");
   assertEquals(seventhBlock.expectedResponse?.headers.get("adios"), "mundo");
+
+  const eighthBlock = files[0].blocks[1 + 7];
+  assertEquals(eighthBlock.meta.name, 'must interpolate ts');
+  assertEquals(eighthBlock.error, undefined);
+  assertEquals(await eighthBlock.request?.getBody(), '1');
+
+
 });
 
 Deno.test("[runner] asserts ", async () => {

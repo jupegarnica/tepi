@@ -172,27 +172,25 @@ ${g(`--------- ${fmt.bold("TEPI")} ----------`)}
 ${g(`-------------------------`)}
 ${g(`-- A .http Test Runner --`)}
 ${g(`-------------------------`)}
-
 `;
   const helpText = `
 ${(codeBlock(title, ""))}
-
-${fmt.bold("Test your HTTP APIs with ease")}
-
+${fmt.bold("Test your HTTP APIs with standard http syntax")}
 
 ${g("## Features:")}
-  - ${g("📝")} Write end to end API REST tests in ${c(".http")} files
-  - ${g("🏃")} Run GET, POST, PUT, PATCH, DELETE requests
-  - ${g("🔎")} Validate response status, headers and body.
-  - ${g("🔥")} Interpolate js or ts in requests and responses with eta template ${c("<%= %>")}
-  - ${g("📦")} Reference by name another tests to run them in advance
-  - ${g("⏱")}  Set a timeout for each test in milliseconds. After the timeout, the test will fail.
-  - ${g("🚨")} Stop running tests after the first failure.
-  - ${g("🍯")} Use ${("env files")} to load environment variables
-  - ${g("👓")} Set the display mode. (none, minimal, default and full)
-  - ${g("♻")} Watch files for changes and rerun tests.
 
-  `;`
+- 📝  Write end to end API REST tests in ${c(".http")} files
+- 🔎  Validate Response status, headers and/or body.
+- 🔥  Interpolate javascript with eta template ${c("<%= %>")}
+- 🖊   Write metadata as frontmatter yaml
+- 📦  Reference by name another test to run them in advance
+- ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
+- 🚨  Stop running tests after the first failure.
+- 🔋  Use ${("env files")} to load environment variables
+- 😎  Fully featured and colorful display modes. (none, minimal, default and full)
+- 👁   Watch files for changes and rerun tests.
+- 🍯  Standard Response and Request with a automatic getBody()
+
 
 ${g("## Install:")}
 
@@ -262,35 +260,51 @@ ${d(`> Load environment variables from a .env and .env.test`)}
 
 ${g("## HTTP syntax:")}
 
-${(`You can use the standard HTTP syntax in your .http files as follow:`)}
+You can use the standard HTTP syntax in your .http files to run a request and response validation.
+Use the ${c("###")} to separate the requests.
+Use frontmatter yaml to set metadata.
+
 
 ${codeBlock(`
-POST https://httpbin.org/status/401
-Authorization: Bearer 123
+# use yaml front matter before the request
+---
+ref: loginTest
+---
+POST https://example.com/onlyAdmin
+Authorization: Bearer <%= (await loginTest.response.getBody()).jwt %>
 Content-Type: application/json
 
 {"name": "Garn"}
 
 # write the expected response to validate the actual response
-HTTP/1.1 401 Unauthorized
-
+HTTP/1.1 403 Forbidden
 
 ###  requests separator
-
-# use yaml front matter before the request to include metadata
 ---
 name: optional name
+timeout: 500 # must respond in less than 500ms
 ---
 GET /?body=hola&status=400
 host: https://faker.deno.dev
 
 `)}
 
+${g("## Interpolation:")}
 
+It deno 🔥
 
+Uses eta templates: https://deno.land/x/eta
 
+Use ${c("<%= %>")} to interpolate values.
 
+All the std assertion module is available: https://deno.land/std/testing/asserts.ts
+Use ${c("<% %>")} to run custom assertions. For example:
 
+${codeBlock(`
+### GET  http://localhost:3000/users
+
+<% assert(response.status === 200) %>
+`)}
 `;
 
   console.info(helpText);
