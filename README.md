@@ -25,9 +25,15 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * -f `--fail-fast`     Stop running tests after the first failure.
 * -d `--display`       Set the display mode. (none, minimal, default and full)
          *  none: display nothing
+<<<<<<< HEAD
          *  minimal: display only a minimal summary
          *  default: list results and full error summary
          *  full: display also all HTTP requests and responses
+=======
+         *  minimal: display only final result
+         *  default: display list results and errors
+         *  full: display all requests and responses
+>>>>>>> 71ad7a3afbc331d5e29da2a58d530e30ae75a180
 * -h `--help`          output usage information
 * -e `--env-file`     load environment variables from a .env file
 *    `--no-color`     output without color
