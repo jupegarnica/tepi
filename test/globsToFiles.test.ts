@@ -22,3 +22,8 @@ Deno.test("[globsToFilePaths] find more file with a glob pattern", async () => {
   const files = await globsToFilePaths([`**/test*.http`]);
   assertEquals(files.length, 2);
 });
+
+Deno.test("[globsToFilePaths] not found", async () => {
+  const files = await globsToFilePaths([`notFound.http`]);
+  assertEquals(files.length, 0);
+});
