@@ -7,12 +7,11 @@
 -------------------------
 -- A .http Test Runner --
 -------------------------
+
 ```
 Test your HTTP APIs with standard http syntax
 
 ## Features:
-<<<<<<< HEAD
-=======
 
 - 📝  Write end to end API REST tests in `.http` files
 - 🔎  Validate Response status, headers and/or body.
@@ -27,23 +26,6 @@ Test your HTTP APIs with standard http syntax
 - 🍯  Standard Response and Request with a automatic getBody()
 
 
-## Install:
->>>>>>> eff2984cadbdda46a0f11f059c2224ac2f9c4faa
-
-- 📝  Write end to end API REST tests in `.http` files
-- 🔎  Validate Response status, headers and/or body.
-- 🔥  Interpolate javascript with eta template `<%= %>`
-- 🖊   Write metadata as frontmatter yaml
-- 📦  Reference by name another test to run them in advance
-- ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
-- 🚨  Stop running tests after the first failure.
-- 🔋  Use env files to load environment variables
-- 😎  Fully featured and colorful display modes. (none, minimal, default and full)
-- 👁   Watch files for changes and rerun tests.
-- 🍯  Standard Response and Request with a automatic getBody()
-
-
-<<<<<<< HEAD
 ## Install:
 
 
@@ -57,8 +39,6 @@ Or run remotely width:
 deno run --unstable --allow-read --allow-env https://deno.land/x/tepi/cli.ts
 ```
 
-=======
->>>>>>> eff2984cadbdda46a0f11f059c2224ac2f9c4faa
 ## Usage:
 
 tepi [OPTIONS] [FILES|GLOBS...]
@@ -161,7 +141,6 @@ Use `<%= %>` to interpolate values.
 All the std assertion module is available: https://deno.land/std/testing/asserts.ts
 Use `<% %>` to run custom assertions. For example:
 
-<<<<<<< HEAD
 
 ```
 
@@ -169,10 +148,5 @@ GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
 
-=======
 ```
-### GET  http://localhost:3000/users
 
-<% assert(response.status === 200) %>
->>>>>>> eff2984cadbdda46a0f11f059c2224ac2f9c4faa
-```
