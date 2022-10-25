@@ -86,13 +86,27 @@ async function cli() {
     console.log(fmt.gray(`Loaded ${keysLoaded.length} environment variables from: \n${keysLoaded.map(({ path }) => path).join(', ')}`));
   }
 
-  // runner
+  // resolves globs to file paths
   /////////////
   const globs: string = args._.length ? args._.join(" ") : "**/*.http";
   const filePathsToRun = await globsToFilePaths(globs.split(" "));
 
-  const { exitCode } = await runner(filePathsToRun, defaultMeta, args.failFast);
+  // runner
+  /////////////
+  let { exitCode, onlyMode } = await runner(filePathsToRun, defaultMeta, args.failFast);
 
+
+  // warn only mode
+  /////////////
+  if (onlyMode && defaultMeta.displayIndex as number > 0) {
+
+    if (exitCode === 0) {
+      exitCode = 1;
+      console.info(fmt.red(`\n${fmt.bold("Only")} mode is enabled. All tests passed, but exit code is 1 because at least one test was run in ${fmt.bold("only")} mode.`));
+    } else {
+      console.info(fmt.red(`\n${fmt.bold("Only")} mode is enabled. Some tests failed, but exit code is 1 because at least one test was run in ${fmt.bold("only")} mode.`));
+    }
+  }
 
   // --watch
   /////////////
@@ -109,7 +123,7 @@ async function cli() {
 }
 
 function logWatchingPaths(filePaths: string[], filePathsToJustWatch: string[]) {
-  console.info(fmt.dim("\nWatching and Running tests from:"));
+  console.info(fmt.dim("\nWatching and running tests from:"));
   filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((
     filePath,
   ) => console.info(fmt.cyan(`  ${filePath}`)));
@@ -163,7 +177,7 @@ function help() {
   const codeBlock = (
     t: string,
     lang = "",
-  ) => (codeBlockDelimiter + (isReadme ? lang : '')+'\n' + t + codeBlockDelimiter);
+  ) => (codeBlockDelimiter + (isReadme ? lang : '') + '\n' + t + codeBlockDelimiter);
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
 
   const title = `

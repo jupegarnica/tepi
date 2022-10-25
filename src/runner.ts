@@ -7,7 +7,7 @@ import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { printBlock, printErrorsSummary } from "./print.ts";
 // import { ms } from "https://raw.githubusercontent.com/denolib/ms/master/ms.ts";
-import ms  from "npm:ms";
+import ms from "npm:ms";
 import {
   parseMetaFromText,
   parseRequestFromText,
@@ -20,7 +20,8 @@ export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
   failFast = false,
-): Promise<{ files: File[]; exitCode: number }> {
+): Promise<{ files: File[]; exitCode: number, onlyMode: boolean }> {
+
   const files: File[] = await filePathsToFiles(filePaths);
   let successfulBlocks = 0;
   let failedBlocks = 0;
@@ -28,14 +29,21 @@ export async function runner(
   const blocksDone: Block[] = [];
   const startGlobalTime = Date.now();
   const globalData: GlobalData = {
-    meta: { ...defaultMeta },
+    meta: {
+      ...defaultMeta,
+      set ignore(_: unknown) {
+        // do not save ignore in global meta
+      },
+      set only(_: unknown) {
+        // do not save only in global meta
+      }
+    },
     _files: files,
     _blocksDone: {},
     _blocksAlreadyReferenced: {},
   };
-  if (defaultMeta.displayIndex === 1) {
-  }
 
+  let onlyMode = false;
   // parse all metadata first
   for (const file of files) {
     for (const block of file.blocks) {
@@ -45,6 +53,11 @@ export async function runner(
           ...block,
           ...assertions,
         });
+        if (meta.only) {
+          console.log("only mode", meta);
+
+          onlyMode = true;
+        }
         block.meta = {
           ...globalData.meta,
           ...block.meta,
@@ -53,6 +66,16 @@ export async function runner(
       } catch (error) {
         block.error = error;
         block.meta.isErrorBlock = true;
+      }
+    }
+  }
+
+  if (onlyMode) {
+    for (const file of files) {
+      for (const block of file.blocks) {
+        if (!block.meta.only) {
+          block.meta.ignore = true;
+        }
       }
     }
   }
@@ -113,7 +136,7 @@ export async function runner(
 
     const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
     const elapsedGlobalTime = Date.now() - startGlobalTime;
-    const prettyGlobalTime =fmt.dim(`(${ms(elapsedGlobalTime)})`);
+    const prettyGlobalTime = fmt.dim(`(${ms(elapsedGlobalTime)})`);
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
@@ -122,7 +145,7 @@ export async function runner(
       } ignored ${prettyGlobalTime}`,
     );
   }
-  return { files, exitCode: failedBlocks };
+  return { files, exitCode: failedBlocks, onlyMode };
 }
 
 async function runBlock(
@@ -168,6 +191,7 @@ async function runBlock(
       ...block,
       ...assertions,
     });
+
     if (block.meta.isFirstBlock && !block.request) {
       globalData.meta = { ...globalData.meta, ...block.meta };
     }

@@ -185,10 +185,10 @@ Deno.test(
     assertEquals(firstBlock.response?.headers.get('content-type'), 'image/jpeg');
     assertEquals(firstBlock.response?.redirected, false, 'NOT REDIRECTED BECAUSE WHERE ARE EVALUATING THE FINAL RESPONSE');
     assertEquals(firstBlock.response?.status, 200);
-    assertEquals(firstBlock.response?.type,  "default");
+    assertEquals(firstBlock.response?.type, "default");
 
     const secondBlock = files[0].blocks[2];
-    assertEquals(secondBlock.response?.type,  "default");
+    assertEquals(secondBlock.response?.type, "default");
     assertEquals(secondBlock.meta?.redirect, "manual");
     assertEquals(secondBlock.response?.redirected, false);
     assertEquals(secondBlock.response?.headers.get('content-type'), 'application/json; charset=utf-8');
@@ -197,5 +197,27 @@ Deno.test(
       secondBlock.response?.headers.get("Location")?.startsWith("http"),
       true,
     );
+  },
+);
+
+
+
+Deno.test(
+  "[runner] only mode",
+  { only: true },
+  async () => {
+    const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
+      displayIndex: 0,
+    });
+    assertEquals(files[0].blocks.length, 3);
+    assertEquals(files[0].blocks[1].meta.ignore, true);
+    assertEquals(files[0].blocks[1].meta.only, undefined);
+
+    assertEquals(files[0].blocks[2].meta.ignore, undefined);
+    assertEquals(files[0].blocks[2].meta.only, true);
+
+    assertEquals(exitCode, 0);
+    assertEquals(onlyMode, true);
+
   },
 );
