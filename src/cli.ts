@@ -32,7 +32,7 @@ async function cli() {
       noColor: "no-color",
       failFast: "fail-fast",
     },
-  }
+  };
   const args: Args = parse(Deno.args, options);
 
   // --no-color
@@ -45,7 +45,7 @@ async function cli() {
   /////////////
   if (args.help) {
     help();
-    return
+    return;
   }
   // --display
   /////////////
@@ -62,28 +62,40 @@ async function cli() {
   const defaultMeta: Meta = {
     timeout: 0,
     display: args.display as string,
-    get displayIndex(): number {
+    get _displayIndex(): number {
       return displays.indexOf(this.display as string);
     },
   };
-  if (defaultMeta.displayIndex === -1) {
+  if (defaultMeta._displayIndex === -1) {
     console.error(
-      fmt.brightRed(`Invalid display mode ${args.display}\n Must be one of: ${displays.map(t => fmt.bold(t)).join(", ")
-        }`),
+      fmt.brightRed(
+        `Invalid display mode ${args.display}\n Must be one of: ${displays.map((t) => fmt.bold(t)).join(", ")
+        }`,
+      ),
     );
     Deno.exit(1);
   }
   // --env-file
   /////////////
-  const keysLoaded = []
+  const keysLoaded = [];
   for (const path of args.envFile) {
-    const vars = await config({ export: true, path, safe: true, allowEmptyValues: true });
+    const vars = await config({
+      export: true,
+      path,
+      safe: true,
+      allowEmptyValues: true,
+    });
     for (const key in vars) {
-      keysLoaded.push({ key, value: vars[key], path })
+      keysLoaded.push({ key, value: vars[key], path });
     }
   }
-  if (keysLoaded.length && defaultMeta.displayIndex as number > 0) {
-    console.log(fmt.gray(`Loaded ${keysLoaded.length} environment variables from: \n${keysLoaded.map(({ path }) => path).join(', ')}`));
+  if (keysLoaded.length && defaultMeta._displayIndex as number > 0) {
+    console.log(
+      fmt.gray(
+        `Loaded ${keysLoaded.length} environment variables from: \n${keysLoaded.map(({ path }) => path).join(", ")
+        }`,
+      ),
+    );
   }
 
   // resolves globs to file paths
@@ -93,20 +105,23 @@ async function cli() {
 
   // runner
   /////////////
-  let { exitCode, onlyMode } = await runner(filePathsToRun, defaultMeta, args.failFast);
-
+  let { exitCode, onlyMode } = await runner(
+    filePathsToRun,
+    defaultMeta,
+    args.failFast,
+  );
 
   // warn only mode
   /////////////
-  if (onlyMode && defaultMeta.displayIndex as number > 0) {
-
-    if (exitCode === 0) {
-      exitCode = 1;
-      console.info(fmt.red(`\n${fmt.bold("Only")} mode is enabled. All tests passed, but exit code is 1 because at least one test was run in ${fmt.bold("only")} mode.`));
-    } else {
-      console.info(fmt.red(`\n${fmt.bold("Only")} mode is enabled. Some tests failed, but exit code is 1 because at least one test was run in ${fmt.bold("only")} mode.`));
+  if (onlyMode.length) {
+    if (defaultMeta._displayIndex as number > 0) {
+      console.warn(
+        fmt.yellow(`\n${fmt.bgYellow(fmt.bold(' ONLY MODE '))} ${onlyMode.length} tests are in "only" mode.`),
+      );
+      if (!exitCode) {
+        console.error(fmt.red(`Failed because the ${fmt.bold('"only"')} option was used at ${onlyMode.join(", ")}`))
+      }
     }
-  } else if (onlyMode) {
     exitCode ||= 1;
   }
 
@@ -126,13 +141,13 @@ async function cli() {
 
 function logWatchingPaths(filePaths: string[], filePathsToJustWatch: string[]) {
   console.info(fmt.dim("\nWatching and running tests from:"));
-  filePaths.map((filePath) => relative(Deno.cwd(), filePath)).forEach((
-    filePath,
-  ) => console.info(fmt.cyan(`  ${filePath}`)));
+  filePaths.map((_filePath) => relative(Deno.cwd(), _filePath)).forEach((
+    _filePath,
+  ) => console.info(fmt.cyan(`  ${_filePath}`)));
   if (filePathsToJustWatch.length) {
     console.info(fmt.dim("\nRerun when changes from:"));
-    filePathsToJustWatch.map((filePath) => relative(Deno.cwd(), filePath))
-      .forEach((filePath) => console.info(fmt.cyan(`  ${filePath}`)));
+    filePathsToJustWatch.map((_filePath) => relative(Deno.cwd(), _filePath))
+      .forEach((_filePath) => console.info(fmt.cyan(`  ${_filePath}`)));
   }
 }
 
@@ -162,7 +177,6 @@ async function watchAndRun(
   }
 }
 
-
 function help() {
   // const { ascii } = await generateFromString("HTTest");
   const isReadme = !!Deno.env.get("NO_COLOR");
@@ -179,7 +193,8 @@ function help() {
   const codeBlock = (
     t: string,
     lang = "",
-  ) => (codeBlockDelimiter + (isReadme ? lang : '') + '\n' + t + codeBlockDelimiter);
+  ) => (codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
+    codeBlockDelimiter);
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
 
   const title = `
@@ -210,10 +225,18 @@ ${g("## Features:")}
 
 ${g("## Install:")}
 
-${codeBlock("deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts", 'bash')}
+${codeBlock(
+    "deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/cli.ts",
+    "bash",
+  )
+    }
 
 Or run remotely width:
-${codeBlock("deno run --unstable --allow-read --allow-env https://deno.land/x/tepi/cli.ts", 'bash')}
+${codeBlock(
+      "deno run --unstable --allow-read --allow-env https://deno.land/x/tepi/cli.ts",
+      "bash",
+    )
+    }
 
 ${g("## Usage:")}
 
@@ -234,7 +257,8 @@ ${d("         * ")} minimal: ${d(`display only a minimal summary`)}
 ${d("         * ")} default: ${d(`list results and full error summary`)}
 ${d("         * ")} full: ${d(`display also all HTTP requests and responses`)}
 ${d("* ")}-h ${c("--help")}          ${d("output usage information")}
-${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")}
+${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")
+    }
 ${d("* ")}   ${c("--no-color")}     ${d("output without color")}
 
 ${g("## Examples:")}
@@ -305,7 +329,8 @@ timeout: 500 # must respond in less than 500ms
 GET /?body=hola&status=400
 host: https://faker.deno.dev
 
-`)}
+`)
+    }
 
 ${g("## Interpolation:")}
 
@@ -322,7 +347,8 @@ ${codeBlock(`
 GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
-`)}
+`)
+    }
 `;
 
   console.info(helpText);

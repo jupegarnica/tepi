@@ -60,21 +60,21 @@ export class _Request extends Request implements RequestInterface {
 }
 
 export type Meta = {
-  displayIndex?: number;
-  elapsedTime?: number | string;
-  startLine?: number;
-  endLine?: number;
-  filePath?: string;
-  relativeFilePath?: string;
+  _displayIndex?: number;
+  _elapsedTime?: number | string;
+  _startLine?: number;
+  _endLine?: number;
+  _filePath?: string;
+  _relativeFilePath?: string;
 
-  isDoneBlock?: boolean;
-  isSuccessfulBlock?: boolean;
-  isFailedBlock?: boolean;
-  isIgnoredBlock?: boolean;
-  errorDisplayed?: boolean;
+  _isDoneBlock?: boolean;
+  _isSuccessfulBlock?: boolean;
+  _isFailedBlock?: boolean;
+  _isIgnoredBlock?: boolean;
+  _errorDisplayed?: boolean;
 
   // deno-lint-ignore no-explicit-any
-  [key: string]: any
+  [key: string]: any;
 };
 
 export type BodyExtracted = { body: unknown; contentType: string };
@@ -92,6 +92,7 @@ export type Block = {
 
 export type File = {
   path: string;
+  relativePath?: string;
   blocks: Block[];
 };
 

@@ -14,14 +14,13 @@ import {
   parseResponseFromText,
 } from "./parseBlockText.ts";
 import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
-const noop = (..._: unknown[]): void => { };
+const noop = (..._: unknown[]): void => {};
 
 export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
   failFast = false,
-): Promise<{ files: File[]; exitCode: number, onlyMode: boolean }> {
-
+): Promise<{ files: File[]; exitCode: number; onlyMode: string[] }> {
   const files: File[] = await filePathsToFiles(filePaths);
   let successfulBlocks = 0;
   let failedBlocks = 0;
@@ -31,21 +30,25 @@ export async function runner(
   const globalData: GlobalData = {
     meta: {
       ...defaultMeta,
-      set ignore(_: unknown) {
+      get ignore() {
+        return undefined;
         // do not save ignore in global meta
       },
-      set only(_: unknown) {
+      get only() {
         // do not save only in global meta
-      }
+        return undefined;
+      },
     },
     _files: files,
     _blocksDone: {},
     _blocksAlreadyReferenced: {},
   };
 
-  let onlyMode = false;
+  const onlyMode = [];
   // parse all metadata first
   for (const file of files) {
+    file.relativePath = relative(Deno.cwd(), file.path);
+
     for (const block of file.blocks) {
       try {
         const meta = await parseMetaFromText(block.text, {
@@ -53,8 +56,11 @@ export async function runner(
           ...block,
           ...assertions,
         });
+        block.meta._relativeFilePath ??= file.relativePath;
         if (meta.only) {
-          onlyMode = true;
+          onlyMode.push(
+            `${block.meta._relativeFilePath}:${block.meta._startLine}`,
+          );
         }
         block.meta = {
           ...globalData.meta,
@@ -68,7 +74,7 @@ export async function runner(
     }
   }
 
-  if (onlyMode) {
+  if (onlyMode.length) {
     for (const file of files) {
       for (const block of file.blocks) {
         if (!block.meta.only) {
@@ -79,41 +85,41 @@ export async function runner(
   }
 
   for (const file of files) {
-    const relativePath = relative(Deno.cwd(), file.path);
+    const relativePath = file.relativePath;
     const path = fmt.dim(`running ${relativePath}`);
     let pathSpinner;
 
-    if ((defaultMeta?.displayIndex as number) === 0) {
+    if ((defaultMeta?._displayIndex as number) === 0) {
       // display none
-    } else if ((defaultMeta?.displayIndex as number) === 1) {
+    } else if ((defaultMeta?._displayIndex as number) === 1) {
       pathSpinner = wait({ text: path });
       pathSpinner.start();
     } else {
       console.info(path);
     }
 
-    let isFirstBlock = true;
+    let _isFirstBlock = true;
     for (const block of file.blocks) {
-      block.meta.relativeFilePath = relativePath;
-      block.meta.isFirstBlock = isFirstBlock;
-      if (isFirstBlock) {
-        isFirstBlock = false;
+      block.meta._relativeFilePath = relativePath;
+      block.meta._isFirstBlock = _isFirstBlock;
+      if (_isFirstBlock) {
+        _isFirstBlock = false;
       }
       const [...blocks] = await runBlock(block, globalData);
       blocksDone.push(...blocks);
 
-      if (block.meta.isIgnoredBlock) {
+      if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
       }
-      if (block.meta.isFailedBlock) {
+      if (block.meta._isFailedBlock) {
         failedBlocks++;
       }
-      if (block.meta.isSuccessfulBlock) {
+      if (block.meta._isSuccessfulBlock) {
         successfulBlocks++;
       }
 
       if (failFast && failedBlocks) {
-        if (defaultMeta?.displayIndex !== 0) {
+        if (defaultMeta?._displayIndex !== 0) {
           printErrorsSummary(blocksDone);
         }
         const status = block.actualResponse?.status || 1;
@@ -125,7 +131,7 @@ export async function runner(
     pathSpinner?.stop();
     pathSpinner?.clear();
   }
-  if ((defaultMeta?.displayIndex as number) !== 0) {
+  if ((defaultMeta?._displayIndex as number) !== 0) {
     printErrorsSummary(blocksDone);
 
     const statusText = failedBlocks
@@ -138,8 +144,10 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${
+        fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${
+        fmt.yellow(String(ignoredBlocks))
       } ignored ${prettyGlobalTime}`,
     );
   }
@@ -153,11 +161,10 @@ async function runBlock(
   const startTime = Date.now();
   let spinner;
   const blocksDone = [block];
-  if (block.meta.isDoneBlock) {
+  if (block.meta._isDoneBlock) {
     return [];
   }
   try {
-
     if (block.meta.ref) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)
         .find((b) => b.meta.name === block.meta.ref);
@@ -190,7 +197,7 @@ async function runBlock(
       ...assertions,
     });
 
-    if (block.meta.isFirstBlock && !block.request) {
+    if (block.meta._isFirstBlock && !block.request) {
       globalData.meta = { ...globalData.meta, ...block.meta };
     }
 
@@ -202,7 +209,7 @@ async function runBlock(
     block.description = block.meta.name as string ||
       `${block.request?.method} ${block.request?.url}`;
 
-    if ((block.meta.displayIndex as number) >= 2) {
+    if ((block.meta._displayIndex as number) >= 2) {
       spinner = wait({
         prefix: fmt.dim("-"),
         text: fmt.white(block.description),
@@ -221,9 +228,8 @@ async function runBlock(
 
     spinner?.start();
 
-
     if (block.meta.ignore) {
-      block.meta.isIgnoredBlock = true;
+      block.meta._isIgnoredBlock = true;
       spinner?.stopAndPersist({
         symbol: fmt.yellow("-"),
         text: fmt.yellow(block.description),
@@ -234,7 +240,6 @@ async function runBlock(
     if (block.error) {
       throw block.error;
     }
-
 
     await fetchBlock(block);
     block.expectedResponse = await parseResponseFromText(
@@ -252,33 +257,33 @@ async function runBlock(
       await assertResponse(block);
     }
 
-    const elapsedTime = Date.now() - startTime;
-    block.meta.elapsedTime = elapsedTime;
+    const _elapsedTime = Date.now() - startTime;
+    block.meta._elapsedTime = _elapsedTime;
 
     spinner?.stopAndPersist({
       symbol: fmt.green("✔"),
-      text: fmt.green(block.description) + fmt.dim(` ${elapsedTime}ms`),
+      text: fmt.green(block.description) + fmt.dim(` ${_elapsedTime}ms`),
     });
 
-    block.meta.isSuccessfulBlock = true;
+    block.meta._isSuccessfulBlock = true;
     return blocksDone;
   } catch (error) {
     block.error = error;
 
-    const elapsedTime = Date.now() - startTime;
-    block.meta.elapsedTime = elapsedTime;
-    const prettyTime = fmt.dim(` ${ms(elapsedTime)}`);
+    const _elapsedTime = Date.now() - startTime;
+    block.meta._elapsedTime = _elapsedTime;
+    const prettyTime = fmt.dim(` ${ms(_elapsedTime)}`);
     spinner?.stopAndPersist({
       symbol: fmt.brightRed("✖"),
       text: fmt.red(block.description || "") + prettyTime,
     });
-    block.meta.isFailedBlock = true;
+    block.meta._isFailedBlock = true;
     return blocksDone;
   } finally {
     await printBlock(block);
 
     await consumeBodies(block);
-    block.meta.isDoneBlock = true;
+    block.meta._isDoneBlock = true;
     if (block.meta.name) {
       const name = block.meta.name as string;
       globalData._blocksDone[name] = block;

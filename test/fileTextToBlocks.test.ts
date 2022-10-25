@@ -16,16 +16,16 @@ GET http://faker.deno.dev
       "test.http",
     );
     assertEquals(blocks.length, 2);
-    assertEquals(blocks[0].meta.startLine, 0);
-    assertEquals(blocks[0].meta.endLine, 2);
-    assertEquals(blocks[1].meta.startLine, 3);
-    assertEquals(blocks[1].meta.endLine, 4);
+    assertEquals(blocks[0].meta._startLine, 0);
+    assertEquals(blocks[0].meta._endLine, 2);
+    assertEquals(blocks[1].meta._startLine, 3);
+    assertEquals(blocks[1].meta._endLine, 4);
   },
 );
 
 Deno.test("[fileTextToBlocks]", () => {
   const blocks = fileTextToBlocks(`###`, "test.http");
   assertEquals(blocks.length, 1);
-  assertEquals(blocks[0].meta.startLine, 0);
-  assertEquals(blocks[0].meta.endLine, 0);
+  assertEquals(blocks[0].meta._startLine, 0);
+  assertEquals(blocks[0].meta._endLine, 0);
 });

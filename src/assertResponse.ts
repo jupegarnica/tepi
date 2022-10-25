@@ -30,8 +30,8 @@ export async function assertResponse(block: Omit<Block, "meta">) {
   }
 
   if (await expectedResponse.getBody()) {
-    let assertBody: typeof assertEquals | typeof assertObjectMatch
-      = assertEquals;
+    let assertBody: typeof assertEquals | typeof assertObjectMatch =
+      assertEquals;
     if (
       typeof await expectedResponse.getBody() === "object" &&
       typeof await actualResponse.getBody() === "object"

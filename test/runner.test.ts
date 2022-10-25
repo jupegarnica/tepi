@@ -10,9 +10,8 @@ const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 // console.debug(`HOST: ${HOST}`);
 // console.debug(`HOST_HTTPBIN: ${HOST_HTTPBIN}`);
 
-
 Deno.test("[runner] find one file", async () => {
-  const { files } = await runner(["http/test1.http"], { displayIndex: 0 });
+  const { files } = await runner(["http/test1.http"], { _displayIndex: 0 });
   assertEquals(files.length, 1);
   assertEquals(files[0].blocks.length, 6);
 });
@@ -22,7 +21,7 @@ Deno.test(
   // { only: true },
   async () => {
     const { files } = await runner(["http/test2.http"], {
-      displayIndex: 0,
+      _displayIndex: 0,
     });
     const firstBlock = files[0].blocks[1];
     assertEquals(
@@ -37,7 +36,7 @@ Deno.test(
 
 Deno.test("[runner] interpolation", async () => {
   const { files } = await runner(["http/interpolate.http"], {
-    displayIndex: 0,
+    _displayIndex: 0,
   });
   const firstBlock = files[0].blocks[1];
 
@@ -74,16 +73,14 @@ Deno.test("[runner] interpolation", async () => {
   assertEquals(seventhBlock.expectedResponse?.headers.get("adios"), "mundo");
 
   const eighthBlock = files[0].blocks[1 + 7];
-  assertEquals(eighthBlock.meta.name, 'must interpolate ts');
+  assertEquals(eighthBlock.meta.name, "must interpolate ts");
   assertEquals(eighthBlock.error, undefined);
-  assertEquals(await eighthBlock.request?.getBody(), '1');
-
-
+  assertEquals(await eighthBlock.request?.getBody(), "1");
 });
 
 Deno.test("[runner] asserts ", async () => {
   const { files } = await runner(["http/assert.http"], {
-    displayIndex: 0,
+    _displayIndex: 0,
   });
   const firstBlock = files[0].blocks[1];
   assertEquals(firstBlock.error instanceof AssertionError, true);
@@ -99,7 +96,7 @@ Deno.test("[runner] asserts ", async () => {
 });
 
 Deno.test("[runner] host meta data", async () => {
-  const { files } = await runner(["http/host.http"], { displayIndex: 0 });
+  const { files } = await runner(["http/host.http"], { _displayIndex: 0 });
 
   const firstBlock = files[0].blocks[0];
   assertEquals(firstBlock.meta.host, HOST);
@@ -111,21 +108,21 @@ Deno.test("[runner] host meta data", async () => {
   );
 
   const thirdBlock = files[0].blocks[2];
-  assertEquals(thirdBlock.request?.url, HOST + "/", 'thirdBlock');
+  assertEquals(thirdBlock.request?.url, HOST + "/", "thirdBlock");
 
   const fourthBlock = files[0].blocks[3];
-  assertEquals(fourthBlock.request?.url, HOST + "/ping", 'fourthBlock');
+  assertEquals(fourthBlock.request?.url, HOST + "/ping", "fourthBlock");
 
   const fifthBlock = files[0].blocks[4];
-  assertEquals(fifthBlock.request?.url, HOST_HTTPBIN + "/get", 'fifthBlock');
+  assertEquals(fifthBlock.request?.url, HOST_HTTPBIN + "/get", "fifthBlock");
 
   const sixthBlock = files[0].blocks[5];
-  assertEquals(sixthBlock.request?.url, HOST_HTTPBIN + "/post", 'sixthBlock');
+  assertEquals(sixthBlock.request?.url, HOST_HTTPBIN + "/post", "sixthBlock");
 });
 
 Deno.test("[runner] timeout", async () => {
   const { files } = await runner(["http/timeout.http"], {
-    displayIndex: 0,
+    _displayIndex: 0,
     timeout: 100,
   });
 
@@ -144,30 +141,30 @@ Deno.test("[runner] timeout", async () => {
 
 Deno.test("[runner] ref", async () => {
   const { files } = await runner(["http/ref.http"], {
-    displayIndex: 0,
+    _displayIndex: 0,
   });
 
   const firstBlock = files[0].blocks[1];
   assertEquals(firstBlock.meta.name, "block1");
-  assertEquals(firstBlock.meta.isDoneBlock, true);
+  assertEquals(firstBlock.meta._isDoneBlock, true);
   assertEquals(firstBlock.error, undefined);
   assertEquals(await firstBlock.request?.getBody(), "RESPONSE!?");
 });
 
 Deno.test("[runner] ref loop", async () => {
   const { files } = await runner(["http/ref.loop.http"], {
-    displayIndex: 0,
+    _displayIndex: 0,
   });
 
   const firstBlock = files[0].blocks[1];
   assertEquals(firstBlock.meta.name, "block1");
-  assertEquals(firstBlock.meta.isDoneBlock, true);
+  assertEquals(firstBlock.meta._isDoneBlock, true);
   assertEquals(firstBlock.error, undefined);
   assertEquals(await firstBlock.request?.getBody(), "block2?");
 
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.meta.name, "block2");
-  assertEquals(secondBlock.meta.isDoneBlock, true);
+  assertEquals(secondBlock.meta._isDoneBlock, true);
   assertEquals(secondBlock.error, undefined);
   assertEquals(await secondBlock.request?.getBody(), "block1??");
 });
@@ -176,14 +173,21 @@ Deno.test(
   "[runner] redirect ",
   async () => {
     const { files } = await runner(["http/redirect.http"], {
-      displayIndex: 0,
+      _displayIndex: 0,
     });
 
     const firstBlock = files[0].blocks[1];
     assertEquals(firstBlock.request?.url, HOST + "/image/avatar");
     assertEquals(firstBlock.meta?.redirect, "follow");
-    assertEquals(firstBlock.response?.headers.get('content-type'), 'image/jpeg');
-    assertEquals(firstBlock.response?.redirected, false, 'NOT REDIRECTED BECAUSE WHERE ARE EVALUATING THE FINAL RESPONSE');
+    assertEquals(
+      firstBlock.response?.headers.get("content-type"),
+      "image/jpeg",
+    );
+    assertEquals(
+      firstBlock.response?.redirected,
+      false,
+      "NOT REDIRECTED BECAUSE WHERE ARE EVALUATING THE FINAL RESPONSE",
+    );
     assertEquals(firstBlock.response?.status, 200);
     assertEquals(firstBlock.response?.type, "default");
 
@@ -191,7 +195,10 @@ Deno.test(
     assertEquals(secondBlock.response?.type, "default");
     assertEquals(secondBlock.meta?.redirect, "manual");
     assertEquals(secondBlock.response?.redirected, false);
-    assertEquals(secondBlock.response?.headers.get('content-type'), 'application/json; charset=utf-8');
+    assertEquals(
+      secondBlock.response?.headers.get("content-type"),
+      "application/json; charset=utf-8",
+    );
     assertEquals(secondBlock.response?.status, 307);
     assertEquals(
       secondBlock.response?.headers.get("Location")?.startsWith("http"),
@@ -200,14 +207,12 @@ Deno.test(
   },
 );
 
-
-
 Deno.test(
   "[runner] only mode",
   { only: true },
   async () => {
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
-      displayIndex: 0,
+      _displayIndex: 0,
     });
     assertEquals(files[0].blocks.length, 3);
     assertEquals(files[0].blocks[1].meta.ignore, true);
@@ -217,7 +222,6 @@ Deno.test(
     assertEquals(files[0].blocks[2].meta.only, true);
 
     assertEquals(exitCode, 0);
-    assertEquals(onlyMode, true);
-
+    assertEquals(onlyMode, ["http/only.http:15"]);
   },
 );

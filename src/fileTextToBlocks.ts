@@ -1,6 +1,6 @@
 import { Block } from "./types.ts";
 
-export function fileTextToBlocks(txt: string, filePath: string): Block[] {
+export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
   const blocks: Block[] = [];
   const lines = txt.replaceAll("\r", "\n").split("\n");
   let currentBlockText = "";
@@ -16,9 +16,9 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
       const block = {
         text: currentBlockText,
         meta: {
-          startLine: blockStartLine,
-          endLine: blockEndLine,
-          filePath,
+          _startLine: blockStartLine,
+          _endLine: blockEndLine,
+          _filePath,
         },
       };
       blocks.push(block);
@@ -31,9 +31,9 @@ export function fileTextToBlocks(txt: string, filePath: string): Block[] {
       const block = {
         text: currentBlockText,
         meta: {
-          startLine: blockStartLine,
-          endLine: blockEndLine,
-          filePath,
+          _startLine: blockStartLine,
+          _endLine: blockEndLine,
+          _filePath,
         },
       };
       blocks.push(block);

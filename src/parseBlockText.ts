@@ -34,7 +34,6 @@ export async function parseBlockText(block: Block): Promise<Block> {
   return block;
 }
 
-
 const findFrontMatterTextRegex = /^---\s*([\s\S]*?)\s*---\s*/gm;
 export async function parseMetaFromText(
   textRaw = "",

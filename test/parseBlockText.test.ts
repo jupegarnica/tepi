@@ -1,4 +1,7 @@
-import { assertEquals, assertRejects } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertRejects,
+} from "https://deno.land/std@0.158.0/testing/asserts.ts";
 import { parseBlockText } from "../src/parseBlockText.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 import { YAMLError } from "https://deno.land/std@0.160.0/encoding/_yaml/error.ts";
@@ -340,13 +343,11 @@ GET faker.deno.dev
     booleanFalse: false,
     array: [1, 2, 3],
     number: 1,
-    obj: {a:1},
+    obj: { a: 1 },
     list: [1, "a"],
-    obj2: {a: 2},
+    obj2: { a: 2 },
   });
 });
-
-
 
 Deno.test("[parseBlockText meta] with interpolation", async () => {
   const block = {
@@ -369,7 +370,6 @@ GET faker.deno.dev
   });
 });
 
-
 Deno.test("[parseBlockText meta] with comments", async () => {
   const block = {
     meta: {},
@@ -391,7 +391,6 @@ GET faker.deno.dev
     textWithComment: "hello # this is a comment",
   });
 });
-
 
 Deno.test("[parseBlockText meta] fail parsing", async () => {
   const block = {

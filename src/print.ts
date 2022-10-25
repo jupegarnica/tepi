@@ -6,7 +6,6 @@ import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
 import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
 import { _Request, _Response, Block } from "./types.ts";
 
-
 type FmtMethod = keyof typeof fmt;
 
 function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
@@ -15,19 +14,26 @@ function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   const separator = fmt.dim("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
-    }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${
+    separator.repeat(padLength)
+  }`;
   console.info(output);
 }
 
 export async function printBlock(block: Block): Promise<void> {
-  const { request, actualResponse, expectedResponse, error } = block;
+  const { request, actualResponse, expectedResponse, error, meta } = block;
 
   if (block.meta.ignore) {
     return;
   }
-  if (block.meta.displayIndex as number < 3) {
+  if (block.meta._displayIndex as number < 3) {
     return;
+  }
+  if (meta) {
+    console.group();
+    printTitle("⬇   Meta    ⬇");
+    console.table(meta);
+    console.groupEnd();
   }
   if (request) {
     console.group();
@@ -78,17 +84,17 @@ export function printErrorsSummary(blocks: Block[]): void {
       continue;
     }
     const maximumLength = Deno.consoleSize(Deno.stdout.rid).columns / 2;
-    const path = `${meta.relativeFilePath}:${1 + (meta.startLine || 0)}`
+    const path = `${meta._relativeFilePath}:${1 + (meta._startLine || 0)}`;
     const messagePath = `${fmt.dim("at:")} ${fmt.cyan(path)}`;
     // const messageText = `${fmt.red("✖")} ${fmt.white(error.message)}`;
-    let message = '';
+    let message = "";
 
-    if (!meta.errorDisplayed) {
-      firstError || console.error(fmt.dim('------------------'));
-      if (meta.displayIndex === 1) {
+    if (!meta._errorDisplayed) {
+      firstError || console.error(fmt.dim("------------------"));
+      if (meta._displayIndex === 1) {
         // console.log(messageText,fmt.blue('------------------\n'));
-       const messageText = fmt.stripColor(error.message);
-        const trimmedMessage = messageText.trim().replaceAll(/\s+/g, ' ');
+        const messageText = fmt.stripColor(error.message);
+        const trimmedMessage = messageText.trim().replaceAll(/\s+/g, " ");
         const messageLength = trimmedMessage.length;
         const needsToTruncate = messageLength > maximumLength;
         const truncatedMessage = needsToTruncate
@@ -96,16 +102,16 @@ export function printErrorsSummary(blocks: Block[]): void {
           : trimmedMessage;
         const messagePadded = truncatedMessage.padEnd(maximumLength);
         message = `${fmt.red("✖")} ${fmt.white(messagePadded)} ${messagePath}`;
-
       } else {
-        message = `${fmt.red("✖")} ${fmt.white(error.message)} \n${messagePath}`;
+        message = `${fmt.red("✖")} ${
+          fmt.white(error.message)
+        } \n${messagePath}`;
       }
     } else {
       message = messagePath;
     }
     console.error(message);
     firstError = false;
-
   }
 }
 
@@ -113,22 +119,21 @@ export function printError(block: Block): void {
   const error = block.error;
   if (!error) return;
 
-  const path = block.meta.relativeFilePath;
+  const path = block.meta._relativeFilePath;
 
   printTitle("⬇   Error    ⬇");
 
   block.description && console.error(fmt.brightRed(block.description));
   console.error(
     fmt.dim("At:\n"),
-    fmt.cyan(`${path}:${1 + (block.meta.startLine || 0)}`),
+    fmt.cyan(`${path}:${1 + (block.meta._startLine || 0)}`),
   );
   console.error(fmt.dim("Message:\n"), fmt.white(error?.message));
   // error?.stack && console.error(fmt.dim('Trace:\n'), fmt.dim(error?.stack));
   error?.cause &&
     console.error(fmt.dim("Cause:\n"), fmt.dim(String(error?.cause)));
-  block.meta.errorDisplayed = true;
+  block.meta._errorDisplayed = true;
   console.error();
-
 }
 
 export function requestToText(request: Request): string {
@@ -140,10 +145,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-      ? fmt.yellow
-      : response.status >= 400 && response.status < 500
-        ? fmt.red
-        : fmt.bgRed;
+    ? fmt.yellow
+    : response.status >= 400 && response.status < 500
+    ? fmt.red
+    : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -161,8 +166,9 @@ export function headersToText(headers: Headers): string {
     maxLengthValue = Math.max(maxLengthValue, value.length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(value.padEnd(maxLengthValue + 1))
-      }\n`;
+    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${
+      fmt.dim(value.padEnd(maxLengthValue + 1))
+    }\n`;
   }
 
   return result;
