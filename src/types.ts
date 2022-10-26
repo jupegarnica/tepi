@@ -1,4 +1,6 @@
 import { extractBody } from "./fetchBlock.ts";
+// TODO
+// import makeSynchronous from 'npm:make-synchronous';
 
 export interface RequestInterface extends Request {
   bodyRaw?: BodyInit | null;
@@ -86,13 +88,22 @@ export class Block  {
   expectedResponse?: _Response;
   actualResponse?: _Response;
   error?: Error;
+  body?: unknown;
+  // #getBodySync: () => unknown;
+  // #getBodyAsync:() => Promise<unknown>;
+
   constructor(obj: Partial<Block> = {}) {
     this.text = obj.text || "";
     this.meta = obj.meta || {};
     this.expectedResponse = obj.expectedResponse;
     this.actualResponse = obj.actualResponse;
+    // this.#getBodyAsync = this.actualResponse?.getBody || ( function(): Promise<unknown> { return Promise.resolve()})
+    // this.#getBodySync = makeSynchronous(this.#getBodyAsync)
 
   }
+  // get body(): unknown {
+  //   return this.#getBodySync();
+  // }
   get description(): string {
     if (this.meta.description) {
       return this.meta.description;
@@ -111,6 +122,7 @@ export class Block  {
   }
 
 }
+
 
 export type File = {
   path: string;

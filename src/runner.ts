@@ -285,6 +285,7 @@ async function runBlock(
     block.meta._isDoneBlock = true;
     if (block.meta.name) {
       const name = block.meta.name as string;
+      block.body = await block.actualResponse?.getBody();
       globalData._blocksDone[name] = block;
     }
   }

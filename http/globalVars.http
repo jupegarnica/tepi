@@ -9,7 +9,7 @@ host: <%= Deno.env.get("HOST") || "https://faker.deno.dev" %>
 name: dos
 ---
 POST /?body=<%= globalThis.a %>
-quite: true
+quiet: true
 
 HTTP/1.1 200
 
@@ -17,9 +17,9 @@ HTTP/1.1 200
 ###
 
 
-POST /?body=<%= dos.body %>
-quite: true
+POST /?body=2
+quiet: true
 
 HTTP/1.1 200
 
-2
+<%= dos.body %>

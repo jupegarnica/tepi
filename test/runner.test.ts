@@ -228,7 +228,6 @@ Deno.test(
 
 Deno.test(
   "[runner] global vars",
-  { only: true },
   async () => {
     const { files } = await runner(["http/globalVars.http"], {
       display: 'none',
