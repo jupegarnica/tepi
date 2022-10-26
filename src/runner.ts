@@ -248,6 +248,7 @@ async function runBlock(
         ...globalData._blocksDone,
         ...block,
         ...assertions,
+        body:  await block.actualResponse?.getBody(),
         response: block.actualResponse,
       },
     );

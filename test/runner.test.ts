@@ -224,3 +224,17 @@ Deno.test(
     assertEquals(onlyMode, ["http/only.http:13"]);
   },
 );
+
+
+
+Deno.test(
+  "[runner] global vars",
+  async () => {
+    const { files } = await runner(["http/globalVars.http"], {
+      display: 'none',
+    });
+    assertEquals(files[0].blocks.length, 2);
+    assertEquals(files[0].blocks[1].error, undefined);
+    assertEquals(files[0].blocks[1].request?.url, 'https://faker.deno.dev/?body=2');
+  },
+);

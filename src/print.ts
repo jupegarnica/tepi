@@ -12,7 +12,8 @@ function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
   const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
   // @ts-ignore // TODO: fix this
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
-  const padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
+  let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
+  padLength = padLength < 0 ? 0 : padLength;
   const separator = fmt.dim("-");
   const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
     }`;
@@ -38,7 +39,6 @@ export async function printBlock(block: Block): Promise<void> {
   if (block.meta.ignore) {
     return;
   }
-  console.log(block.meta.display, getDisplayIndex(block.meta));
 
   if (getDisplayIndex(block.meta) < 3) {
     return;
