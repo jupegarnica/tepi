@@ -1,7 +1,7 @@
 ---
 host: <%= Deno.env.get("HOST") || "https://faker.deno.dev" %>
-<% let a = 1; %>
 <% globalThis.a = 2; %>
+<% let a = 1; %>
 ---
 
 ###
