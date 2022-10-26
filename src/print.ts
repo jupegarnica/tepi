@@ -1,9 +1,9 @@
-import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 // @ts-ignore ¿?¿ it has a named highlight export
 import { highlight, supportsLanguage } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
-import { extension } from "https://deno.land/std@0.158.0/media_types/mod.ts?source=cli";
+import { extension } from "https://deno.land/std@0.160.0/media_types/mod.ts?source=cli";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 
 type FmtMethod = keyof typeof fmt;

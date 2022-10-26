@@ -1,8 +1,8 @@
-import { type Args, parse } from "https://deno.land/std@0.159.0/flags/mod.ts";
+import { type Args, parse } from "https://deno.land/std@0.160.0/flags/mod.ts";
 import type { Meta } from "./types.ts";
-import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 // import ora from "npm:ora";
-import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
+import { relative } from "https://deno.land/std@0.160.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";

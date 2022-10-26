@@ -1,4 +1,4 @@
-import { expandGlob } from "https://deno.land/std@0.159.0/fs/mod.ts";
+import { expandGlob } from "https://deno.land/std@0.160.0/fs/mod.ts";
 
 export async function globsToFilePaths(globs: string[]): Promise<string[]> {
   const filePaths: string[] = [];

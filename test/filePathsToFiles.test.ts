@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.158.0/testing/asserts.ts";
+import { assertEquals } from "https://deno.land/std@0.160.0/testing/asserts.ts";
 import { filePathsToFiles } from "../src/filePathsToFiles.ts";
 import { Block } from "../src/types.ts";
 Deno.test("[filePathsToFiles] must not have request", async () => {
