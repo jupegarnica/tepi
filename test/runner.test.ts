@@ -1,7 +1,6 @@
 import {
   assertEquals,
-  AssertionError,
-} from "https://deno.land/std@0.158.0/testing/asserts.ts";
+} from "https://deno.land/std@0.160.0/testing/asserts.ts";
 import { runner } from "../src/runner.ts";
 
 const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
@@ -83,7 +82,7 @@ Deno.test("[runner] asserts ", async () => {
     display: 'none',
   });
   const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.error instanceof AssertionError, true);
+  assertEquals(firstBlock.error?.name,'AssertionError');
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.error, undefined);
   const thirdBlock = files[0].blocks[1 + 2];

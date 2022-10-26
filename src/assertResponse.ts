@@ -3,7 +3,7 @@ import {
   assertEquals,
   AssertionError,
   assertObjectMatch,
-} from "https://deno.land/std@0.158.0/testing/asserts.ts";
+} from "https://deno.land/std@0.160.0/testing/asserts.ts";
 
 export async function assertResponse(block: Omit<Block, "meta">) {
   const { expectedResponse, actualResponse } = block;
