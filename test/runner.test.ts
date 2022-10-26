@@ -82,7 +82,7 @@ Deno.test("[runner] asserts ", async () => {
     display: 'none',
   });
   const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.error?.name,'AssertionError');
+  assertEquals(firstBlock.error?.name, 'AssertionError');
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.error, undefined);
   const thirdBlock = files[0].blocks[1 + 2];
@@ -228,12 +228,17 @@ Deno.test(
 
 Deno.test(
   "[runner] global vars",
+  { only: true },
   async () => {
     const { files } = await runner(["http/globalVars.http"], {
       display: 'none',
     });
-    assertEquals(files[0].blocks.length, 2);
+    assertEquals(files[0].blocks.length, 3);
     assertEquals(files[0].blocks[1].error, undefined);
     assertEquals(files[0].blocks[1].request?.url, 'https://faker.deno.dev/?body=2');
+
+    assertEquals(files[0].blocks[2].error, undefined);
+    assertEquals(files[0].blocks[2].request?.url, 'https://faker.deno.dev/?body=2');
+
   },
 );

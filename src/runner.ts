@@ -1,4 +1,4 @@
-import { filePathsToFiles } from "./filePathsToFiles.ts";
+import { filePathsToFiles } from "./files.ts";
 import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";

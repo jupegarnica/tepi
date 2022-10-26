@@ -1,3 +1,4 @@
+import { File } from "./types.ts";
 import { Block } from "./types.ts";
 
 export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
@@ -40,4 +41,38 @@ export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
     }
   }
   return blocks;
+}
+
+import { expandGlob } from "https://deno.land/std@0.160.0/fs/mod.ts";
+
+export async function globsToFilePaths(globs: string[]): Promise<string[]> {
+  const filePaths: string[] = [];
+
+  for (const glob of globs) {
+    for await (const fileFound of expandGlob(glob)) {
+      if (fileFound.isFile) {
+        filePaths.push(fileFound.path);
+      }
+    }
+  }
+
+  return filePaths;
+}
+
+export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
+  const files: File[] = [];
+
+  for (const _filePath of filePaths) {
+    let fileContent = "";
+    try {
+      fileContent = await Deno.readTextFile(_filePath);
+    } catch (error) {
+      console.error("File not found:", _filePath);
+      console.error(error.message);
+    }
+    const blocks = fileTextToBlocks(fileContent, _filePath);
+    files.push({ path: _filePath, blocks });
+  }
+
+  return files;
 }
