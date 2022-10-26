@@ -1,15 +1,15 @@
 import { assertRejects } from "https://deno.land/std@0.158.0/testing/asserts.ts";
 import { assertResponse } from "../src/assertResponse.ts";
-import { _Response } from "../src/types.ts";
+import { Block, _Response } from "../src/types.ts";
 
 Deno.test("[assertResponse] with expectedResponse throws error checking status", async () => {
   const expectedResponse = new _Response(null, { status: 400 });
   const actualResponse = new _Response(null, { status: 403 });
   await assertRejects(async () => {
-    await assertResponse({
+    await assertResponse(new Block({
       expectedResponse,
       actualResponse,
-    });
+    }));
   });
 });
 
@@ -23,10 +23,10 @@ Deno.test("[assertResponse] with expectedResponse throws error checking statusTe
     statusText: "Forbidden",
   });
   await assertRejects(async () => {
-    await assertResponse({
+    await assertResponse(new Block({
       expectedResponse,
       actualResponse,
-    });
+    }));
   });
 });
 Deno.test("[assertResponse] with no expectedResponse not throws", async () => {
@@ -38,19 +38,19 @@ Deno.test("[assertResponse] with no expectedResponse not throws", async () => {
     status: 400,
     statusText: "Bad Request",
   });
-  await assertResponse({
+  await assertResponse(new Block({
     expectedResponse,
     actualResponse,
-  });
+  }));
 });
 
 Deno.test("[assertResponse] with expectedResponse plain test body", async () => {
   const expectedResponse = new _Response("foo", { status: 200 });
   const actualResponse = new _Response("foo", { status: 200 });
-  await assertResponse({
+  await assertResponse(new Block({
     expectedResponse,
     actualResponse,
-  });
+  }));
 });
 
 Deno.test("[assertResponse] with expectedResponse json body", async () => {
@@ -62,10 +62,10 @@ Deno.test("[assertResponse] with expectedResponse json body", async () => {
     status: 200,
     headers: { "content-type": "application/json" },
   });
-  await assertResponse({
+  await assertResponse(new Block({
     expectedResponse,
     actualResponse,
-  });
+  }));
 });
 
 Deno.test("[assertResponse] with expectedResponse json test body with regexp", async () => {
@@ -77,10 +77,10 @@ Deno.test("[assertResponse] with expectedResponse json test body with regexp", a
     status: 200,
     headers: { "content-type": "application/json" },
   });
-  await assertResponse({
+  await assertResponse(new Block({
     expectedResponse,
     actualResponse,
-  });
+  }));
 });
 
 Deno.test(
@@ -93,10 +93,10 @@ Deno.test(
       headers: { "content-type": "application/json" },
     });
     await assertRejects(async () => {
-      await assertResponse({
+      await assertResponse(new Block({
         expectedResponse,
         actualResponse,
-      });
+      }));
     });
   },
 );
@@ -110,9 +110,9 @@ Deno.test(
     const actualResponse = new _Response('{  "foo" : "bar" } ', {
       headers: { "content-type": "application/json" },
     });
-    await assertResponse({
+    await assertResponse(new Block({
       expectedResponse,
       actualResponse,
-    });
+    }));
   },
 );

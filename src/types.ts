@@ -79,16 +79,38 @@ export type Meta = {
 
 export type BodyExtracted = { body: unknown; contentType: string };
 
-export type Block = {
-  description?: string;
-  text?: string;
+export class Block  {
+  text: string;
+  meta: Meta;
   request?: _Request;
   expectedResponse?: _Response;
   actualResponse?: _Response;
-  response?: _Response;
-  meta: Meta;
   error?: Error;
-};
+  constructor(obj: Partial<Block> = {}) {
+    this.text = obj.text || "";
+    this.meta = obj.meta || {};
+    this.expectedResponse = obj.expectedResponse;
+    this.actualResponse = obj.actualResponse;
+
+  }
+  get description(): string {
+    if (this.meta.description) {
+      return this.meta.description;
+    }
+    if (this.meta.name) {
+      return this.meta.name;
+    }
+    if (this.request) {
+      return `${this.request.method} ${this.request.url}`;
+    }
+    return this.text.slice(0, 30);
+
+  }
+  get response() {
+    return this.actualResponse;
+  }
+
+}
 
 export type File = {
   path: string;

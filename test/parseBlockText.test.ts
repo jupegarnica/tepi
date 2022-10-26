@@ -5,6 +5,7 @@ import {
 import { parseBlockText } from "../src/parseBlockText.ts";
 import { stub } from "https://deno.land/std@0.158.0/testing/mock.ts";
 import { YAMLError } from "https://deno.land/std@0.160.0/encoding/_yaml/error.ts";
+import { Block } from "../src/types.ts";
 
 Deno.env.get("NO_LOG") && stub(console, "info");
 
@@ -16,7 +17,7 @@ Deno.test("[parseBlockText request]", async () => {
 GET http://faker.deno.dev
 `,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   assertEquals(request?.method, "GET", "invalid method");
   assertEquals(request?.url, "http://faker.deno.dev/");
 });
@@ -30,7 +31,7 @@ Deno.test("[parseBlockText request] with headers", async () => {
 
         x-foo: bar`,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   assertEquals(request?.headers.get("Host"), "faker.deno.dev");
   assertEquals(request?.headers.get("User-Agent"), "curl/7.64.1");
   assertEquals(request?.headers.get("x-foo"), null);
@@ -42,7 +43,7 @@ Deno.test("[parseBlockText request] with headers not body", async () => {
     text: `GET http://faker.deno.dev HTTP/1.1
         Host: http://faker.deno.dev`,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   assertEquals(request?.bodyRaw, null);
   assertEquals(request?.headers.get("host"), "http://faker.deno.dev");
 });
@@ -57,7 +58,7 @@ User-Agent: curl/7.64.1
 
 x-foo: bar`,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   assertEquals(request?.headers.get("Host"), "faker.deno.dev");
   assertEquals(request?.headers.get("User-Agent"), "curl/7.64.1");
   assertEquals(request?.headers.get("x-foo"), null);
@@ -69,7 +70,7 @@ Deno.test("[parseBlockText request] without protocol", async () => {
     text: `GET faker.deno.dev`,
   };
 
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   assertEquals(request?.url, "http://faker.deno.dev/");
 });
 
@@ -81,7 +82,7 @@ Deno.test("[parseBlockText request] with body", async () => {
 
         hola mundo`,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   const body = await request?.text();
   assertEquals(body, "hola mundo");
 });
@@ -93,7 +94,7 @@ Deno.test("[parseBlockText request] with body no headers", async () => {
 
         hola mundo`,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   const body = await request?.text();
   assertEquals(
     request?.headers.get("Content-Type"),
@@ -109,7 +110,7 @@ Deno.test("[parseBlockText request] with body raw", async () => {
 
         hola mundo`,
   };
-  const { request } = await parseBlockText(block);
+  const { request } = await parseBlockText(new Block(block));
   const body = request?.bodyRaw;
   assertEquals(body, "hola mundo");
 });
@@ -132,7 +133,7 @@ hola
 HTTP/1.1 200 OK
         `,
     };
-    const { request } = await parseBlockText(block);
+    const { request } = await parseBlockText(new Block(block));
 
     const body = await request?.text();
     assertEquals(request?.headers.get("x-foo"), null);
@@ -159,7 +160,7 @@ hola
 ###
     `,
     };
-    const { request } = await parseBlockText(block);
+    const { request } = await parseBlockText(new Block(block));
 
     const body = await request?.text();
     assertEquals(request?.headers.get("x-foo"), null);
@@ -184,7 +185,7 @@ Deno.test(
 
         `,
     };
-    const { expectedResponse } = await parseBlockText(block);
+    const { expectedResponse } = await parseBlockText(new Block(block));
 
     assertEquals(expectedResponse?.status, 200);
   },
@@ -207,7 +208,7 @@ hola mundo
 
 `,
     };
-    const { expectedResponse } = await parseBlockText(block);
+    const { expectedResponse } = await parseBlockText(new Block(block));
 
     assertEquals(expectedResponse?.headers.get("x-foo"), "bar");
   },
@@ -230,7 +231,7 @@ hola mundo
 
 `,
     };
-    const { expectedResponse } = await parseBlockText(block);
+    const { expectedResponse } = await parseBlockText(new Block(block));
 
     assertEquals(expectedResponse?.statusText, "OK");
   },
@@ -254,7 +255,7 @@ Deno.test(
 
     `,
     };
-    const { expectedResponse } = await parseBlockText(block);
+    const { expectedResponse } = await parseBlockText(new Block(block));
     assertEquals(await expectedResponse?.text(), "hola mundo");
   },
 );
@@ -273,7 +274,7 @@ Deno.test(
             x-foo: bar
             `,
     };
-    const { expectedResponse } = await parseBlockText(block);
+    const { expectedResponse } = await parseBlockText(new Block(block));
     assertEquals(await expectedResponse?.text(), "");
   },
 );
@@ -301,7 +302,7 @@ mundo
 
     `,
     };
-    const { expectedResponse } = await parseBlockText(block);
+    const { expectedResponse } = await parseBlockText(new Block(block));
     assertEquals(await expectedResponse?.text(), "hola\n# hello\n\nmundo");
   },
 );
@@ -332,7 +333,7 @@ list:
 GET faker.deno.dev
 `,
   };
-  const { meta } = await parseBlockText(block);
+  const { meta } = await parseBlockText(new Block(block));
 
   assertEquals(meta, {
     name: "test",
@@ -363,7 +364,7 @@ GET faker.deno.dev
 ###
 `,
   };
-  const { meta } = await parseBlockText(block);
+  const { meta } = await parseBlockText(new Block(block));
 
   assertEquals(meta, {
     number: 2,
@@ -383,7 +384,7 @@ textWithComment: "hello # this is a comment"
 GET faker.deno.dev
 `,
   };
-  const { meta } = await parseBlockText(block);
+  const { meta } = await parseBlockText(new Block(block));
 
   assertEquals(meta, {
     number: 100,
@@ -404,5 +405,5 @@ ups text # this is a comment
 GET faker.deno.dev
 `,
   };
-  await assertRejects(async () => await parseBlockText(block), YAMLError);
+  await assertRejects(async () => await parseBlockText(new Block(block)), YAMLError);
 });

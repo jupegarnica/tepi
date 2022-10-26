@@ -206,9 +206,6 @@ async function runBlock(
       return blocksDone;
     }
 
-    block.description = block.meta.description as string || block.meta.name as string ||
-      `${block.request?.method} ${block.request?.url}`;
-
     if (getDisplayIndex(block.meta) >= 2) {
       spinner = wait({
         prefix: fmt.dim("-"),
@@ -252,7 +249,6 @@ async function runBlock(
         response: block.actualResponse,
       },
     );
-    block.response = block.actualResponse;
 
     if (block.expectedResponse) {
       await assertResponse(block);

@@ -372,6 +372,7 @@ ${codeBlock(`type Block = {
   },
   request?: Request,
   response?: Response,
+  expectedResponse?: Response,
   error?: Error,
   body?: any,
 }`, 'ts')}

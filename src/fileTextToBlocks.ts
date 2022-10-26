@@ -13,14 +13,14 @@ export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
     currentBlockText += line + "\n";
     if (blockSeparator.test(line)) {
       blockEndLine = i;
-      const block = {
+      const block = new Block({
         text: currentBlockText,
         meta: {
           _startLine: blockStartLine,
           _endLine: blockEndLine,
           _filePath,
         },
-      };
+      });
       blocks.push(block);
       currentBlockText = "";
       blockStartLine = i + 1;
@@ -28,14 +28,14 @@ export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
     // final block
     if (i === lines.length - 1 && currentBlockText) {
       blockEndLine = i;
-      const block = {
+      const block = new Block({
         text: currentBlockText,
         meta: {
           _startLine: blockStartLine,
           _endLine: blockEndLine,
           _filePath,
         },
-      };
+      });
       blocks.push(block);
     }
   }

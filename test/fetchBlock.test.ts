@@ -14,14 +14,14 @@ const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
-    const block: Block = {
+    const block = new Block({
       meta: {},
       text: `
         GET ${HOST_HTTPBIN}/status/400
 
         HTTP/1.1 403 Forbidden
         `,
-    };
+    });
     await parseBlockText(block);
     await fetchBlock(block);
     assertEquals(block.expectedResponse?.status, 403);
@@ -33,14 +33,14 @@ Deno.test(
 Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
-    const block: Block = {
+    const block = new Block({
       meta: {},
       text: `
 GET ${HOST_HTTPBIN}/status/400
 
 HTTP/1.1 400 Forbidden
 `,
-    };
+    });
     await parseBlockText(block);
     await fetchBlock(block);
     assertEquals(block.expectedResponse?.statusText, "Forbidden");
@@ -52,14 +52,14 @@ HTTP/1.1 400 Forbidden
 Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
   async () => {
-    const block: Block = {
+    const block = new Block({
       meta: {},
       text: `
 GET ${HOST_HTTPBIN}/status/400
 
 HTTP/1.1 400 Forbidden
 `,
-    };
+    });
     await parseBlockText(block);
     await fetchBlock(block);
     assertEquals(block.expectedResponse?.statusText, "Forbidden");
@@ -69,7 +69,7 @@ HTTP/1.1 400 Forbidden
 );
 
 Deno.test("[fetchBlock] with expectedResponse plain test body", async () => {
-  const block = {
+  const block =new Block( {
     meta: {},
     text: `
             POST ${HOST_HTTPBIN}/text
@@ -83,7 +83,7 @@ Deno.test("[fetchBlock] with expectedResponse plain test body", async () => {
             hola mundo
 
             `,
-  };
+  });
   await parseBlockText(block);
   const { expectedResponse } = await fetchBlock(block);
   await consumeBodies(block);
@@ -94,7 +94,7 @@ Deno.test(
   "[fetchBlock] with expectedResponse json body", // { only: true },
   // { ignore: true },
   async () => {
-    const block: Block = {
+    const block = new Block({
       meta: {},
       text: `
             POST ${HOST}/pong?quiet=true
@@ -108,7 +108,7 @@ Deno.test(
             {"foo":"bar"}
 
             `,
-    };
+    });
     await parseBlockText(block);
     await fetchBlock(block);
     await consumeBodies(block);
@@ -123,7 +123,7 @@ Deno.test(
   // { ignore: true },
   async () => {
     await assertRejects(async () => {
-      await fetchBlock({ meta: {}, text: "" });
+      await fetchBlock(new Block({text:''}));
     });
   },
 );
