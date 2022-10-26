@@ -7,7 +7,7 @@ import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
-import { help } from "./help";
+import { help } from "./help.ts";
 
 if (import.meta.main) {
   await cli();
