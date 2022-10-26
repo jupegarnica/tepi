@@ -228,7 +228,7 @@ async function runBlock(
     if (block.meta.ignore) {
       block.meta._isIgnoredBlock = true;
       spinner?.stopAndPersist({
-        symbol: fmt.yellow("-"),
+        symbol: fmt.yellow(""),
         text: fmt.yellow(block.description),
       });
       return blocksDone;
@@ -260,7 +260,7 @@ async function runBlock(
     block.meta._elapsedTime = _elapsedTime;
 
     spinner?.stopAndPersist({
-      symbol: fmt.green("✔"),
+      symbol: fmt.green("✓"),
       text: fmt.green(block.description) + fmt.dim(` ${_elapsedTime}ms`),
     });
 
