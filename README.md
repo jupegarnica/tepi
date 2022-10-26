@@ -111,7 +111,7 @@ Use frontmatter yaml to set metadata.
 ref: loginTest
 ---
 POST https://example.com/onlyAdmin
-Authorization: Bearer <%= (await loginTest.response.getBody()).jwt %>
+Authorization: Bearer <%= loginTest.body.jwt %>
 Content-Type: application/json
 
 {"name": "Garn"}
@@ -134,19 +134,58 @@ host: https://faker.deno.dev
 
 It deno 🔥
 
-Uses eta templates: https://deno.land/x/eta
+Uses eta as template engine, see docs:
+https://deno.land/x/eta
 
 Use `<%= %>` to interpolate values.
 
-All the std assertion module is available: https://deno.land/std/testing/asserts.ts
-Use `<% %>` to run custom assertions. For example:
+All the std assertion module is available:
+https://deno.land/std/testing/asserts.ts
 
+
+Use `<% %>` to run custom assertions or custom JS.
+For example:
 
 ```
-
 GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
 
 ```
+Or:
+
+```
+    <% if (Math.random() > 0.5) { %>
+      GET  http://localhost:3000/users/1
+    <% } else { %>
+      GET  http://localhost:3000/users/2
+    <% } %>
+
+```
+
+
+### Interpolation scope:
+In the Interpolation `<%= %>` or `<% %>` you have access to any Deno API and the following variables:
+> request: The Request from the actual block.
+> meta: The metadata from the actual block. and the frontmatter global metadata.
+> response: The standard Response object from the fetch API from the actual request. (only available in the expected response, after the request)
+> body: The extracted body from the actual request. (only available in the expected response, after the request)
+
+> [name]: the named block already run for example: `<%= loginTest.body.jwt %>` or <%= loginTest.response.status %>
+
+The Block signature is:
+
+```ts
+type Block = {
+  meta: {
+    [key: string]: any,
+  },
+  request?: Request,
+  response?: Response,
+  expectedResponse?: Response,
+  error?: Error,
+  body?: any,
+}
+```
+
 
