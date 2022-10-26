@@ -11,7 +11,7 @@ const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 // console.debug(`HOST_HTTPBIN: ${HOST_HTTPBIN}`);
 
 Deno.test("[runner] find one file", async () => {
-  const { files } = await runner(["http/test1.http"], { _displayIndex: 0 });
+  const { files } = await runner(["http/test1.http"], { display: 'none' });
   assertEquals(files.length, 1);
   assertEquals(files[0].blocks.length, 6);
 });
@@ -21,7 +21,7 @@ Deno.test(
   // { only: true },
   async () => {
     const { files } = await runner(["http/test2.http"], {
-      _displayIndex: 0,
+      display: 'none',
     });
     const firstBlock = files[0].blocks[1];
     assertEquals(
@@ -36,7 +36,7 @@ Deno.test(
 
 Deno.test("[runner] interpolation", async () => {
   const { files } = await runner(["http/interpolate.http"], {
-    _displayIndex: 0,
+    display: 'none',
   });
   const firstBlock = files[0].blocks[1];
 
@@ -80,7 +80,7 @@ Deno.test("[runner] interpolation", async () => {
 
 Deno.test("[runner] asserts ", async () => {
   const { files } = await runner(["http/assert.http"], {
-    _displayIndex: 0,
+    display: 'none',
   });
   const firstBlock = files[0].blocks[1];
   assertEquals(firstBlock.error instanceof AssertionError, true);
@@ -96,7 +96,7 @@ Deno.test("[runner] asserts ", async () => {
 });
 
 Deno.test("[runner] host meta data", async () => {
-  const { files } = await runner(["http/host.http"], { _displayIndex: 0 });
+  const { files } = await runner(["http/host.http"], { display: 'none' });
 
   const firstBlock = files[0].blocks[0];
   assertEquals(firstBlock.meta.host, HOST);
@@ -122,7 +122,7 @@ Deno.test("[runner] host meta data", async () => {
 
 Deno.test("[runner] timeout", async () => {
   const { files } = await runner(["http/timeout.http"], {
-    _displayIndex: 0,
+    display: 'none',
     timeout: 100,
   });
 
@@ -141,7 +141,7 @@ Deno.test("[runner] timeout", async () => {
 
 Deno.test("[runner] ref", async () => {
   const { files } = await runner(["http/ref.http"], {
-    _displayIndex: 0,
+    display: 'none',
   });
 
   const firstBlock = files[0].blocks[1];
@@ -153,7 +153,7 @@ Deno.test("[runner] ref", async () => {
 
 Deno.test("[runner] ref loop", async () => {
   const { files } = await runner(["http/ref.loop.http"], {
-    _displayIndex: 0,
+    display: 'none',
   });
 
   const firstBlock = files[0].blocks[1];
@@ -173,7 +173,7 @@ Deno.test(
   "[runner] redirect ",
   async () => {
     const { files } = await runner(["http/redirect.http"], {
-      _displayIndex: 0,
+      display: 'none',
     });
 
     const firstBlock = files[0].blocks[1];
@@ -211,7 +211,7 @@ Deno.test(
   "[runner] only mode",
   async () => {
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
-      _displayIndex: 0,
+      display: 'none',
     });
     assertEquals(files[0].blocks.length, 3);
     assertEquals(files[0].blocks[1].meta.ignore, true);

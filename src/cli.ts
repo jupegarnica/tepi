@@ -6,6 +6,7 @@ import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
 import { globsToFilePaths } from "./globsToFilePaths.ts";
 import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
+import { DISPLAYS, getDisplayIndex } from "./print.ts";
 
 if (import.meta.main) {
   await cli();
@@ -49,12 +50,7 @@ async function cli() {
   }
   // --display
   /////////////
-  const displays = [
-    "none",
-    "minimal",
-    "default",
-    "full",
-  ];
+
   if (args.display === "") {
     args.display = "full";
   }
@@ -62,14 +58,12 @@ async function cli() {
   const defaultMeta: Meta = {
     timeout: 0,
     display: args.display as string,
-    get _displayIndex(): number {
-      return displays.indexOf(this.display as string);
-    },
+
   };
-  if (defaultMeta._displayIndex === -1) {
+  if (getDisplayIndex(defaultMeta) === -1) {
     console.error(
       fmt.brightRed(
-        `Invalid display mode ${args.display}\n Must be one of: ${displays.map((t) => fmt.bold(t)).join(", ")
+        `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map((t) => fmt.bold(t)).join(", ")
         }`,
       ),
     );
@@ -89,7 +83,7 @@ async function cli() {
       keysLoaded.push({ key, value: vars[key], path });
     }
   }
-  if (keysLoaded.length && defaultMeta._displayIndex as number > 0) {
+  if (keysLoaded.length && getDisplayIndex(defaultMeta) > 0) {
     console.log(
       fmt.gray(
         `Loaded ${keysLoaded.length} environment variables from: \n${keysLoaded.map(({ path }) => path).join(", ")
@@ -114,7 +108,7 @@ async function cli() {
   // warn only mode
   /////////////
   if (onlyMode.length) {
-    if (defaultMeta._displayIndex as number > 0) {
+    if (getDisplayIndex(defaultMeta) > 0) {
       console.warn(
         fmt.yellow(`\n${fmt.bgYellow(fmt.bold(' ONLY MODE '))} ${onlyMode.length} tests are in "only" mode.`),
       );

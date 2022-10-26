@@ -1,6 +1,6 @@
 ---
 host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
-explanation: If the first block does not have a request its metadata will be use globally
+explanation: If the first block does not have a request its metadata will be use globally for all requests.
 ---
 ###
 ---

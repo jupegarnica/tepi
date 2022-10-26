@@ -19,13 +19,28 @@ function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
   console.info(output);
 }
 
+export const DISPLAYS = [
+  "none",
+  "minimal",
+  "default",
+  "full",
+];
+export function getDisplayIndex(meta: Meta): number {
+  const display = meta.display;
+  const index = DISPLAYS.indexOf(display);
+  return index;
+
+}
+
 export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error, meta } = block;
 
   if (block.meta.ignore) {
     return;
   }
-  if (block.meta._displayIndex as number < 3) {
+  console.log(block.meta.display, getDisplayIndex(block.meta));
+
+  if (getDisplayIndex(block.meta) < 3) {
     return;
   }
   if (meta) {
@@ -108,7 +123,7 @@ export function printErrorsSummary(blocks: Block[]): void {
 
     if (!meta._errorDisplayed) {
       firstError || console.error(fmt.dim("------------------"));
-      if (meta._displayIndex === 1) {
+      if (getDisplayIndex(meta) === 1) {
         // console.log(messageText,fmt.blue('------------------\n'));
         const messageText = fmt.stripColor(error.message);
         const trimmedMessage = messageText.trim().replaceAll(/\s+/g, " ");

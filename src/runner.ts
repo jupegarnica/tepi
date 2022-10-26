@@ -5,7 +5,7 @@ import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.158.0/fmt/colors.ts";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.159.0/path/posix.ts";
-import { printBlock, printErrorsSummary } from "./print.ts";
+import { getDisplayIndex, printBlock, printErrorsSummary } from "./print.ts";
 // import { ms } from "https://raw.githubusercontent.com/denolib/ms/master/ms.ts";
 import ms from "npm:ms";
 import {
@@ -89,9 +89,9 @@ export async function runner(
     const path = fmt.dim(`running ${relativePath}`);
     let pathSpinner;
 
-    if ((defaultMeta?._displayIndex as number) === 0) {
+    if (getDisplayIndex(defaultMeta) === 0) {
       // display none
-    } else if ((defaultMeta?._displayIndex as number) === 1) {
+    } else if (getDisplayIndex(defaultMeta) === 1) {
       pathSpinner = wait({ text: path });
       pathSpinner.start();
     } else {
@@ -119,7 +119,7 @@ export async function runner(
       }
 
       if (failFast && failedBlocks) {
-        if (defaultMeta?._displayIndex !== 0) {
+        if (getDisplayIndex(defaultMeta) !== 0) {
           printErrorsSummary(blocksDone);
         }
         const status = block.actualResponse?.status || 1;
@@ -131,7 +131,7 @@ export async function runner(
     pathSpinner?.stop();
     pathSpinner?.clear();
   }
-  if ((defaultMeta?._displayIndex as number) !== 0) {
+  if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
 
     const statusText = failedBlocks
@@ -202,14 +202,14 @@ async function runBlock(
     }
 
     if (!block.request) {
-      block.meta.isEmptyBlock = true;
+      block.meta._isEmptyBlock = true;
       return blocksDone;
     }
 
     block.description = block.meta.name as string ||
       `${block.request?.method} ${block.request?.url}`;
 
-    if ((block.meta._displayIndex as number) >= 2) {
+    if (getDisplayIndex(block.meta) >= 2) {
       spinner = wait({
         prefix: fmt.dim("-"),
         text: fmt.white(block.description),
