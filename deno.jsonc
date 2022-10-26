@@ -6,6 +6,10 @@
     "readme": "NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help > README.md",
     "help": " deno run -A --unstable --watch ./src/cli.ts --help",
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
-    "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts"
+    "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
+    "udd": "deno run -A https://deno.land/x/udd/main.ts --test='deno task test'  'src/**/*.ts' 'test/**/*.ts'",
+    // release
+    "version": "deno run  -A https://deno.land/x/version/index.ts",
+    "release": "deno task version patch && git push --tags origin main"
   }
 }
