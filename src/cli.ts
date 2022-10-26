@@ -3,7 +3,7 @@ import type { Meta } from "./types.ts";
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 // import ora from "npm:ora";
 import { relative } from "https://deno.land/std@0.160.0/path/posix.ts";
-import { globsToFilePaths } from "./globsToFilePaths.ts";
+import { globsToFilePaths } from "./files.ts";
 import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
