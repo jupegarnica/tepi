@@ -246,7 +246,9 @@ async function runBlock(
         ...block,
         ...assertions,
         body:  await block.actualResponse?.getBody(),
-        response: block.actualResponse,
+        // body: block.body,
+        response: block.response,
+
       },
     );
 
