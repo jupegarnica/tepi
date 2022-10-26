@@ -21,7 +21,7 @@ export function help(): void {
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
   const title = `
 ${g(`-------------------------`)}
-${g(`--------- ${fmt.bold("TEPID")} ----------`)}
+${g(`--------- ${fmt.bold("TEPI")} ----------`)}
 ${g(`-------------------------`)}
 ${g(`-- A .http Test Runner --`)}
 ${g(`-------------------------`)}
