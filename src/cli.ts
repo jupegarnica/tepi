@@ -184,11 +184,12 @@ function help() {
   const codeDelimiter = isReadme ? "`" : "";
   const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
   const codeBlockDelimiter = isReadme ? "\n```" : "";
+  const i = fmt.italic;
   const codeBlock = (
     t: string,
     lang = "",
-  ) => (codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
-    codeBlockDelimiter);
+  ) => (i(codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
+    codeBlockDelimiter))
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
 
   const title = `
@@ -307,7 +308,7 @@ ${codeBlock(`
 ref: loginTest
 ---
 POST https://example.com/onlyAdmin
-Authorization: Bearer <%= (await loginTest.response.getBody()).jwt %>
+Authorization: Bearer <%= loginTest.body.jwt %>
 Content-Type: application/json
 
 {"name": "Garn"}
@@ -330,19 +331,51 @@ ${g("## Interpolation:")}
 
 It deno 🔥
 
-Uses eta templates: https://deno.land/x/eta
+Uses eta as template engine, see docs:
+${fmt.underline(`https://deno.land/x/eta`)}
 
 Use ${c("<%= %>")} to interpolate values.
 
-All the std assertion module is available: https://deno.land/std/testing/asserts.ts
-Use ${c("<% %>")} to run custom assertions. For example:
+All the std assertion module is available:
+${fmt.underline(`https://deno.land/std/testing/asserts.ts`)}
 
-${codeBlock(`
-GET  http://localhost:3000/users
+
+Use ${c("<% %>")} to run custom assertions or custom JS.
+For example:
+${codeBlock(`GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
-`)
-    }
+`)}
+Or:
+${codeBlock(
+`    <% if (Math.random() > 0.5) { %>
+      GET  http://localhost:3000/users/1
+    <% } else { %>
+      GET  http://localhost:3000/users/2
+    <% } %>
+`)}
+
+
+${g("### Interpolation scope:")}
+In the Interpolation ${c("<%= %>")} or ${c("<% %>")} you have access to any Deno API and the following variables:
+> request: ${w(`The Request`)} from the actual block.
+> meta: ${w(`The metadata`)} from the actual block. and the frontmatter global metadata.
+> response: ${w(`The standard Response object from the fetch API`)} from the actual request. (only available in the expected response, after the request)
+> body: ${w(`The extracted body`)} from the actual request. (only available in the expected response, after the request)
+
+> [name]: ${w(`the named block already run`)} for example: ${c(`<%= loginTest.body.jwt %>`)} or <%= loginTest.response.status %>
+
+The Block signature is:
+${codeBlock(`type Block = {
+  meta: {
+    [key: string]: any,
+  },
+  request?: Request,
+  response?: Response,
+  error?: Error,
+  body?: any,
+}`, 'ts')}
+
 `;
 
   console.info(helpText);

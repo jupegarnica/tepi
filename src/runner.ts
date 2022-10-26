@@ -206,7 +206,7 @@ async function runBlock(
       return blocksDone;
     }
 
-    block.description = block.meta.name as string ||
+    block.description = block.meta.description as string || block.meta.name as string ||
       `${block.request?.method} ${block.request?.url}`;
 
     if (getDisplayIndex(block.meta) >= 2) {

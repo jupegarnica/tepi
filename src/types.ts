@@ -60,6 +60,7 @@ export class _Request extends Request implements RequestInterface {
 }
 
 export type Meta = {
+
   _elapsedTime?: number | string;
   _startLine?: number;
   _endLine?: number;
@@ -79,8 +80,8 @@ export type Meta = {
 export type BodyExtracted = { body: unknown; contentType: string };
 
 export type Block = {
-  text?: string;
   description?: string;
+  text?: string;
   request?: _Request;
   expectedResponse?: _Response;
   actualResponse?: _Response;
