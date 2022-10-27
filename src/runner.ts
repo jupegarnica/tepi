@@ -14,7 +14,7 @@ import {
   parseResponseFromText,
 } from "./parseBlockText.ts";
 import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
-const noop = (..._: unknown[]): void => {};
+const noop = (..._: unknown[]): void => { };
 
 export async function runner(
   filePaths: string[],
@@ -144,10 +144,8 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${
-        fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${
-        fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
       } ignored ${prettyGlobalTime}`,
     );
   }
@@ -165,11 +163,27 @@ async function runBlock(
     return [];
   }
   try {
+    if (getDisplayIndex(block.meta) >= 2) {
+      spinner = wait({
+        prefix: fmt.dim("-"),
+        text: fmt.white(block.description),
+        color: "cyan",
+        spinner: "dots4",
+        interval: 200,
+        discardStdin: true,
+      });
+    } else {
+      spinner = {
+        start: noop,
+        stopAndPersist: noop,
+        update: noop,
+      };
+    }
     if (block.meta.ref) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)
         .find((b) => b.meta.name === block.meta.ref);
       if (!blockReferenced) {
-        // TODO thinks about this. maybe not throw error?
+        spinner?.start();
         throw new Error(`Block referenced not found: ${block.meta.ref}`);
       } else {
         // Evict infinity loop
@@ -186,6 +200,8 @@ async function runBlock(
         blocksDone.push(...blocks);
       }
     }
+
+
     block.meta = {
       ...globalData.meta,
       ...block.meta,
@@ -206,22 +222,7 @@ async function runBlock(
       return blocksDone;
     }
 
-    if (getDisplayIndex(block.meta) >= 2) {
-      spinner = wait({
-        prefix: fmt.dim("-"),
-        text: fmt.white(block.description),
-        color: "cyan",
-        spinner: "dots4",
-        interval: 200,
-        discardStdin: true,
-      });
-    } else {
-      spinner = {
-        start: noop,
-        stopAndPersist: noop,
-        update: noop,
-      };
-    }
+
 
     spinner?.start();
 
@@ -245,7 +246,7 @@ async function runBlock(
         ...globalData._blocksDone,
         ...block,
         ...assertions,
-        body:  await block.actualResponse?.getBody(),
+        body: await block.actualResponse?.getBody(),
         // body: block.body,
         response: block.response,
 
