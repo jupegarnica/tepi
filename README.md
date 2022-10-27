@@ -25,7 +25,6 @@ Test your HTTP APIs with standard http syntax
 - 👁   Watch files for changes and rerun tests.
 - 🍯  Standard Response and Request with a automatic getBody()
 
-
 ## Install:
 
 
@@ -67,7 +66,6 @@ tepi [OPTIONS] [FILES|GLOBS...]
 `tepi test.http ./test2.http`
 > Run test.http and test2.http
 
-
 `tepi **/*.http`
 > Run all .http in the current directory and folders.
 
@@ -75,11 +73,8 @@ tepi [OPTIONS] [FILES|GLOBS...]
 `tepi rest.http --watch`
 > Run rest.http and rerun when it changes
 
-
-
 `tepi rest.http  --watch "src/**/*.ts"`
 > Run rest.http and rerun when any .ts file in the src folder changes.
-
 
 `tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`
 > You can use multiple --watch flags.
@@ -122,7 +117,7 @@ hola
 
 ## Interpolation:
 
-It deno 🔥
+It's deno 🔥
 
 Uses eta as template engine, see docs:
 https://deno.land/x/eta
@@ -182,25 +177,24 @@ type Block = {
 For example:
 
 ```
-
 ---
-name: loginTest
+name: login
 ---
 POST https://example.com/login
 Content-Type: application/json
 
-{"name": "Garn"}
+{"user": "Garn", "password": "1234"}
 
 HTTP/1.1 200 OK
+
 ###
 ---
-ref: loginTest
+ref: login
+# not really needed, because the requests run in order of delcaration
 ---
 GET https://example.com/onlyAdmin
 Authorization: Bearer <%= loginTest.body.jwt %>
 Content-Type: application/json
-
-
 ```
 
 
