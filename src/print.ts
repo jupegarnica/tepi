@@ -6,13 +6,13 @@ import { contentTypeToLanguage, highlight } from "./highlight.ts";
 
 type FmtMethod = keyof typeof fmt;
 
-function printTitle(title: string, fmtMethod: FmtMethod = "dim") {
+function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
   const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
   // @ts-ignore // TODO: fix this
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   padLength = padLength < 0 ? 0 : padLength;
-  const separator = fmt.dim("-");
+  const separator = fmt.gray("-");
   const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
     }`;
   console.info(output);
@@ -23,6 +23,7 @@ export const DISPLAYS = [
   "minimal",
   "default",
   "full",
+  "verbose",
 ];
 export function getDisplayIndex(meta: Meta): number {
   const display = meta.display;
@@ -37,11 +38,11 @@ export async function printBlock(block: Block): Promise<void> {
   if (block.meta.ignore) {
     return;
   }
-
-  if (getDisplayIndex(block.meta) < 3) {
+  const displayIndex = getDisplayIndex(meta);
+  if (displayIndex < 3) {
     return;
   }
-  if (meta) {
+  if (meta && displayIndex >= 4) {
     console.group();
     printTitle("⬇   Meta    ⬇");
     console.info(metaToText(meta));
@@ -53,7 +54,7 @@ export async function printBlock(block: Block): Promise<void> {
     printTitle("⬇   Request    ⬇");
 
     console.info(requestToText(request));
-    console.info(headersToText(request.headers));
+    console.info(headersToText(request.headers, displayIndex));
     await printBody(request);
     console.groupEnd();
   }
@@ -63,7 +64,7 @@ export async function printBlock(block: Block): Promise<void> {
     printTitle("⬇   Response   ⬇");
 
     console.info(responseToText(actualResponse));
-    console.info(headersToText(actualResponse.headers));
+    console.info(headersToText(actualResponse.headers, displayIndex));
     await printBody(actualResponse);
     console.groupEnd();
   }
@@ -71,7 +72,7 @@ export async function printBlock(block: Block): Promise<void> {
     console.group();
     printTitle("⬇   Expected Response   ⬇");
     console.info(responseToText(expectedResponse));
-    console.info(headersToText(expectedResponse.headers));
+    console.info(headersToText(expectedResponse.headers,displayIndex));
     await printBody(expectedResponse);
     console.groupEnd();
   }
@@ -122,8 +123,8 @@ export function printErrorsSummary(blocks: Block[]): void {
     if (!meta._errorDisplayed) {
       firstError || console.error(fmt.dim("------------------"));
       if (getDisplayIndex(meta) === 1) {
-        // console.log(messageText,fmt.blue('------------------\n'));
-        const messageText = fmt.stripColor(error.message);
+        // minimal
+        const messageText = fmt.stripColor(`${error.name}: ${error.message}`);
         const trimmedMessage = messageText.trim().replaceAll(/\s+/g, " ");
         const messageLength = trimmedMessage.length;
         const needsToTruncate = messageLength > maximumLength;
@@ -131,13 +132,14 @@ export function printErrorsSummary(blocks: Block[]): void {
           ? `${trimmedMessage.slice(0, maximumLength - 3)}...`
           : trimmedMessage;
         const messagePadded = truncatedMessage.padEnd(maximumLength);
-        message = `${fmt.red("✖")} ${fmt.white(messagePadded)} ${messagePath}`;
+        message = `${fmt.red("✖")}  ${fmt.white(messagePadded)} ${messagePath}`;
       } else {
-        message = `${fmt.red("✖")} ${fmt.white(error.message)
+        // default
+        message = `${fmt.red("✖")} ${fmt.bold(error.name)}: ${fmt.white(error.message)
           } \n${messagePath}`;
       }
     } else {
-      message = messagePath;
+      message = `${fmt.bold(error.name).padEnd(maximumLength)} ${messagePath}`;
     }
     console.error(message);
     firstError = false;
@@ -157,7 +159,7 @@ export function printError(block: Block): void {
     fmt.dim("At:\n"),
     fmt.cyan(`${path}:${1 + (block.meta._startLine || 0)}`),
   );
-  console.error(fmt.dim("Message:\n"), fmt.white(error?.message));
+  console.error(fmt.dim("Message:\n"), fmt.bold(error?.name) + ':', fmt.white(error?.message));
   // error?.stack && console.error(fmt.dim('Trace:\n'), fmt.dim(error?.stack));
   error?.cause &&
     console.error(fmt.dim("Cause:\n"), fmt.dim(String(error?.cause)));
@@ -184,19 +186,44 @@ export function responseToText(response: Response): string {
 
   return `${fmt.dim(`HTTP/1.1`)} ${fmt.bold(`${status} ${statusText}`)}`;
 }
-export function headersToText(headers: Headers): string {
+
+// TODO: truncate if not verbose
+function inlineTruncate(str: string, maxLength: number): string {
+  const length = str.length;
+  if (length > maxLength) {
+    return `${str.slice(0, maxLength - 3)}...`;
+  }
+  return str;
+}
+
+// function blockTruncate(str: string, maxLength: number): string {
+//   const lines = str.split("\n");
+
+//   if (lines.length > maxLength) {
+//     return lines.slice(0, maxLength - 3).join("\n") + "\n...";
+//   }
+//   return str;
+// }
+
+
+export function headersToText(headers: Headers, displayIndex: number): string {
+  const halfWidth =-5 + Deno.consoleSize(Deno.stdout.rid).columns / 2;
   let maxLengthKey = 0;
-  let maxLengthValue = 0;
+  const truncateAt = halfWidth;
 
   let result = "";
+  let truncate = inlineTruncate;
 
-  for (const [key, value] of headers.entries()) {
-    maxLengthKey = Math.max(maxLengthKey, key.length);
-    maxLengthValue = Math.max(maxLengthValue, value.length);
+  if (displayIndex >= 4) {
+    // verbose, do not truncate
+    truncate = (str: string, _: number) => str;
+  }
+
+  for (const [key] of headers.entries()) {
+    maxLengthKey = Math.max(maxLengthKey, truncate(key, truncateAt).length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${fmt.dim(`${key}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(value.padEnd(maxLengthValue + 1))
-      }\n`;
+    result += `${fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))} ${fmt.dim(truncate(value, truncateAt))}\n`;
   }
 
   return result;

@@ -5,27 +5,35 @@ import {
   assertObjectMatch,
 } from "https://deno.land/std@0.160.0/testing/asserts.ts";
 
+
+class ExpectedResponseError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ExpectedResponseError";
+  }
+}
+
 export async function assertResponse(block: Omit<Block, "meta">) {
   const { expectedResponse, actualResponse } = block;
   if (!expectedResponse) {
-    throw new AssertionError("block.expectedResponse is undefined");
+    throw new ExpectedResponseError("block.expectedResponse is undefined");
   }
   if (!actualResponse) {
-    throw new AssertionError("block.actualResponse is undefined");
+    throw new ExpectedResponseError("block.actualResponse is undefined");
   }
 
   if (expectedResponse.status) {
     try {
       assertEquals(expectedResponse.status, actualResponse.status);
     } catch (error) {
-      throw new AssertionError(`Status code mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Status code mismatch\n${error.message}`);
     }
   }
   if (expectedResponse.statusText) {
     try {
       assertEquals(expectedResponse.statusText, actualResponse.statusText);
     } catch (error) {
-      throw new AssertionError(`Status text mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Status text mismatch\n${error.message}`);
     }
   }
 
@@ -44,12 +52,16 @@ export async function assertResponse(block: Omit<Block, "meta">) {
         await expectedResponse.getBody() as Record<string, unknown>,
       );
     } catch (error) {
-      throw new AssertionError(`Body mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Body mismatch\n${error.message}`);
     }
   }
   if (expectedResponse.headers) {
-    for (const [key, value] of expectedResponse.headers.entries()) {
-      assertEquals(actualResponse.headers.get(key), value);
+    try {
+      for (const [key, value] of expectedResponse.headers.entries()) {
+        assertEquals(actualResponse.headers.get(key), value);
+      }
+    } catch (error) {
+      throw new ExpectedResponseError(`Header mismatch\n${error.message}`);
     }
   }
 }

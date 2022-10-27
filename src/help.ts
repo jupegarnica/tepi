@@ -72,6 +72,7 @@ ${d("         * ")} none: ${d(`display nothing`)}
 ${d("         * ")} minimal: ${d(`display only a minimal summary`)}
 ${d("         * ")} default: ${d(`list results and full error summary`)}
 ${d("         * ")} full: ${d(`display also all HTTP requests and responses`)}
+${d("         * ")} verbose: ${d(`display also all metadata and not truncate data`)}
 ${d("* ")}-h ${c("--help")}          ${d("output usage information")}
 ${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")}
 ${d("* ")}   ${c("--no-color")}     ${d("output without color")}
