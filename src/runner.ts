@@ -265,10 +265,10 @@ async function runBlock(
 
     const _elapsedTime = Date.now() - startTime;
     block.meta._elapsedTime = _elapsedTime;
-
+    const status = String(block.actualResponse?.status);
     spinner?.stopAndPersist({
       symbol: fmt.green("✓"),
-      text: fmt.green(block.description) + fmt.dim(` ${ms(_elapsedTime)}`),
+      text: fmt.green(block.description) + ` ${fmt.bold(status)}` + fmt.dim(` ${ms(_elapsedTime)}`),
     });
 
     block.meta._isSuccessfulBlock = true;
@@ -278,11 +278,12 @@ async function runBlock(
 
     const _elapsedTime = Date.now() - startTime;
     block.meta._elapsedTime = _elapsedTime;
-
+    const status = String(block.actualResponse?.status || '');
+    const statusText = status ? fmt.bold(' '+ status) : fmt.bold(' ERR');
     const prettyTime = fmt.dim(` ${ms(_elapsedTime)}`);
     spinner?.stopAndPersist({
       symbol: fmt.brightRed("✖"),
-      text: fmt.red(block.description || "") + prettyTime,
+      text: fmt.red(block.description) + statusText + prettyTime,
     });
 
     block.meta._isFailedBlock = true;

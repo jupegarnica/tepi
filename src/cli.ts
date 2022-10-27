@@ -72,7 +72,8 @@ async function cli() {
   }
   // --env-file
   /////////////
-  const keysLoaded = [];
+  const keysLoaded = new Set();
+  const envFiles = new Set();
   for (const path of args.envFile) {
     const vars = await config({
       export: true,
@@ -81,14 +82,15 @@ async function cli() {
       allowEmptyValues: true,
     });
     for (const key in vars) {
-      keysLoaded.push({ key, value: vars[key], path });
+
+      keysLoaded.add(key);
+      envFiles.add(path);
     }
   }
-  if (keysLoaded.length && getDisplayIndex(defaultMeta) > 0) {
-    console.log(
+  if (keysLoaded.size && getDisplayIndex(defaultMeta) > 0) {
+    console.info(
       fmt.gray(
-        `Loaded ${keysLoaded.length} environment variables from: \n${keysLoaded.map(({ path }) => path).join(", ")
-        }`,
+        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(envFiles).join(', ')}`,
       ),
     );
   }

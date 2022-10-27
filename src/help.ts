@@ -141,6 +141,7 @@ HTTP/1.1 403 Forbidden
 ---
 name: optional name
 timeout: 500 # must respond in less than 500ms
+delay: 1000 # wait 1s before the request
 ---
 GET /?body=hola&status=400
 host: https://faker.deno.dev
