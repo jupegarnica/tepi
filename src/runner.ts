@@ -6,8 +6,8 @@ import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { relative } from "https://deno.land/std@0.160.0/path/posix.ts";
 import { getDisplayIndex, printBlock, printErrorsSummary } from "./print.ts";
-// import { ms } from "https://raw.githubusercontent.com/denolib/ms/master/ms.ts";
-import ms from "npm:ms";
+import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
+// import ms from "npm:ms";
 import {
   parseMetaFromText,
   parseRequestFromText,
