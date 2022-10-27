@@ -3,7 +3,7 @@
 ```
 
 -------------------------
---------- TEPID ----------
+--------- TEPI ----------
 -------------------------
 -- A .http Test Runner --
 -------------------------
@@ -169,9 +169,9 @@ In the Interpolation `<%= %>` or `<% %>` you have access to any Deno API and the
 > request: The Request from the actual block.
 > meta: The metadata from the actual block. and the frontmatter global metadata.
 > response: The standard Response object from the fetch API from the actual request. (only available in the expected response, after the request)
-> body: The extracted body from the actual request. (only available in the expected response, after the request)
+> body: The extracted body an alias of `await response.getBody()` (only available in the expected response, after the request)
 
-> [name]: the named block already run for example: `<%= loginTest.body.jwt %>` or <%= loginTest.response.status %>
+> [name]: the named block already run for example: `<%= loginTest.body.jwt %>` or `<%= loginTest.response.status %>`
 
 The Block signature is:
 
