@@ -159,17 +159,21 @@ async function watchAndRun(
 
   for await (const event of watcher) {
     if (event.kind === "access") {
-      if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
-        // run all
-        console.clear();
+      console.clear();
         await runner(filePaths, defaultMeta);
         logWatchingPaths(filePaths, filePathsToJustWatch);
-      } else {
-        // run just this file
-        console.clear();
-        await runner(event.paths, defaultMeta);
-        logWatchingPaths(filePaths, filePathsToJustWatch);
-      }
+        // TODO add force ref or import file
+      // if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
+      //   // run all
+      //   console.clear();
+      //   await runner(filePaths, defaultMeta);
+      //   logWatchingPaths(filePaths, filePathsToJustWatch);
+      // } else {
+      //   // run just this file
+      //   console.clear();
+      //   await runner(event.paths, defaultMeta);
+      //   logWatchingPaths(filePaths, filePathsToJustWatch);
+      // }
     }
   }
 }

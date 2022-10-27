@@ -82,7 +82,7 @@ Deno.test("[runner] asserts ", async () => {
     display: 'none',
   });
   const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.error?.name, 'AssertionError');
+  assertEquals(firstBlock.error?.name, 'ExpectedResponseError');
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.error, undefined);
   const thirdBlock = files[0].blocks[1 + 2];

@@ -1,21 +1,9 @@
 import { extractBody } from "./fetchBlock.ts";
-import { isRequestStartLine } from "./parseBlockText.ts";
 // TODO
 // import makeSynchronous from 'npm:make-synchronous';
 
-export interface RequestInterface extends Request {
-  bodyRaw?: BodyInit | null;
-  bodyExtracted?: unknown;
-  getBody?: () => Promise<unknown>;
-}
 
-export interface ResponseInterface extends Response {
-  bodyRaw?: BodyInit | null;
-  bodyExtracted?: unknown;
-  getBody?: () => Promise<unknown>;
-}
-
-export class _Response extends Response implements ResponseInterface {
+export class _Response extends Response {
   bodyRaw?: BodyInit | null;
   #bodyExtracted?: unknown;
 
@@ -43,7 +31,7 @@ export class _Response extends Response implements ResponseInterface {
   }
 }
 
-export class _Request extends Request implements RequestInterface {
+export class _Request extends Request {
   bodyRaw?: BodyInit | null;
   #bodyExtracted?: unknown;
   constructor(input: RequestInfo, init?: RequestInit) {
@@ -156,5 +144,3 @@ export const httpMethods = [
   "TRACE",
   "PATCH",
 ];
-
-// export const httpMethods = ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"];
