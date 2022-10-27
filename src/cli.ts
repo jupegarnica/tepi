@@ -20,8 +20,9 @@ async function cli() {
       help: false,
     },
     collect: ["watch", "envFile"],
-    boolean: ["help", "failFast", "noColor"],
+    boolean: ["help", "failFast", "noColor", 'upgrade'],
     string: ["display", "envFile"],
+
 
     alias: {
       h: "help",
@@ -41,6 +42,14 @@ async function cli() {
   /////////////
   if (args.noColor) {
     fmt.setColorEnabled(false);
+  }
+  if (args.upgrade) {
+    const { code } = await Deno.spawn(Deno.execPath(), {
+      args: 'install --unstable --allow-read --allow-env --allow-net --reload -f -n tepi https://deno.land/x/tepi/src/cli.ts'.split(' '),
+      stdout: 'inherit',
+      stderr: 'inherit',
+    })
+    Deno.exit(code);
   }
 
   // --help
@@ -160,9 +169,9 @@ async function watchAndRun(
   for await (const event of watcher) {
     if (event.kind === "access") {
       console.clear();
-        await runner(filePaths, defaultMeta);
-        logWatchingPaths(filePaths, filePathsToJustWatch);
-        // TODO add force ref or import file
+      await runner(filePaths, defaultMeta);
+      logWatchingPaths(filePaths, filePathsToJustWatch);
+      // TODO add force ref or import file
       // if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
       //   // run all
       //   console.clear();

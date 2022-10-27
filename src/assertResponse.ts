@@ -1,12 +1,11 @@
 import { _Response, Block } from "./types.ts";
 import {
   assertEquals,
-  AssertionError,
   assertObjectMatch,
 } from "https://deno.land/std@0.160.0/testing/asserts.ts";
 
 
-class ExpectedResponseError extends Error {
+export class ExpectedResponseError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "ExpectedResponseError";

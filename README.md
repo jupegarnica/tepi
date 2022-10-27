@@ -30,7 +30,7 @@ Test your HTTP APIs with standard http syntax
 
 
 ```bash
-deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/src/cli.ts
+deno install --unstable --allow-read --allow-env --reload -f -n tepi https://deno.land/x/tepi/src/cli.ts
 ```
 
 Or run remotely width:
@@ -188,5 +188,3 @@ type Block = {
   body?: any,
 }
 ```
-
-
