@@ -30,7 +30,7 @@ Test your HTTP APIs with standard http syntax
 
 
 ```bash
-deno install --unstable --allow-read --allow-env --reload -f -n tepi https://deno.land/x/tepi/src/cli.ts
+deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/src/cli.ts
 ```
 
 Or run remotely width:
@@ -57,6 +57,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * -h `--help`          output usage information
 * -e `--env-file`     load environment variables from a .env file
 *    `--no-color`     output without color
+*    `--upgrade`      upgrade to the latest version
 
 ## Examples:
 
@@ -99,36 +100,23 @@ tepi [OPTIONS] [FILES|GLOBS...]
 
 ## HTTP syntax:
 
-You can use the standard HTTP syntax in your .http files to run a request and response validation.
-Use the `###` to separate the requests.
-Use frontmatter yaml to set metadata.
+* You can use the standard HTTP syntax in your .http files to run a request and response validation.
+* Use the `###` to separate the requests.
+* Use frontmatter yaml to set metadata.
 
-
+For example, validate the headers, status code, status text and body:
 
 ```
 
-# use yaml front matter before the request
----
-ref: loginTest
----
-POST https://example.com/onlyAdmin
-Authorization: Bearer <%= loginTest.body.jwt %>
-Content-Type: application/json
+GET https://faker.deno.dev/?body=hola&status=400
 
-{"name": "Garn"}
+HTTP/1.1 400 Bad Request
+content-type: text/plain; charset=utf-8
 
-# write the expected response to validate the actual response
-HTTP/1.1 403 Forbidden
+hola
 
-###  requests separator
----
-name: optional name
-timeout: 500 # must respond in less than 500ms
-delay: 1000 # wait 1s before the request
----
-GET /?body=hola&status=400
-host: https://faker.deno.dev
-
+#
+###
 
 ```
 
@@ -167,6 +155,7 @@ Or:
 
 
 ### Interpolation scope:
+
 In the Interpolation `<%= %>` or `<% %>` you have access to any Deno API and the following variables:
 > request: The Request from the actual block.
 > meta: The metadata from the actual block. and the frontmatter global metadata.
@@ -189,3 +178,29 @@ type Block = {
   body?: any,
 }
 ```
+
+For example:
+
+```
+
+---
+name: loginTest
+---
+POST https://example.com/login
+Content-Type: application/json
+
+{"name": "Garn"}
+
+HTTP/1.1 200 OK
+###
+---
+ref: loginTest
+---
+GET https://example.com/onlyAdmin
+Authorization: Bearer <%= loginTest.body.jwt %>
+Content-Type: application/json
+
+
+```
+
+
