@@ -30,7 +30,7 @@ Test your HTTP APIs with standard http syntax
 
 
 ```bash
-deno install --unstable --allow-read --allow-env --reload -f -n tepi https://deno.land/x/tepi/src/cli.ts
+deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/src/cli.ts
 ```
 
 Or run remotely width:
@@ -53,6 +53,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
          *  minimal: display only a minimal summary
          *  default: list results and full error summary
          *  full: display also all HTTP requests and responses
+         *  verbose: display also all metadata and not truncate data
 * -h `--help`          output usage information
 * -e `--env-file`     load environment variables from a .env file
 *    `--no-color`     output without color
@@ -187,3 +188,5 @@ type Block = {
   body?: any,
 }
 ```
+
+
