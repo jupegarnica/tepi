@@ -124,7 +124,11 @@ export async function runner(
         }
         const status = block.actualResponse?.status || 1;
         console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
-        Deno.exit(status);
+        return {
+          files,
+          exitCode: status,
+          onlyMode,
+        }
       }
     }
 
@@ -149,6 +153,7 @@ export async function runner(
       } ignored ${prettyGlobalTime}`,
     );
   }
+  globalData._blocksDone = {}; // clean up blocks referenced
   return { files, exitCode: failedBlocks, onlyMode };
 }
 

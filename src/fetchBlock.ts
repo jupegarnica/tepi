@@ -6,6 +6,8 @@ import {
   mimesToText,
 } from "./mimes.ts";
 
+import { delay } from "https://deno.land/std@0.161.0/async/delay.ts";
+
 import { type _Request, _Response, type Block } from "./types.ts";
 
 export async function fetchBlock(
@@ -18,6 +20,10 @@ export async function fetchBlock(
   const ctl = new AbortController();
   const signal = ctl.signal;
   let timeoutId;
+  const _delay = Number(block.meta.delay);
+  if (delay) {
+    await delay(_delay);
+  }
   const timeout = Number(block.meta.timeout);
   if (timeout) {
     timeoutId = setTimeout(() => ctl.abort(), timeout);
@@ -53,8 +59,8 @@ export async function extractBody(
     }
     if (typeof re.bodyRaw === "string") {
       const requestExtracted = mimesToJSON.some((ct) =>
-          contentType.includes(ct)
-        )
+        contentType.includes(ct)
+      )
         ? JSON.parse(re.bodyRaw as string)
         : re.bodyRaw;
       re.bodyExtracted = requestExtracted;
