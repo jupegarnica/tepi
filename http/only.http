@@ -13,7 +13,7 @@ HTTP/1.1 204 No Content
 ###
 ---
 name: 203 Non-Authoritative Information
-only: true # must be ignored
+only: <%= !!Deno.env.get('TEST_ONLY') %>
 ---
 
 GET /pong?status=203

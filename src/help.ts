@@ -180,9 +180,9 @@ In the Interpolation ${c("<%= %>")} or ${c("<% %>")} you have access to any Deno
 > request: ${w(`The Request`)} from the actual block.
 > meta: ${w(`The metadata`)} from the actual block. and the frontmatter global metadata.
 > response: ${w(`The standard Response object from the fetch API`)} from the actual request. (only available in the expected response, after the request)
-> body: ${w(`The extracted body`)} from the actual request. (only available in the expected response, after the request)
+> body: ${w(`The extracted body`)} an alias of ${c("await response.getBody()")} (only available in the expected response, after the request)
 
-> [name]: ${w(`the named block already run`)} for example: ${c(`<%= loginTest.body.jwt %>`)} or <%= loginTest.response.status %>
+> [name]: ${w(`the named block already run`)} for example: ${c(`<%= loginTest.body.jwt %>`)} or ${c(`<%= loginTest.response.status %>`)}
 
 The Block signature is:
 ${codeBlock(`type Block = {

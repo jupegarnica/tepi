@@ -1,10 +1,8 @@
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
-// @ts-ignore ¿?¿ it has a named highlight export
-import { highlight, supportsLanguage } from "npm:cli-highlight";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
-import { extension } from "https://deno.land/std@0.160.0/media_types/mod.ts?source=cli";
 import { _Request, _Response, Block, Meta } from "./types.ts";
+import { contentTypeToLanguage, highlight } from "./highlight.ts";
 
 type FmtMethod = keyof typeof fmt;
 
@@ -238,11 +236,7 @@ async function bodyToText(re: _Request | _Response): Promise<string> {
   const language = contentTypeToLanguage(contentType);
 
   if (language) {
-    if (supportsLanguage(language)) {
-      return highlight(bodyStr, { language, ignoreIllegals: true });
-    }
-
-    return highlight(bodyStr);
+    return highlight(bodyStr, language);
   }
   if (mimesToText.some(includes)) {
     return bodyStr;
@@ -250,17 +244,7 @@ async function bodyToText(re: _Request | _Response): Promise<string> {
 
   throw new Error("Unknown content type " + contentType);
 }
-function contentTypeToLanguage(contentType: string): string {
-  let language = extension(contentType);
-  if (!language) {
-    const [mime] = contentType.split(";");
-    [, language] = mime.split("/");
-    language = language.replace(/\+.*/, "");
-  }
-  language ||= "text";
-  language = language !== "plain" ? language : "text";
-  return language;
-}
+
 
 async function imageToText(body: ArrayBuffer): Promise<string> {
   const rawFile = new Uint8Array(body);
