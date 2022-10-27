@@ -6,8 +6,22 @@ import { contentTypeToLanguage, highlight } from "./highlight.ts";
 
 type FmtMethod = keyof typeof fmt;
 
+
+// TODO make it work on CI
+function consoleSize(): { rows: number, columns: number } {
+
+  try {
+    const { columns, rows } = Deno.consoleSize(Deno.stdout.rid);
+    return { columns, rows }
+
+  } catch {
+    return { columns: 150, rows: 150 }
+  }
+
+}
+
 function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
-  const consoleWidth = Deno.consoleSize(Deno.stdout.rid).columns;
+  const consoleWidth = consoleSize().columns;
   // @ts-ignore // TODO: fix this
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
@@ -113,7 +127,7 @@ export function printErrorsSummary(blocks: Block[]): void {
     if (!error) {
       continue;
     }
-    const maximumLength = Deno.consoleSize(Deno.stdout.rid).columns / 2;
+    const maximumLength = consoleSize().columns / 2;
     const path = `${meta._relativeFilePath}:${1 + (meta._startLine || 0)}`;
     const messagePath = `${fmt.dim("at:")} ${fmt.cyan(path)}`;
     // const messageText = `${fmt.red("✖")} ${fmt.white(error.message)}`;
@@ -205,7 +219,7 @@ function truncateRows(str: string, maxLength: number): string {
 
 
 export function headersToText(headers: Headers, displayIndex: number): string {
-  const halfWidth = -5 + Deno.consoleSize(Deno.stdout.rid).columns / 2;
+  const halfWidth = -5 + consoleSize().columns / 2;
   let maxLengthKey = 0;
   const truncateAt = halfWidth;
 

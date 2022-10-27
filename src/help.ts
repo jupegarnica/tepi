@@ -47,13 +47,13 @@ ${g("## Features:")}
 ${g("## Install:")}
 
 ${codeBlock(
-    "deno install --unstable --allow-read --allow-env -f -n tepi https://deno.land/x/tepi/src/cli.ts",
+    "deno install --unstable --allow-read --allow-env --allow-net -f -n tepi https://deno.land/x/tepi/src/cli.ts",
     "bash"
   )}
 
 Or run remotely width:
 ${codeBlock(
-    "deno run --unstable --allow-read --allow-env https://deno.land/x/tepi/src/cli.ts",
+    "deno run --unstable --allow-read --allow-env --allow-net https://deno.land/x/tepi/src/cli.ts",
     "bash"
   )}
 
