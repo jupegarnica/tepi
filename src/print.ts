@@ -28,6 +28,9 @@ export const DISPLAYS = [
 export function getDisplayIndex(meta: Meta): number {
   const display = meta.display;
   const index = DISPLAYS.indexOf(display);
+  if (index === -1) {
+    return Infinity;
+  }
   return index;
 
 }

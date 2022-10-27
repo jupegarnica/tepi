@@ -61,7 +61,7 @@ async function cli() {
     display: args.display as string,
 
   };
-  if (getDisplayIndex(defaultMeta) === -1) {
+  if (getDisplayIndex(defaultMeta) === Infinity) {
     console.error(
       fmt.brightRed(
         `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map((t) => fmt.bold(t)).join(", ")

@@ -4,6 +4,7 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 ---
 redirect: follow
+display: default
 ---
 GET /image/avatar
 x-quiet: true
