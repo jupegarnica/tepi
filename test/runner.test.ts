@@ -1,5 +1,5 @@
 import {
-  assertEquals,
+  assertEquals, assertMatch, assertStringIncludes,
 } from "https://deno.land/std@0.160.0/testing/asserts.ts";
 import { runner } from "../src/runner.ts";
 
@@ -88,9 +88,8 @@ Deno.test("[runner] asserts ", async () => {
   const thirdBlock = files[0].blocks[1 + 2];
   assertEquals(thirdBlock.error?.message, "failed!");
   const fourthBlock = files[0].blocks[1 + 3];
-  assertEquals(
-    fourthBlock.error?.message.startsWith("Values are not equal"),
-    true,
+  assertStringIncludes(
+    fourthBlock.error?.message || '',"Values are not equal",
   );
 });
 
