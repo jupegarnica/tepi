@@ -94,11 +94,8 @@ ${d(`> Run all .http in the current directory and folders.`)}
 ${c(`tepi rest.http --watch`)}
 ${d(`> Run rest.http and rerun when it changes`)}
 
-
-
 ${c(`tepi rest.http  --watch "src/**/*.ts"`)}
 ${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
-
 
 ${c(`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
 ${d(`> You can use multiple --watch flags.`)}
@@ -138,7 +135,7 @@ hola
 
 ${g("## Interpolation:")}
 
-It deno 🔥
+It's deno 🔥
 
 Uses eta as template engine, see docs:
 ${fmt.underline(`https://deno.land/x/eta`)}
@@ -188,25 +185,24 @@ ${codeBlock(`type Block = {
 }`, 'ts')}
 
 For example:
-${codeBlock(`
----
-name: loginTest
+${codeBlock(`---
+name: login
 ---
 POST https://example.com/login
 Content-Type: application/json
 
-{"name": "Garn"}
+{"user": "Garn", "password": "1234"}
 
 HTTP/1.1 200 OK
+
 ###
 ---
-ref: loginTest
+ref: login
+# not really needed, because the requests run in order of delcaration
 ---
 GET https://example.com/onlyAdmin
 Authorization: Bearer <%= loginTest.body.jwt %>
-Content-Type: application/json
-
-`, '')}
+Content-Type: application/json`, '')}
 
 `;
 
