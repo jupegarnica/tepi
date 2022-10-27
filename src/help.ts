@@ -44,7 +44,6 @@ ${g("## Features:")}
 - 👁   Watch files for changes and rerun tests.
 - 🍯  Standard Response and Request with a automatic getBody()
 
-
 ${g("## Install:")}
 
 ${codeBlock(
@@ -85,7 +84,6 @@ ${d(`> Run all .http in the current directory and folders. (same as tepi ./**/*.
 
 ${c(`tepi test.http ./test2.http`)}
 ${d(`> Run test.http and test2.http`)}
-
 
 ${c(`tepi **/*.http`)}
 ${d(`> Run all .http in the current directory and folders.`)}
