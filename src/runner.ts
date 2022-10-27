@@ -166,7 +166,7 @@ async function runBlock(
     if (getDisplayIndex(block.meta) >= 2) {
       spinner = wait({
         prefix: fmt.dim("-"),
-        text: fmt.white(block.description),
+        text: fmt.dim(block.description),
         color: "cyan",
         spinner: "dots4",
         interval: 200,
@@ -177,6 +177,7 @@ async function runBlock(
         start: noop,
         stopAndPersist: noop,
         update: noop,
+        text: '',
       };
     }
     if (block.meta.ref) {
@@ -212,7 +213,7 @@ async function runBlock(
       ...block,
       ...assertions,
     });
-
+    spinner.text = fmt.white(block.description);
     if (block.meta._isFirstBlock && !block.request) {
       globalData.meta = { ...globalData.meta, ...block.meta };
     }
@@ -262,7 +263,7 @@ async function runBlock(
 
     spinner?.stopAndPersist({
       symbol: fmt.green("✓"),
-      text: fmt.green(block.description) + fmt.dim(` ${_elapsedTime}ms`),
+      text: fmt.green(block.description) + fmt.dim(` ${ms(_elapsedTime)}`),
     });
 
     block.meta._isSuccessfulBlock = true;
@@ -272,11 +273,13 @@ async function runBlock(
 
     const _elapsedTime = Date.now() - startTime;
     block.meta._elapsedTime = _elapsedTime;
+
     const prettyTime = fmt.dim(` ${ms(_elapsedTime)}`);
     spinner?.stopAndPersist({
       symbol: fmt.brightRed("✖"),
       text: fmt.red(block.description || "") + prettyTime,
     });
+
     block.meta._isFailedBlock = true;
     return blocksDone;
   } finally {

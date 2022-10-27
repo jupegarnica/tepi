@@ -42,45 +42,41 @@ export async function printBlock(block: Block): Promise<void> {
   if (displayIndex < 3) {
     return;
   }
+  console.group();
+  if (block.meta._relativeFilePath && (request || actualResponse || expectedResponse || error)) {
+    const path = `\n${fmt.dim('Data from:')} ${fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)}`;
+    console.info(path)
+  }
   if (meta && displayIndex >= 4) {
-    console.group();
     printTitle("⬇   Meta    ⬇");
     console.info(metaToText(meta));
-    console.groupEnd();
   }
   if (request) {
-    console.group();
     console.info("");
     printTitle("⬇   Request    ⬇");
 
     console.info(requestToText(request));
     console.info(headersToText(request.headers, displayIndex));
-    await printBody(request);
-    console.groupEnd();
+    await printBody(request, displayIndex);
   }
 
   if (actualResponse) {
-    console.group();
     printTitle("⬇   Response   ⬇");
 
     console.info(responseToText(actualResponse));
     console.info(headersToText(actualResponse.headers, displayIndex));
-    await printBody(actualResponse);
-    console.groupEnd();
+    await printBody(actualResponse, displayIndex);
   }
   if (expectedResponse) {
-    console.group();
     printTitle("⬇   Expected Response   ⬇");
     console.info(responseToText(expectedResponse));
-    console.info(headersToText(expectedResponse.headers,displayIndex));
-    await printBody(expectedResponse);
-    console.groupEnd();
+    console.info(headersToText(expectedResponse.headers, displayIndex));
+    await printBody(expectedResponse, displayIndex);
   }
   if (error) {
-    console.group();
     printError(block);
-    console.groupEnd();
   }
+  console.groupEnd();
 }
 function metaToText(meta: Meta): string {
   let output = "";
@@ -187,8 +183,7 @@ export function responseToText(response: Response): string {
   return `${fmt.dim(`HTTP/1.1`)} ${fmt.bold(`${status} ${statusText}`)}`;
 }
 
-// TODO: truncate if not verbose
-function inlineTruncate(str: string, maxLength: number): string {
+function truncateCols(str: string, maxLength: number): string {
   const length = str.length;
   if (length > maxLength) {
     return `${str.slice(0, maxLength - 3)}...`;
@@ -196,23 +191,23 @@ function inlineTruncate(str: string, maxLength: number): string {
   return str;
 }
 
-// function blockTruncate(str: string, maxLength: number): string {
-//   const lines = str.split("\n");
+function truncateRows(str: string, maxLength: number): string {
+  const lines = str.split("\n");
 
-//   if (lines.length > maxLength) {
-//     return lines.slice(0, maxLength - 3).join("\n") + "\n...";
-//   }
-//   return str;
-// }
+  if (lines.length > maxLength) {
+    return lines.slice(0, maxLength - 3).join("\n") + fmt.bold("\n.\n.\n.");
+  }
+  return str;
+}
 
 
 export function headersToText(headers: Headers, displayIndex: number): string {
-  const halfWidth =-5 + Deno.consoleSize(Deno.stdout.rid).columns / 2;
+  const halfWidth = -5 + Deno.consoleSize(Deno.stdout.rid).columns / 2;
   let maxLengthKey = 0;
   const truncateAt = halfWidth;
 
   let result = "";
-  let truncate = inlineTruncate;
+  let truncate = truncateCols;
 
   if (displayIndex >= 4) {
     // verbose, do not truncate
@@ -228,11 +223,16 @@ export function headersToText(headers: Headers, displayIndex: number): string {
 
   return result;
 }
-export async function printBody(re: _Response | _Request): Promise<void> {
+export async function printBody(re: _Response | _Request, displayIndex = 4): Promise<void> {
+  let truncate = truncateRows;
+  const MAX_BODY_LINES = 40;
   try {
     let body = await bodyToText(re);
     body &&= body.trim() + "\n";
-    console.info(body);
+    if (displayIndex >= 4) {
+      truncate = (str: string, _: number) => str;
+    }
+    console.info(truncate(body, MAX_BODY_LINES));
   } catch (error) {
     console.error(fmt.bgYellow(" Error printing block "));
     console.error(fmt.red(error.name), error.message);

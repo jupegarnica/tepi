@@ -1,4 +1,5 @@
 import { extractBody } from "./fetchBlock.ts";
+import { isRequestStartLine } from "./parseBlockText.ts";
 // TODO
 // import makeSynchronous from 'npm:make-synchronous';
 
@@ -81,7 +82,7 @@ export type Meta = {
 
 export type BodyExtracted = { body: unknown; contentType: string };
 
-export class Block  {
+export class Block {
   text: string;
   meta: Meta;
   request?: _Request;
@@ -114,7 +115,8 @@ export class Block  {
     if (this.request) {
       return `${this.request.method} ${this.request.url}`;
     }
-    return this.text.slice(0, 30);
+    const lines = this.text.split("\n");
+    return lines.find(l => l.trim()) || "---empty block---";
 
   }
   get response() {
