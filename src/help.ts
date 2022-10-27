@@ -76,6 +76,7 @@ ${d("         * ")} verbose: ${d(`display also all metadata and not truncate dat
 ${d("* ")}-h ${c("--help")}          ${d("output usage information")}
 ${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")}
 ${d("* ")}   ${c("--no-color")}     ${d("output without color")}
+${d("* ")}   ${c("--upgrade")}      ${d("upgrade to the latest version")}
 
 ${g("## Examples:")}
 
@@ -118,34 +119,21 @@ ${d(`> Load environment variables from a .env and .env.test`)}
 
 ${g("## HTTP syntax:")}
 
-You can use the standard HTTP syntax in your .http files to run a request and response validation.
-Use the ${c("###")} to separate the requests.
-Use frontmatter yaml to set metadata.
+* You can use the standard HTTP syntax in your .http files to run a request and response validation.
+* Use the ${c("###")} to separate the requests.
+* Use frontmatter yaml to set metadata.
 
-
+For example, validate the headers, status code, status text and body:
 ${codeBlock(`
-# use yaml front matter before the request
----
-ref: loginTest
----
-POST https://example.com/onlyAdmin
-Authorization: Bearer <%= loginTest.body.jwt %>
-Content-Type: application/json
+GET https://faker.deno.dev/?body=hola&status=400
 
-{"name": "Garn"}
+HTTP/1.1 400 Bad Request
+content-type: text/plain; charset=utf-8
 
-# write the expected response to validate the actual response
-HTTP/1.1 403 Forbidden
+hola
 
-###  requests separator
----
-name: optional name
-timeout: 500 # must respond in less than 500ms
-delay: 1000 # wait 1s before the request
----
-GET /?body=hola&status=400
-host: https://faker.deno.dev
-
+#
+###
 `)}
 
 ${g("## Interpolation:")}
@@ -178,6 +166,7 @@ ${codeBlock(
 
 
 ${g("### Interpolation scope:")}
+
 In the Interpolation ${c("<%= %>")} or ${c("<% %>")} you have access to any Deno API and the following variables:
 > request: ${w(`The Request`)} from the actual block.
 > meta: ${w(`The metadata`)} from the actual block. and the frontmatter global metadata.
@@ -197,6 +186,27 @@ ${codeBlock(`type Block = {
   error?: Error,
   body?: any,
 }`, 'ts')}
+
+For example:
+${codeBlock(`
+---
+name: loginTest
+---
+POST https://example.com/login
+Content-Type: application/json
+
+{"name": "Garn"}
+
+HTTP/1.1 200 OK
+###
+---
+ref: loginTest
+---
+GET https://example.com/onlyAdmin
+Authorization: Bearer <%= loginTest.body.jwt %>
+Content-Type: application/json
+
+`, '')}
 
 `;
 
