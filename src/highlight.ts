@@ -9,9 +9,8 @@ try {
   const { highlight, supportsLanguage } = await import("npm:cli-highlight");
   hl = highlight;
   supportsLang = supportsLanguage;
-} catch (error) {
-  console.error(error);
-
+} catch {
+//   console.error(error);
 }
 
 
