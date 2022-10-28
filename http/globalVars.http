@@ -6,7 +6,7 @@ host: <%= Deno.env.get("HOST") || "https://faker.deno.dev" %>
 
 ###
 ---
-name: dos
+id: dos
 ---
 POST /?body=<%= globalThis.a %>
 quiet: true

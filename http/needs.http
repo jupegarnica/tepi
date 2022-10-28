@@ -4,21 +4,20 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 
 ---
-name:  block1
+id:  block1
 needs: block2
 ---
 POST /pong
 x-quiet: true
 
-<%= block2.meta?.name + '?' %>
+<%= await block2.response.getBody() + '?'  %>
 
 ###
 ---
-name:  block2
-needs: block1
+id:  block2
 description: must not enter on infinite loop
 ---
 POST /pong
 x-quiet: true
 
-<%= block1.meta?.name + '??' %>
+RESPONSE!

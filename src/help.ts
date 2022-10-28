@@ -212,7 +212,7 @@ ${codeBlock(
 For example:
 ${codeBlock(
       `---
-name: login
+id: login
 ---
 POST https://example.com/login
 Content-Type: application/json
@@ -252,7 +252,7 @@ Content-Type: application/json
 
 ###
 ---
-name: login
+id: login
 ---
 POST https://example.com/login
 Content-Type: application/json

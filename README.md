@@ -182,7 +182,7 @@ For example:
 
 ```
 ---
-name: login
+id: login
 ---
 POST https://example.com/login
 Content-Type: application/json

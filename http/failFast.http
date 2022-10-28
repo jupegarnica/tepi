@@ -3,7 +3,7 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ---
 ###
 ---
-name: ignored
+id: ignored
 ignore: true
 ---
 POST /pong?quiet=true&status=400
@@ -19,7 +19,7 @@ HTTP/1.1 203 OK
 
 ###
 ---
-name: invalid url
+id: invalid url
 ---
 POST https://invalid
 
@@ -28,7 +28,7 @@ HTTP/1.1 201 OK
 
 ###
 ---
-name: invalid url2
+id: invalid url2
 ---
 POST https://invalid2
 

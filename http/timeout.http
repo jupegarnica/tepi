@@ -12,7 +12,7 @@ HTTP/1.1 200 OK
 
 ###
 ---
-name: force no timeout
+id: force no timeout
 timeout: 0
 ---
 GET /pong?delay=200
@@ -21,7 +21,7 @@ x-quiet: true
 
 ###
 ---
-name: no timeout
+id: no timeout
 ---
 GET /pong?delay=200
 x-quiet: true

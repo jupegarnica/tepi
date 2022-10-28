@@ -94,8 +94,8 @@ export class Block {
     if (this.meta.description) {
       return this.meta.description;
     }
-    if (this.meta.name) {
-      return this.meta.name;
+    if (this.meta.id) {
+      return this.meta.id;
     }
     if (this.request) {
       return `${this.request.method} ${this.request.url}`;

@@ -73,7 +73,7 @@ Deno.test("[runner] interpolation", async () => {
   assertEquals(seventhBlock.expectedResponse?.headers.get("adios"), "mundo");
 
   const eighthBlock = files[0].blocks[1 + 7];
-  assertEquals(eighthBlock.meta.name, "must interpolate ts");
+  assertEquals(eighthBlock.meta.id, "must interpolate ts");
   assertEquals(eighthBlock.error, undefined);
   assertEquals(await eighthBlock.request?.getBody(), "1");
 });
@@ -139,31 +139,31 @@ Deno.test("[runner] timeout", async () => {
   assertEquals(thirdBlock.error?.message, "Timeout of 100ms exceeded");
 });
 
-Deno.test("[runner] ref", async () => {
-  const { files } = await runner(["http/ref.http"], {
+Deno.test("[runner] needs", async () => {
+  const { files } = await runner(["http/needs.http"], {
     display: "none",
   });
 
   const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.meta.name, "block1");
+  assertEquals(firstBlock.meta.id, "block1");
   assertEquals(firstBlock.meta._isDoneBlock, true);
   assertEquals(firstBlock.error, undefined);
   assertEquals(await firstBlock.request?.getBody(), "RESPONSE!?");
 });
 
-Deno.test("[runner] ref loop", async () => {
-  const { files } = await runner(["http/ref.loop.http"], {
+Deno.test("[runner] needs loop", async () => {
+  const { files } = await runner(["http/needs.loop.http"], {
     display: "none",
   });
 
   const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.meta.name, "block1");
+  assertEquals(firstBlock.meta.id, "block1");
   assertEquals(firstBlock.meta._isDoneBlock, true);
   assertEquals(firstBlock.error, undefined);
   assertEquals(await firstBlock.request?.getBody(), "block2?");
 
   const secondBlock = files[0].blocks[1 + 1];
-  assertEquals(secondBlock.meta.name, "block2");
+  assertEquals(secondBlock.meta.id, "block2");
   assertEquals(secondBlock.meta._isDoneBlock, true);
   assertEquals(secondBlock.error, undefined);
   assertEquals(await secondBlock.request?.getBody(), "block1??");

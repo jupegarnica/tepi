@@ -3,7 +3,7 @@ POST https://rickandmortyapi.com/graphql
 Content-Type: application/json
 
 query Query {
-  characters(page: 2, filter: {name: "Morty"}) {
+  characters(page: 2, filter: {id: "Morty"}) {
     info {
       count
     }

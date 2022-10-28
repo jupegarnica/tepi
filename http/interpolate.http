@@ -4,7 +4,7 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 ---
 data: Garn
-name: hasData
+id: hasData
 ---
 POST /pong?quiet=true
 x-data: <%= meta.data %>
@@ -19,11 +19,11 @@ Hola Garn!
 
 ###
 GET /pong?quiet=true
-read-from-name: <%= hasData.meta.data %>
+read-from-id: <%= hasData.meta.data %>
 
 ###
 ---
-name: must fail
+id: must fail
 ---
 GET /pong
 quiet: true
@@ -33,7 +33,7 @@ quiet: true
 
 ###
 ---
-name: must work
+id: must work
 ---
 POST /pong?quiet=true
 
@@ -48,7 +48,7 @@ HTTP/1.1 200 OK
 
 ###
 ---
-name: must read another request
+id: must read another request
 ---
 POST /pong
 quiet: true
@@ -64,7 +64,7 @@ Garn!
 
 ###
 ---
-name: must read same request
+id: must read same request
 ---
 POST /pong
 quiet: true
@@ -78,7 +78,7 @@ HTTP/1.1 200 OK
 
 ###
 ---
-name: must read same response
+id: must read same response
 ---
 POST /pong
 quiet: true
@@ -96,7 +96,7 @@ hola: mundo
 
 ###
 ---
-name: must interpolate ts
+id: must interpolate ts
 ---
 POST /pong?quiet=true
 x-quiet: true

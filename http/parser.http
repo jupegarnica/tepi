@@ -5,7 +5,7 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 
 ---
-name: must fail parsing request
+id: must fail parsing request
 ---
 GET /pong
 quiet: true
@@ -14,7 +14,7 @@ quiet: true
 
 ###
 ---
-name: must fail parsing response
+id: must fail parsing response
 ---
 GET /pong
 quiet: true
@@ -26,7 +26,7 @@ HTTP/1.1 200 OK
 ###
 ---
 meta <% assert(false, 'parse meta fail') %>
-name: must fail parsing meta
+id: must fail parsing meta
 ---
 
 GET /pong

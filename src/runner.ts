@@ -230,7 +230,7 @@ async function runBlock(
     }
     if (block.meta.needs) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)
-        .find((b) => b.meta.name === block.meta.needs);
+        .find((b) => b.meta.id === block.meta.needs);
       if (!blockReferenced) {
         spinner?.start();
         throw new Error(`Block referenced not found: ${block.meta.needs}`);
@@ -238,7 +238,7 @@ async function runBlock(
         // Evict infinity loop
         if (
           globalData
-            ._blocksAlreadyReferenced[blockReferenced.meta.name as string]
+            ._blocksAlreadyReferenced[blockReferenced.meta.id as string]
         ) {
           return [];
           // throw new Error(`Block referenced already referenced: ${block.meta.needs}`);
@@ -333,8 +333,8 @@ async function runBlock(
 
     await consumeBodies(block);
     block.meta._isDoneBlock = true;
-    if (block.meta.name) {
-      const name = block.meta.name as string;
+    if (block.meta.id) {
+      const name = block.meta.id as string;
       block.body = await block.actualResponse?.getBody();
       globalData._blocksDone[name] = block;
     }

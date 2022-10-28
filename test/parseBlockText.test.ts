@@ -312,7 +312,7 @@ Deno.test("[parseBlockText meta] with front matter yml ", async () => {
     meta: {},
     text: `
 ---
-name: test
+id: test
 description: hello world
 null:
 null2: null
@@ -336,7 +336,7 @@ GET faker.deno.dev
   const { meta } = await parseBlockText(new Block(block));
 
   assertEquals(meta, {
-    name: "test",
+    id: "test",
     description: "hello world",
     null: null,
     null2: null,

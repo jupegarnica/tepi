@@ -33,7 +33,7 @@ hello
 
 ###
 ---
-name: must fail with custom error
+id: must fail with custom error
 ---
 POST /pong?quiet=true
 
@@ -48,7 +48,7 @@ hello
 
 ###
 ---
-name: must fail because of headers
+id: must fail because of headers
 ---
 GET /pong?quiet=true
 x-quiet: true
