@@ -1,5 +1,5 @@
 ## create readme on changes to src/cli.ts
-id: readme
+name: readme
 on:
   workflow_dispatch:
   push:
