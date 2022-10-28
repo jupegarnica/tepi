@@ -1,0 +1,64 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+
+###
+---
+name: json
+---
+POST /pong?quiet=true
+content-type: application/json
+
+{
+    "name": "pong asd"
+}
+
+HTTP/1.1 200 OK
+
+
+###
+---
+name: xml
+---
+POST /pong
+log-level: critical
+host: faker.deno.dev
+content-type: application/xml
+
+<xml>
+    <name>pong asd</name>
+    <verbose>true</verbose>
+</xml>
+
+HTTP/1.1 201 OK
+
+
+
+###
+---
+name: yaml
+---
+
+POST /pong
+x-quiet: true
+Content-Type: application/x-yaml
+
+name: pong asd
+list:
+    - 1
+    - 2
+    - 3
+obj: {a: 1, b: 2}
+
+
+
+HTTP/1.1 200 OK
+
+
+###
+---
+redirect: manual
+name: redirect
+---
+GET /image/avatar
+log-level: critical

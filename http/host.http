@@ -1,0 +1,32 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+hostHttpbin: <%= Deno.env.get('HOST_HTTPBIN') || 'http://httpbin.org' %>
+version: 0.1.0
+---
+
+###
+---
+host: <%= (Deno.env.get('HOST') || 'https://faker.deno.dev') + '/pong' %>
+---
+GET ?quiet=true
+
+
+###
+
+GET /
+quiet: true
+
+###
+
+GET /ping
+quiet: true
+
+###
+
+GET /get
+host: <%= meta.hostHttpbin %>
+
+###
+
+GET /post
+host: <%= meta.hostHttpbin.replace('http://','') %>

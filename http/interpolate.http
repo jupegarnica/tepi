@@ -1,0 +1,105 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+---
+data: Garn
+name: hasData
+---
+POST /pong?quiet=true
+x-data: <%= meta.data %>
+
+Hola <%= meta.data %>!
+
+HTTP/1.1 200 OK
+content-type: <%= request.headers.get("content-type") %>
+
+Hola Garn!
+<% false && console.log('hola mundo') %>
+
+###
+GET /pong?quiet=true
+read-from-name: <%= hasData.meta.data %>
+
+###
+---
+name: must fail
+---
+GET /pong
+quiet: true
+
+<% assert(false, 'ups') %>
+
+
+###
+---
+name: must work
+---
+POST /pong?quiet=true
+
+hola
+
+HTTP/1.1 200 OK
+
+<%= 'hola' %>
+
+<% assert(true, 'ups') %>
+
+
+###
+---
+name: must read another request
+---
+POST /pong
+quiet: true
+x-payload: <%= hasData.request.headers.get('x-data') + '?' %>
+
+<%= hasData.request.headers.get('x-data') + '!' %>
+
+HTTP/1.1 200 OK
+x-payload: Garn?
+
+Garn!
+
+
+###
+---
+name: must read same request
+---
+POST /pong
+quiet: true
+
+body
+
+HTTP/1.1 200 OK
+
+<%= await request.getBody()    %>
+
+
+###
+---
+name: must read same response
+---
+POST /pong
+quiet: true
+adios: mundo
+
+body ¿?
+
+HTTP/1.1 <%= response.status %> <%= response.statusText %>
+hola: mundo
+<% response.headers.forEach((v, k) => { %> <%= k %>: <%= v +'\n'%> <% }) %>
+
+<%= await response.getBody() + '!'  %>
+
+
+
+###
+---
+name: must interpolate ts
+---
+POST /pong?quiet=true
+x-quiet: true
+
+<% const a = 1; %>
+<%= a %>

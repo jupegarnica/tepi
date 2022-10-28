@@ -1,0 +1,23 @@
+---
+host: <%= Deno.env.get("HOST") || "https://faker.deno.dev "%>
+---
+###
+---
+name: 204 No Content
+---
+GET /pong?status=204
+quiet: true
+
+HTTP/1.1 204 No Content
+
+###
+---
+name: 203 Non-Authoritative Information
+only: <%= !!Deno.env.get('TEST_ONLY') %>
+---
+
+GET /pong?status=203
+quiet: true
+
+HTTP/1.1 203 Non Authoritative Information
+###

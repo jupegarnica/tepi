@@ -1,0 +1,18 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+---
+redirect: follow
+---
+GET /image/avatar
+x-quiet: true
+
+
+###
+
+---
+redirect: manual
+---
+GET /image/avatar
+x-quiet: true

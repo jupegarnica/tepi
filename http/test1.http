@@ -1,0 +1,32 @@
+---
+host: <%= Deno.env.get('HOST_HTTPBIN') || 'https://httpbin.org' %>
+---
+###
+
+GET /html
+
+###
+
+GET /status/204
+
+###
+GET /gzip
+
+###
+POST /status/400
+Content-Type: text/plain
+
+must throw
+
+HTTP/1.1 200 OK
+
+###
+POST /anything
+Content-Type: text/plain
+
+hola mundo
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+["hello"]

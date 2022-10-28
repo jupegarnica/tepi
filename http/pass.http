@@ -1,0 +1,14 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+
+###
+---
+name: passId
+---
+GET /pong?body=passed
+quiet: true
+
+HTTP/1.1 200 OK
+
+passed

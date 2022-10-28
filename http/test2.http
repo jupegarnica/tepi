@@ -1,0 +1,16 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+---
+boolean: true
+---
+POST /pong?quiet=true&delay=0
+Content-Type: text/plain
+
+hola mundo
+
+HTTP/1.1 200 OK
+Content-Type: text/plain
+
+hola mundo

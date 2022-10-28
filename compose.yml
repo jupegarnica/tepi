@@ -1,0 +1,34 @@
+services:
+  faker:
+    image: jupegarnica/faker.deno.dev
+    ports:
+      - 80:8000
+    networks:
+      - tepi-net
+  httpbin:
+    image: kennethreitz/httpbin
+    ports:
+      - "81:80"
+    networks:
+      - tepi-net
+
+  test:
+    networks:
+      - tepi-net
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - HOST=http://faker:8000
+      - HOST_HTTPBIN=http://httpbin
+    command: deno task test
+    depends_on:
+      - faker
+      - httpbin
+
+networks:
+  tepi-net:
+    driver: bridge

@@ -1,0 +1,9 @@
+---
+host: <%= Deno.env.get('HOST_HTTPBIN') || 'http://httpbin.org' %>
+---
+
+###
+---
+---
+GET /get
+<% assert(meta.host, "http://httpbin.org" ) %>

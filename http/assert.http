@@ -1,0 +1,57 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+
+POST /pong?quiet=true
+Content-Type: application/json
+x-powered-by: Deno
+
+{ "message":"pong", "quiet":true }
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+x-powered-by: Deno
+
+
+{
+ "message":"pong",
+ "quiet": false
+ }
+
+###
+
+POST /pong?quiet=true
+
+hello
+
+HTTP/1.1 200 OK
+
+hello
+<% assertEquals(await response.getBody(), "hello", 'not body extracted') %>
+
+
+###
+---
+name: must fail with custom error
+---
+POST /pong?quiet=true
+
+hello
+
+HTTP/1.1 200 OK
+
+hello
+<% assertEquals(await response.getBody(), "hola", 'failed!') %>
+
+
+
+###
+---
+name: must fail because of headers
+---
+GET /pong?quiet=true
+x-quiet: true
+
+HTTP/1.1 200 OK
+x-quiet: false

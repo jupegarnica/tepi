@@ -1,0 +1,35 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+---
+name: ignored
+ignore: true
+---
+POST /pong?quiet=true&status=400
+content-type: application/json
+
+{
+    "name": "pong asd",
+    "verbose": true
+}
+
+HTTP/1.1 203 OK
+
+
+###
+---
+name: invalid url
+---
+POST https://invalid
+
+HTTP/1.1 201 OK
+
+
+###
+---
+name: invalid url2
+---
+POST https://invalid2
+
+HTTP/1.1 201 OK
