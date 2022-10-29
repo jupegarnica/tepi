@@ -4,21 +4,34 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 
 ---
-id:  block1
-needs: block2
+id:  block_1
+needs: block_2
 ---
 POST /pong
 x-quiet: true
 
-<%= block2.meta.id + '?' %>
+<%= block_2.meta.id + '?' %>
 
 ###
+# description: must not enter on infinite loop
 ---
-id:  block2
-needs: block1
-description: must not enter on infinite loop
+id:  block_2
+needs: block_1
 ---
 POST /pong
 x-quiet: true
 
-<%= block1.meta.id + '??' %>
+<%= block_1.meta.id + '??' %>
+
+
+###
+# description: must run latest
+---
+id:  block_3
+needs: block_1
+# TODO DEBUG
+---
+POST /pong
+x-quiet: true
+
+<%= block_1.meta.id + '??' %>

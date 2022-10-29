@@ -4,7 +4,7 @@ import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 import { relative, isAbsolute, resolve, dirname } from "https://deno.land/std@0.160.0/path/posix.ts";
-import { getDisplayIndex, printBlock, printErrorsSummary,logPath, logger, logBlock  } from "./print.ts";
+import { getDisplayIndex, printBlock, printErrorsSummary, logPath, Logger, logBlock } from "./print.ts";
 import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 // import ms from "npm:ms";
 import {
@@ -82,7 +82,7 @@ export async function runner(
       if (_isFirstBlock) {
         _isFirstBlock = false;
       }
-      const [...blocks] = await runBlock(block, globalData);
+      const [...blocks] = await runBlock(block, globalData, relativePath);
       blocksDone.push(...blocks);
 
       if (block.meta._isIgnoredBlock) {
@@ -138,18 +138,26 @@ export async function runner(
 async function runBlock(
   block: Block,
   globalData: GlobalData,
+  currentFilePath: string,
 ): Promise<Block[]> {
   const blocksDone = [block];
   if (block.meta._isDoneBlock) {
+    console.log("block is done", block.meta.id);
     return [];
   }
-  let spinner: logger | undefined;
+  let spinner: Logger | undefined;
   try {
+    if (block.meta.ignore) {
+      block.meta._isIgnoredBlock = true;
+      logBlock(block, currentFilePath).ignore();
+      return blocksDone;
+    }
 
     if (block.meta.needs) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)
         .find((b) => b.meta.id === block.meta.needs);
       if (!blockReferenced) {
+        logBlock(block, currentFilePath).fail();
         throw new Error(`Block referenced not found: ${block.meta.needs}`);
       } else {
         // Evict infinity loop
@@ -162,12 +170,12 @@ async function runBlock(
         }
         globalData._blocksAlreadyReferenced[block.meta.needs as string] =
           blockReferenced;
-        const [...blocks] = await runBlock(blockReferenced, globalData);
+        const [...blocks] = await runBlock(blockReferenced, globalData, currentFilePath);
         blocksDone.push(...blocks);
       }
     }
-    spinner = logBlock(block);
-    spinner.start();
+    spinner = logBlock(block, currentFilePath);
+
 
     block.meta = {
       ...globalData.meta,
@@ -192,11 +200,7 @@ async function runBlock(
       spinner.empty();
       return blocksDone;
     }
-    if (block.meta.ignore) {
-      block.meta._isIgnoredBlock = true;
-      spinner.ignore()
-      return blocksDone;
-    }
+
 
     if (block.error) {
       throw block.error;
@@ -219,13 +223,13 @@ async function runBlock(
       await assertResponse(block);
     }
 
-    spinner.pass()
     block.meta._isSuccessfulBlock = true;
+    spinner.pass();
     return blocksDone;
   } catch (error) {
     block.error = error;
     block.meta._isFailedBlock = true;
-    spinner?.fail()
+    spinner?.fail();
     return blocksDone;
   } finally {
     await printBlock(block);
