@@ -262,8 +262,7 @@ Content-Type: application/json
 HTTP/1.1 200 OK
 `,
       "",
-    )
-    }
+    )}
 
 ${g("### meta.id and meta.description")}
 
@@ -281,6 +280,14 @@ display: verbose
 ---
 GET https://example.com/get
 `)}
+
+${g("### meta.delay:")}
+// TODO
+${g("### meta.timeout:")}
+// TODO
+${g("### meta.import:")}
+// TODO
+
 `;
 
   console.info(helpText);
