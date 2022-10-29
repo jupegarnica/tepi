@@ -46,7 +46,7 @@ Deno.test("[runner] interpolation", async () => {
   );
   assertEquals(await firstBlock.actualResponse?.getBody(), "Hola Garn!");
   const secondBlock = files[0].blocks[1 + 1];
-  assertEquals(secondBlock.request?.headers.get("read-from-name"), "Garn");
+  assertEquals(secondBlock.request?.headers.get("read-from-id"), "Garn");
   assertEquals(secondBlock.expectedResponse?.body, undefined);
 
   const thirdBlock = files[0].blocks[1 + 2];
@@ -222,7 +222,7 @@ Deno.test(
     assertEquals(files[0].blocks[2].meta.only, true);
 
     assertEquals(exitCode, 0);
-    assertEquals(onlyMode, new Set(["http/only.http:13"]));
+    assertEquals(onlyMode, new Set(["./http/only.http:13"]));
   },
 );
 
@@ -253,7 +253,7 @@ Deno.test(
     const { files, exitCode } = await runner([
       Deno.cwd() + "/http/import.http"
     ], {
-      display: "default",
+      display: "none",
     });
     assert(files.some(f => f.path.includes('import.http')));
     assert(files.some(f => f.path.includes('pass.http')));
@@ -264,7 +264,6 @@ Deno.test(
 
 Deno.test(
   "[runner] meta.import must run imported files before actual file without using ref",
-  { only: true },
   async () => {
     const { files, exitCode } = await runner([
       Deno.cwd() + "/http/import.http",
@@ -275,5 +274,19 @@ Deno.test(
     assert(files.some(f => f.path.includes('import.http')));
     assert(files.some(f => f.path.includes('pass.http')));
     assertEquals(exitCode, 0)
+  },
+);
+
+
+
+Deno.test(
+  "[runner] logger",
+  async () => {
+    const {  exitCode } = await runner([
+      Deno.cwd() + "/http/timeout.http",
+    ], {
+      display: "none",
+    });
+    assertEquals(exitCode, 1)
   },
 );

@@ -21,7 +21,20 @@ x-quiet: true
 
 ###
 ---
-id: no timeout
+id: delay
+delay: 10
 ---
 GET /pong?delay=200
 x-quiet: true
+
+
+###
+---
+id: delay + timeout
+delay: 200
+timeout: 300
+---
+GET /pong?delay=200
+x-quiet: true
+
+HTTP/1.1 200 OK

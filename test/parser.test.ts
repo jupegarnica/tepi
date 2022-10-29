@@ -2,7 +2,7 @@ import {
   assertEquals,
   assertRejects,
 } from "https://deno.land/std@0.160.0/testing/asserts.ts";
-import { parseBlockText } from "../src/parseBlockText.ts";
+import { parseBlockText } from "../src/parser.ts";
 import { stub } from "https://deno.land/std@0.160.0/testing/mock.ts";
 import { YAMLError } from "https://deno.land/std@0.160.0/encoding/_yaml/error.ts";
 import { Block } from "../src/types.ts";

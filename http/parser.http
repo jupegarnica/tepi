@@ -1,4 +1,3 @@
-
 ---
 host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ---

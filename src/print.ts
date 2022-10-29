@@ -3,6 +3,10 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 import { contentTypeToLanguage, highlight } from "./highlight.ts";
+import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
+import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
+
+
 
 type FmtMethod = keyof typeof fmt;
 
@@ -304,3 +308,121 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
   const options = { rawFile };
   return [...await getImageStrings(options)].join("");
 }
+
+const noop = (): void => { };
+
+
+const log = (text: string, prefix?: string) => wait({
+  prefix,
+  text,
+  // color: "white",
+  spinner: "dots4",
+  // interval: 200,
+  // discardStdin: true,
+}).start();
+export const logPath = (text: string, displayIndex: number) => {
+  if(displayIndex === 1) {
+    return log(text);
+  }
+  if(displayIndex > 1) {
+    return console.info(text);
+  }
+};
+export type logger = {
+  start: () => void;
+  fail: () => void;
+  ignore: () => void;
+  pass: () => void;
+  update: () => void;
+  empty: () => void;
+};
+export const logBlock = (block: Block): logger => {
+  const displayIndex = getDisplayIndex(block.meta);
+
+  if(displayIndex < 2) {
+    return {
+      pass: noop,
+      ignore: noop,
+      fail: noop,
+      update: noop,
+      start: noop,
+      empty: noop,
+    };
+  }
+
+  const startTime = Date.now();
+  const text = `${block.description} ${'   '} ${fmt.dim('0ms')}`;
+  const spinner = wait({
+    prefix: '',
+    text,
+    spinner: "dots4",
+    color: "gray",
+    interval: 170,
+    discardStdin: true,
+  });
+
+  const update = () => {
+    const _elapsedTime = Date.now() - startTime;
+    const text = `${fmt.brightWhite(block.description)} ${'   '} ${fmt.dim(`${(_elapsedTime)}ms`)}`;
+    if(text !== spinner.text) {
+      spinner.text = text;
+    }
+  };
+  const id = setInterval(() => {
+    update();
+  }, 230);
+
+  return {
+    start: () => {
+      spinner.start();
+    },
+    fail: () => {
+      const _elapsedTime = Date.now() - startTime;
+      block.meta._elapsedTime = _elapsedTime;
+      const status = String(block.actualResponse?.status || "");
+      const statusText = status ? (" " + status) : (" ERR");
+      const text = `${fmt.red(block.description)} ${statusText} ${fmt.dim(`${ms(_elapsedTime)}`)}`;
+      spinner?.stopAndPersist({
+        symbol: fmt.brightRed("✖"),
+        text,
+      });
+      clearInterval(id);
+    },
+    ignore: () => {
+      const _elapsedTime = Date.now() - startTime;
+
+      const text = `${fmt.yellow(block.description)} ${'   '} ${fmt.dim(`${ms(_elapsedTime)}`)}`;
+      spinner?.stopAndPersist({
+        symbol: fmt.yellow(""),
+        text,
+      });
+      clearInterval(id);
+
+    },
+    pass: () => {
+      const _elapsedTime = Date.now() - startTime;
+      block.meta._elapsedTime = _elapsedTime;
+      const status = String(block.actualResponse?.status);
+      const text = `${fmt.green(block.description)} ${status} ${fmt.dim(`${ms(_elapsedTime)}`)}`;
+      spinner?.stopAndPersist({
+        symbol: fmt.green("✓"),
+        text,
+      });
+      clearInterval(id);
+
+    },
+    empty: () => {
+      const _elapsedTime = Date.now() - startTime;
+      const text = `${fmt.dim(block.description)} ${'   '} ${fmt.dim(`${ms(_elapsedTime)}`)}`;
+      spinner?.stopAndPersist({
+        symbol: fmt.dim(""),
+        text
+      });
+      clearInterval(id);
+
+    },
+    update,
+  };
+
+
+};

@@ -4,7 +4,7 @@ import {
 } from "https://deno.land/std@0.160.0/testing/asserts.ts";
 import { consumeBodies, fetchBlock } from "../src/fetchBlock.ts";
 import { stub } from "https://deno.land/std@0.160.0/testing/mock.ts";
-import { parseBlockText } from "../src/parseBlockText.ts";
+import { parseBlockText } from "../src/parser.ts";
 import { Block } from "../src/types.ts";
 Deno.env.get("NO_LOG") && stub(console, "info");
 

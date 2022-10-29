@@ -100,8 +100,7 @@ export class Block {
     if (this.request) {
       return `${this.request.method} ${this.request.url}`;
     }
-    const lines = this.text.split("\n");
-    return lines.find((l) => l.trim()) || "---empty block---";
+    return `${this.meta._relativeFilePath}:${this.meta._startLine}`;
   }
   get response() {
     return this.actualResponse;
