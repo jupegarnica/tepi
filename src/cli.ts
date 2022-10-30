@@ -109,7 +109,7 @@ async function cli() {
 
   // resolves globs to file paths
   /////////////
-  const globs: string = args._.length ? args._.join(" ") : 'http/need.loop.http'//"**/*.http";
+  const globs: string = args._.length ? args._.join(" ") : "**/*.http";
   const filePathsToRun = await globsToFilePaths(globs.split(" "));
 
   // runner

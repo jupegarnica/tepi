@@ -155,7 +155,6 @@ async function runBlock(
     if (blocksDone.has(block)) {
       return blocksDone;
     }
-
     const spinner = logBlock(block, currentFilePath, globalData.meta)
     try {
 
@@ -174,8 +173,10 @@ async function runBlock(
             throw new Error(`Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`);
           }
         }
+        if (blocksDone.has(block)) {
+          return blocksDone;
+        }
       }
-      if (blocksDone.has(block)) return blocksDone;
 
       spinner.start();
 
