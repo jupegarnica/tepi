@@ -229,7 +229,6 @@ Deno.test(
 
 Deno.test(
   "[runner] only mode",
-  // {only: true},
   async () => {
     Deno.env.set("TEST_ONLY", "true");
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {

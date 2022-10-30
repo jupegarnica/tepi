@@ -158,12 +158,7 @@ async function runBlock(
 
     let spinner: Logger | undefined;
     try {
-      if (block.meta.ignore && !block.meta._isEmptyBlock) {
-        block.meta._isIgnoredBlock = true;
-        addToDone(blocksDone, block);
-        logBlock(block, currentFilePath, globalData.meta).ignore();
-        return blocksDone;
-      }
+
 
       if (block.meta.needs) {
         const blockReferenced = globalData._files.flatMap((file) => file.blocks)
@@ -206,8 +201,14 @@ async function runBlock(
 
       if (!block.request) {
         spinner.empty();
-        addToDone(blocksDone, block);
         block.meta._isEmptyBlock = true;
+        addToDone(blocksDone, block);
+        return blocksDone;
+      }
+       if (block.meta.ignore) {
+        block.meta._isIgnoredBlock = true;
+        addToDone(blocksDone, block);
+        spinner.ignore();
         return blocksDone;
       }
 
