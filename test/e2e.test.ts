@@ -43,8 +43,8 @@ Deno.test(
     const { code, err, out, success } = await run(tepi + "--display none");
     assertEquals(err, "");
     assertEquals(out, "");
-    assertEquals(code, 0);
-    assertEquals(success, true);
+    assertEquals(success, false);
+    assertEquals(code >= 10, true);
   },
 );
 Deno.test("[e2e] display none", async () => {
