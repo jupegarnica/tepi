@@ -197,7 +197,16 @@ Content-Type: application/json
 
 ## Special metadata keys:
 
-Explanation of meta.needs, meta.id, meta.description, meta.display, meta.timeout and meta.import
+There are some especial metadata keys used by tepi, as:  meta.needs, meta.id, meta.description, meta.display, meta.timeout and meta.import
+
+### meta.delay:
+The meta.delay allows you to delay the execution of the request fetch for a specific time in milliseconds.
+
+### meta.timeout:
+The meta.timeout allows you to override the global timeout for a specific test.
+If the request takes longer than the timeout, the test will fail.
+The delay is not included in the timeout.
+
 
 ### meta.needs
 
@@ -232,6 +241,12 @@ HTTP/1.1 200 OK
 The meta.id allows you to identify a test for reference.
 The meta.description it's used to display the test name in the console if not set, it will use the meta.id.
 
+### meta.import:
+
+The meta.import allows you to import a file before running the test.
+The imported file will run before the file that imports it.
+
+
 ### meta.display:
 
 The meta.display allows you to override the global display mode for a specific test.
@@ -246,11 +261,5 @@ GET https://example.com/get
 
 ```
 
-### meta.delay:
-// TODO
-### meta.timeout:
-// TODO
-### meta.import:
-// TODO
 
 
