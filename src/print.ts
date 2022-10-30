@@ -16,6 +16,7 @@ function consoleSize(): { rows: number; columns: number } {
     const { columns, rows } = Deno.consoleSize();
     return { columns, rows };
   } catch {
+    console.debug("Could not get console size, getting default size");
     return { columns: 150, rows: 150 };
   }
 }
