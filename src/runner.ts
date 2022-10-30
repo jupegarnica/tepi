@@ -72,7 +72,7 @@ export async function runner(
 
   for (const file of files) {
     const relativePath = file.relativePath || '';
-    const path = fmt.dim(`running ${relativePath}`);
+    const path = fmt.gray(`==> running ${relativePath} `);
     const displayIndex = getDisplayIndex(defaultMeta);
     const pathSpinner = logPath(path, displayIndex);
     let _isFirstBlock = true;
@@ -156,15 +156,14 @@ async function runBlock(
       return blocksDone;
     }
 
-    let spinner: Logger | undefined;
+    const spinner = logBlock(block, currentFilePath, globalData.meta)
     try {
 
 
-      if (block.meta.needs) {
+      if (block.meta.needs && !block.meta.ignore) {
         const blockReferenced = globalData._files.flatMap((file) => file.blocks)
           .find((b) => b.meta.id === block.meta.needs);
         if (!blockReferenced) {
-          logBlock(block, currentFilePath, globalData.meta).fail();
           throw new Error(`Block needed not found: ${block.meta.needs}`);
         } else {
           // Evict infinity loop
@@ -178,8 +177,7 @@ async function runBlock(
       }
       if (blocksDone.has(block)) return blocksDone;
 
-      spinner = logBlock(block, currentFilePath, globalData.meta);
-
+      spinner.start();
 
       block.meta = {
         ...globalData.meta,
@@ -240,9 +238,10 @@ async function runBlock(
       addToDone(blocksDone, block);
       return blocksDone;
     } catch (error) {
+
       block.error = error;
       block.meta._isFailedBlock = true;
-      spinner?.fail();
+      spinner.fail();
       addToDone(blocksDone, block);
       return blocksDone;
     } finally {

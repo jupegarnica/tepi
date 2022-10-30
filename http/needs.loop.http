@@ -36,3 +36,16 @@ POST /pong
 x-quiet: true
 
 <%= block_1.meta.id + '??' %>
+
+
+
+###
+# description: must run latest
+---
+id:  block_4
+needs: block1
+---
+POST /pong
+x-quiet: true
+
+<%= block_1.meta.id + '??' %>

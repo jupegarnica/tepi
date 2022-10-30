@@ -43,7 +43,7 @@ x-quiet: true
 ###
 ---
 id:  block5
-needs: block_1
+needs: block_4
 ---
 GET /pong?status=205
 x-quiet: true

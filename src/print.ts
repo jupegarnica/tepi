@@ -127,7 +127,7 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
     console.info();
   }
   let firstError = true;
-  for (const { error, meta } of blocksWidthErrors) {
+  for (const { error, meta, description } of blocksWidthErrors) {
     if (!error) {
       continue;
     }
@@ -158,6 +158,7 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
     } else {
       message = `${fmt.bold(error.name).padEnd(maximumLength)} ${messagePath}`;
     }
+    message = `${fmt.blue(description)}\n${message}`
     console.error(message);
     firstError = false;
   }
@@ -331,8 +332,9 @@ export type Logger = {
   pass: () => void;
   update: () => void;
   empty: () => void;
+  start: () => void;
 };
-export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logger => {
+export function logBlock (block: Block, filePath: string, globalMeta: Meta): Logger  {
   let displayIndex = getDisplayIndex(block.meta);
   if (displayIndex === Infinity) {
     displayIndex = getDisplayIndex(globalMeta);
@@ -345,12 +347,13 @@ export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logg
       fail: noop,
       update: noop,
       empty: noop,
+      start: noop,
     };
   }
   const fromFilePath = block.meta._relativeFilePath
   const isDiferenteFile = fromFilePath !== filePath;
   const startTime = Date.now();
-  const text = `${block.description} ${'   '} ${fmt.dim('0ms')}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
+  const text = `${block.description} ${'   '} ${fmt.gray('0ms')}${isDiferenteFile ? fmt.dim(` <== ${fromFilePath}`) : ''}`;
   const spinner = wait({
     prefix: '',
     text,
@@ -362,7 +365,7 @@ export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logg
 
   const update = () => {
     const _elapsedTime = Date.now() - startTime;
-    const text = `${fmt.brightWhite(block.description)} ${'   '} ${fmt.dim(`${(_elapsedTime)}ms`)}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
+    const text = `${fmt.brightWhite(block.description)} ${'   '} ${fmt.gray(`${(_elapsedTime)}ms`)}${isDiferenteFile ? fmt.dim(` <== ${fromFilePath}`) : ''}`;
     if (text !== spinner.text) {
       spinner.text = text;
     }
@@ -371,14 +374,16 @@ export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logg
     update();
   }, 230);
 
-  spinner.start();
   return {
+    start() {
+      spinner.start();
+    },
     fail: () => {
       const _elapsedTime = Date.now() - startTime;
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status || "");
       const statusText = status ? (" " + status) : (" ERR");
-      const text = `${fmt.red(block.description)} ${statusText} ${fmt.dim(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
+      const text = `${fmt.red(block.description)} ${statusText} ${fmt.gray(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` <== ${fromFilePath}`) : ''}`;
       spinner?.stopAndPersist({
         symbol: fmt.brightRed("✖"),
         text,
@@ -388,7 +393,7 @@ export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logg
     ignore: () => {
       const _elapsedTime = Date.now() - startTime;
 
-      const text = `${fmt.yellow(block.description)} ${'   '} ${fmt.dim(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
+      const text = `${fmt.yellow(block.description)} ${'   '} ${fmt.gray(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` <== ${fromFilePath}`) : ''}`;
       spinner?.stopAndPersist({
         symbol: fmt.yellow(""),
         text,
@@ -400,7 +405,7 @@ export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logg
       const _elapsedTime = Date.now() - startTime;
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status);
-      const text = `${fmt.green(block.description)} ${status} ${fmt.dim(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
+      const text = `${fmt.green(block.description)} ${status} ${fmt.gray(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` <== ${fromFilePath}`) : ''}`;
       spinner?.stopAndPersist({
         symbol: fmt.green("✓"),
         text,
@@ -410,7 +415,7 @@ export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logg
     },
     empty: () => {
       const _elapsedTime = Date.now() - startTime;
-      const text = `${fmt.dim(block.description)} ${'   '} ${fmt.dim(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
+      const text = `${fmt.dim(block.description)} ${'   '} ${fmt.gray(`${ms(_elapsedTime)}`)}${isDiferenteFile ? fmt.dim(` <== ${fromFilePath}`) : ''}`;
       spinner?.stopAndPersist({
         symbol: fmt.dim(""),
         text
