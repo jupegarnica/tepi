@@ -1,6 +1,7 @@
 {
   "tasks": {
     "dev": "TEPI_NOT_EXIT=1 deno run -A --unstable --watch ./src/cli.ts",
+    "debug": "TEPI_NOT_EXIT=1 deno run --inspect-brk -A --unstable ./src/cli.ts ",
     // test
     "test": "NO_LOG=1 deno test -A --unstable",
     "test-watch": "FORCE_COLOR=1 deno test -A --unstable --watch test",

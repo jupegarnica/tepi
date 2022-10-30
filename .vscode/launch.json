@@ -1,0 +1,38 @@
+{
+  // Use IntelliSense para saber los atributos posibles.
+  // Mantenga el puntero para ver las descripciones de los existentes atributos.
+  // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "request": "launch",
+      "name": "Run Program",
+      "type": "node",
+      "program": "${workspaceFolder}/src/cli.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "/home/juan/.deno/bin/deno",
+      "runtimeArgs": [
+        "run",
+        "--unstable",
+        "--inspect",
+        "--allow-all"
+      ],
+      "attachSimplePort": 9229
+    },
+    {
+      "request": "launch",
+      "name": "Test Program",
+      "type": "node",
+      "program": "${workspaceFolder}/src/cli.ts",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "/home/juan/.deno/bin/deno",
+      "runtimeArgs": [
+        "test",
+        "--unstable",
+        "--inspect",
+        "--allow-all"
+      ],
+      "attachSimplePort": 9229
+    }
+  ]
+}

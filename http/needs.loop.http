@@ -17,9 +17,11 @@ x-quiet: true
 ---
 id:  block_2
 needs: block_1
+
 ---
 POST /pong
 x-quiet: true
+x-body-block1: <%= block_1.body || 'not found' %>
 
 <%= block_1.meta.id + '??' %>
 
@@ -29,7 +31,6 @@ x-quiet: true
 ---
 id:  block_3
 needs: block_1
-# TODO DEBUG
 ---
 POST /pong
 x-quiet: true

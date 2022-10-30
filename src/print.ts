@@ -119,7 +119,8 @@ function metaToText(meta: Meta): string {
   return output;
 }
 
-export function printErrorsSummary(blocks: Block[]): void {
+export function printErrorsSummary(_blocks: Set<Block>): void {
+  const blocks = Array.from(_blocks);
   const blocksWidthErrors = blocks.filter((b) => b.error);
 
   if (blocksWidthErrors.length) {

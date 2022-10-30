@@ -109,7 +109,7 @@ async function cli() {
 
   // resolves globs to file paths
   /////////////
-  const globs: string = args._.length ? args._.join(" ") : "**/*.http";
+  const globs: string = args._.length ? args._.join(" ") : 'http/need.loop.http'//"**/*.http";
   const filePathsToRun = await globsToFilePaths(globs.split(" "));
 
   // runner
@@ -122,18 +122,18 @@ async function cli() {
 
   // warn only mode
   /////////////
-  if (onlyMode.length) {
+  if (onlyMode.size) {
     if (getDisplayIndex(defaultMeta) > 0) {
       console.warn(
         fmt.yellow(
           `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))
-          } ${onlyMode.length} tests are in "only" mode.`,
+          } ${onlyMode.size} tests are in "only" mode.`,
         ),
       );
       if (!exitCode) {
         console.error(
           fmt.red(
-            `Failed because the ${fmt.bold('"only"')} option was used at ${onlyMode.join(", ")
+            `Failed because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
             }`,
           ),
         );

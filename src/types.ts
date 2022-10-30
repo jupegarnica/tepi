@@ -56,6 +56,7 @@ export type Meta = {
   _filePath?: string;
   _relativeFilePath?: string;
 
+  _isEmptyBlock?: boolean;
   _isDoneBlock?: boolean;
   _isSuccessfulBlock?: boolean;
   _isFailedBlock?: boolean;
@@ -116,9 +117,7 @@ export type File = {
 export type GlobalData = {
   meta: Meta;
   _files: File[];
-  _blocksAlreadyReferenced: {
-    [key: string]: Block;
-  };
+  _blocksAlreadyReferenced: Set<Block>
   _blocksDone: {
     [key: string]: Block;
   };

@@ -45,5 +45,5 @@ x-quiet: true
 id:  block5
 needs: block_1
 ---
-GET /pong?status=204
+GET /pong?status=205
 x-quiet: true

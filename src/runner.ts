@@ -18,13 +18,13 @@ export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
   failFast = false,
-): Promise<{ files: File[]; exitCode: number; onlyMode: Set<string> }> {
+): Promise<{ files: File[]; exitCode: number; onlyMode: Set<string>, blocksDone: Set<Block> }> {
 
 
   let successfulBlocks = 0;
   let failedBlocks = 0;
   let ignoredBlocks = 0;
-  const blocksDone: Block[] = [];
+  const blocksDone = new Set<Block>();
   const startGlobalTime = Date.now();
 
   const onlyMode = new Set<string>();
@@ -46,7 +46,7 @@ export async function runner(
     },
     _files: files,
     _blocksDone: {},
-    _blocksAlreadyReferenced: {},
+    _blocksAlreadyReferenced: new Set<Block>(),
   };
 
 
@@ -56,7 +56,7 @@ export async function runner(
   } catch (error) {
     console.error(`Error while parsing metadata`);
     console.error(error.message);
-    return { files, exitCode: 1, onlyMode };
+    return { files, exitCode: 1, onlyMode, blocksDone };
   }
 
 
@@ -71,7 +71,7 @@ export async function runner(
   }
 
   for (const file of files) {
-    const relativePath = file.relativePath;
+    const relativePath = file.relativePath || '';
     const path = fmt.dim(`running ${relativePath}`);
     const displayIndex = getDisplayIndex(defaultMeta);
     const pathSpinner = logPath(path, displayIndex);
@@ -82,9 +82,7 @@ export async function runner(
       if (_isFirstBlock) {
         _isFirstBlock = false;
       }
-      const [...blocks] = await runBlock(block, globalData, relativePath);
-      blocksDone.push(...blocks);
-
+      await runBlock(block, globalData, relativePath, blocksDone);
       if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
       }
@@ -105,6 +103,7 @@ export async function runner(
           files,
           exitCode: status,
           onlyMode,
+          blocksDone
         };
       }
     }
@@ -130,123 +129,157 @@ export async function runner(
     );
   }
   globalData._blocksDone = {}; // clean up blocks referenced
-  return { files, exitCode: failedBlocks, onlyMode };
+  return { files, exitCode: failedBlocks, onlyMode, blocksDone };
 }
 
+function addToDone(blocksDone: Set<Block>, block: Block) {
+  if (blocksDone.has(block)) {
+    console.trace("Block already done: " + block.description);
+    throw new Error("Block already done: " + block.description);
 
+  }
+  if (block.meta._isDoneBlock) {
+    console.trace("Block already _isDoneBlock: " + block.description);
+    throw new Error("Block already _isDoneBlock");
+  }
+  block.meta._isDoneBlock = true;
+  blocksDone.add(block);
+  // console.log(fmt.cyan("added to blocksDone"), block.description, block.meta._isEmptyBlock ? "empty" : block.meta._isIgnoredBlock ? "ignored" : block.meta._isFailedBlock ? "failed" : block.meta._isSuccessfulBlock ? "successful" : "?????");
+}
 
 async function runBlock(
   block: Block,
   globalData: GlobalData,
   currentFilePath: string,
-): Promise<Block[]> {
-  const blocksDone = [block];
-  if (block.meta._isDoneBlock) {
-    console.log("block is done", block.meta.id);
-    return [];
-  }
-  let spinner: Logger | undefined;
+  blocksDone: Set<Block>,
+): Promise<Set<Block>> {
   try {
-    if (block.meta.ignore) {
-      block.meta._isIgnoredBlock = true;
-      logBlock(block, currentFilePath).ignore();
+    // console.group();
+    // console.log(fmt.magenta("runBlock"), block.description);
+
+
+    if (blocksDone.has(block)) {
+      // console.log(fmt.green("already done"), block.description);
       return blocksDone;
     }
 
-    if (block.meta.needs) {
-      const blockReferenced = globalData._files.flatMap((file) => file.blocks)
-        .find((b) => b.meta.id === block.meta.needs);
-      if (!blockReferenced) {
-        logBlock(block, currentFilePath).fail();
-        throw new Error(`Block referenced not found: ${block.meta.needs}`);
-      } else {
-        // Evict infinity loop
-        if (
-          globalData
-            ._blocksAlreadyReferenced[blockReferenced.meta.id as string]
-        ) {
-          return [];
-          // throw new Error(`Block referenced already referenced: ${block.meta.needs}`);
-        }
-        globalData._blocksAlreadyReferenced[block.meta.needs as string] =
-          blockReferenced;
-        const [...blocks] = await runBlock(blockReferenced, globalData, currentFilePath);
-        blocksDone.push(...blocks);
+    let spinner: Logger | undefined;
+    try {
+      if (block.meta.ignore && !block.meta._isEmptyBlock) {
+        block.meta._isIgnoredBlock = true;
+        addToDone(blocksDone, block);
+        logBlock(block, currentFilePath).ignore();
+        return blocksDone;
       }
-    }
-    spinner = logBlock(block, currentFilePath);
+
+      if (block.meta.needs) {
+        const blockReferenced = globalData._files.flatMap((file) => file.blocks)
+          .find((b) => b.meta.id === block.meta.needs);
+        if (!blockReferenced) {
+          logBlock(block, currentFilePath).fail();
+          throw new Error(`Block needed not found: ${block.meta.needs}`);
+        } else {
+          // Evict infinity loop
+          if (!globalData._blocksAlreadyReferenced.has(blockReferenced)) {
+            globalData._blocksAlreadyReferenced.add(blockReferenced);
+            await runBlock(blockReferenced, globalData, currentFilePath, blocksDone);
+          } else {
+            // console.log(fmt.brightRed("Evict Infinite loop"),blockReferenced.description,`${block.description} needs ${block.meta.needs}`);
+            throw new Error(`Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`);
+            // globalData._blocksDone[blockReferenced.meta.id] = blockReferenced;
+            // // return blocksDone;
+            // if (blocksDone.has(blockReferenced)) {
+            //   return blocksDone;
+            // }
+          }
+        }
+      }
+      if (blocksDone.has(block)) return blocksDone;
+
+      spinner = logBlock(block, currentFilePath);
 
 
-    block.meta = {
-      ...globalData.meta,
-      ...block.meta,
-    };
+      block.meta = {
+        ...globalData.meta,
+        ...block.meta,
+      };
 
-    block.request = await parseRequestFromText(block, {
-      ...globalData._blocksDone,
-      ...block,
-      ...assertions,
-    });
-
-    spinner.update();
-
-
-    if (block.meta._isFirstBlock && !block.request) {
-      globalData.meta = { ...globalData.meta, ...block.meta };
-    }
-
-    if (!block.request) {
-      block.meta._isEmptyBlock = true;
-      spinner.empty();
-      return blocksDone;
-    }
-
-
-    if (block.error) {
-      throw block.error;
-    }
-
-    await fetchBlock(block);
-    block.expectedResponse = await parseResponseFromText(
-      block.text,
-      {
+      block.request = await parseRequestFromText(block, {
         ...globalData._blocksDone,
         ...block,
         ...assertions,
-        body: await block.actualResponse?.getBody(),
-        // body: block.body,
-        response: block.response,
-      },
-    );
+      });
 
-    if (block.expectedResponse) {
-      await assertResponse(block);
+      spinner.update();
+
+
+      if (block.meta._isFirstBlock && !block.request) {
+        globalData.meta = { ...globalData.meta, ...block.meta };
+      }
+
+      if (!block.request) {
+        spinner.empty();
+        addToDone(blocksDone, block);
+        block.meta._isEmptyBlock = true;
+        return blocksDone;
+      }
+
+
+      if (block.error) {
+        throw block.error;
+      }
+
+      // console.log(fmt.brightBlue("fetch"), block.description, !!block.meta._isDoneBlock, blocksDone.has(block));
+      await fetchBlock(block);
+
+      block.expectedResponse = await parseResponseFromText(
+        block.text,
+        {
+          ...globalData._blocksDone,
+          ...block,
+          ...assertions,
+          body: await block.actualResponse?.getBody(),
+          // body: block.body,
+          response: block.response,
+        },
+      );
+
+      if (block.expectedResponse) {
+        await assertResponse(block);
+      }
+
+      block.meta._isSuccessfulBlock = true;
+      spinner.pass();
+      addToDone(blocksDone, block);
+      return blocksDone;
+    } catch (error) {
+      block.error = error;
+      block.meta._isFailedBlock = true;
+      spinner?.fail();
+      addToDone(blocksDone, block);
+      return blocksDone;
+    } finally {
+      await printBlock(block);
+      await consumeBodies(block);
+
+
+      if (block.meta.id) {
+        const name = block.meta.id as string;
+        block.body = await block.actualResponse?.getBody();
+        globalData._blocksDone[name] = block;
+      }
     }
-
-    block.meta._isSuccessfulBlock = true;
-    spinner.pass();
-    return blocksDone;
-  } catch (error) {
-    block.error = error;
-    block.meta._isFailedBlock = true;
-    spinner?.fail();
-    return blocksDone;
   } finally {
-    await printBlock(block);
-    await consumeBodies(block);
-    block.meta._isDoneBlock = true;
-    if (block.meta.id) {
-      const name = block.meta.id as string;
-      block.body = await block.actualResponse?.getBody();
-      globalData._blocksDone[name] = block;
-    }
+    // console.groupEnd();
+
+
   }
 }
 
 
 
 
-async function processMetadata(files: File[], globalData: GlobalData, onlyMode: Set<string>, mustBeImported: Set<string>, blocksDone: Block[]) {
+async function processMetadata(files: File[], globalData: GlobalData, onlyMode: Set<string>, mustBeImported: Set<string>, blocksDone: Set<Block>) {
   for (const file of files) {
     file.relativePath = './' + relative(Deno.cwd(), file.path);
     for (const block of file.blocks) {
@@ -277,8 +310,8 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
         };
       } catch (error) {
         block.error = error;
-        block.meta._isDoneBlock = true;
-        blocksDone.push(block);
+        block.meta._isFailedBlock = true;
+        addToDone(blocksDone, block);
       }
     }
   }
