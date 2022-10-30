@@ -51,10 +51,10 @@ Deno.test("[e2e] display none", async () => {
   const { code, err, out, success } = await run(
     tepi + "--display none http/parser.http",
   );
+  assertEquals(code, 3);
+  assertEquals(success, false);
   assertEquals(err, "");
   assertEquals(out, "");
-  assertEquals(code, 2);
-  assertEquals(success, false);
 });
 
 

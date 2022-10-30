@@ -168,7 +168,7 @@ async function runBlock(
       if (block.meta.ignore && !block.meta._isEmptyBlock) {
         block.meta._isIgnoredBlock = true;
         addToDone(blocksDone, block);
-        logBlock(block, currentFilePath).ignore();
+        logBlock(block, currentFilePath, globalData.meta).ignore();
         return blocksDone;
       }
 
@@ -176,7 +176,7 @@ async function runBlock(
         const blockReferenced = globalData._files.flatMap((file) => file.blocks)
           .find((b) => b.meta.id === block.meta.needs);
         if (!blockReferenced) {
-          logBlock(block, currentFilePath).fail();
+          logBlock(block, currentFilePath, globalData.meta).fail();
           throw new Error(`Block needed not found: ${block.meta.needs}`);
         } else {
           // Evict infinity loop
@@ -196,7 +196,7 @@ async function runBlock(
       }
       if (blocksDone.has(block)) return blocksDone;
 
-      spinner = logBlock(block, currentFilePath);
+      spinner = logBlock(block, currentFilePath, globalData.meta);
 
 
       block.meta = {
@@ -256,6 +256,7 @@ async function runBlock(
       block.error = error;
       block.meta._isFailedBlock = true;
       spinner?.fail();
+      console.log('fail');
       addToDone(blocksDone, block);
       return blocksDone;
     } finally {
@@ -311,7 +312,6 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
       } catch (error) {
         block.error = error;
         block.meta._isFailedBlock = true;
-        addToDone(blocksDone, block);
       }
     }
   }

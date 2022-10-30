@@ -27,9 +27,8 @@ function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   padLength = padLength < 0 ? 0 : padLength;
   const separator = fmt.gray("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${
-    separator.repeat(padLength)
-  }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
+    }`;
   console.info(output);
 }
 
@@ -64,9 +63,8 @@ export async function printBlock(block: Block): Promise<void> {
     block.meta._relativeFilePath &&
     (request || actualResponse || expectedResponse || error)
   ) {
-    const path = `\n${fmt.dim("Data from:")} ${
-      fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)
-    }`;
+    const path = `\n${fmt.dim("Data from:")} ${fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)
+      }`;
     console.info(path);
   }
   if (meta && displayIndex >= 4) {
@@ -154,9 +152,8 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
         message = `${fmt.red("✖")}  ${fmt.white(messagePadded)} ${messagePath}`;
       } else {
         // default
-        message = `${fmt.red("✖")} ${fmt.bold(error.name)}: ${
-          fmt.white(error.message)
-        } \n${messagePath}`;
+        message = `${fmt.red("✖")} ${fmt.bold(error.name)}: ${fmt.white(error.message)
+          } \n${messagePath}`;
       }
     } else {
       message = `${fmt.bold(error.name).padEnd(maximumLength)} ${messagePath}`;
@@ -200,10 +197,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-    ? fmt.yellow
-    : response.status >= 400 && response.status < 500
-    ? fmt.red
-    : fmt.bgRed;
+      ? fmt.yellow
+      : response.status >= 400 && response.status < 500
+        ? fmt.red
+        : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -245,9 +242,8 @@ export function headersToText(headers: Headers, displayIndex: number): string {
     maxLengthKey = Math.max(maxLengthKey, truncate(key, truncateAt).length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${
-      fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))
-    } ${fmt.dim(truncate(value, truncateAt))}\n`;
+    result += `${fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))
+      } ${fmt.dim(truncate(value, truncateAt))}\n`;
   }
 
   return result;
@@ -322,10 +318,10 @@ const log = (text: string, prefix?: string) => wait({
   // discardStdin: true,
 }).start();
 export const logPath = (text: string, displayIndex: number) => {
-  if(displayIndex === 1) {
+  if (displayIndex === 1) {
     return log(text);
   }
-  if(displayIndex > 1) {
+  if (displayIndex > 1) {
     return console.info(text);
   }
 };
@@ -336,9 +332,14 @@ export type Logger = {
   update: () => void;
   empty: () => void;
 };
-export const logBlock = (block: Block, filePath:string): Logger => {
-  const displayIndex = getDisplayIndex(block.meta);
-  if(displayIndex < 2) {
+export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logger => {
+  let displayIndex = getDisplayIndex(block.meta);
+  console.log(displayIndex);
+  if (displayIndex === Infinity) {
+    displayIndex = getDisplayIndex(globalMeta);
+  }
+
+  if (displayIndex < 2) {
     return {
       pass: noop,
       ignore: noop,
@@ -363,7 +364,7 @@ export const logBlock = (block: Block, filePath:string): Logger => {
   const update = () => {
     const _elapsedTime = Date.now() - startTime;
     const text = `${fmt.brightWhite(block.description)} ${'   '} ${fmt.dim(`${(_elapsedTime)}ms`)}${isDiferenteFile ? fmt.dim(` needed from ${fromFilePath}`) : ''}`;
-    if(text !== spinner.text) {
+    if (text !== spinner.text) {
       spinner.text = text;
     }
   };
