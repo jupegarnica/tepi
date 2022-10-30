@@ -51,10 +51,12 @@ export async function runner(
 
 
   // parse all metadata first
+
   try {
-    await processMetadata(files, globalData, onlyMode, mustBeImported, blocksDone);
+    const allPathFilesImported = new Set<string>();
+    await processMetadata(files, globalData, onlyMode, mustBeImported, blocksDone,allPathFilesImported);
   } catch (error) {
-    console.error(`Error while parsing metadata`);
+    console.error(`Error while parsing metadata:`);
     console.error(error.message);
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
@@ -134,12 +136,10 @@ export async function runner(
 
 function addToDone(blocksDone: Set<Block>, block: Block) {
   if (blocksDone.has(block)) {
-    console.trace("Block already done: " + block.description);
     throw new Error("Block already done: " + block.description);
 
   }
   if (block.meta._isDoneBlock) {
-    console.trace("Block already _isDoneBlock: " + block.description);
     throw new Error("Block already _isDoneBlock");
   }
   block.meta._isDoneBlock = true;
@@ -152,117 +152,122 @@ async function runBlock(
   currentFilePath: string,
   blocksDone: Set<Block>,
 ): Promise<Set<Block>> {
-    if (blocksDone.has(block)) {
-      return blocksDone;
-    }
-    const spinner = logBlock(block, currentFilePath, globalData.meta)
-    try {
+  if (blocksDone.has(block)) {
+    return blocksDone;
+  }
+  const spinner = logBlock(block, currentFilePath, globalData.meta)
+  try {
 
 
-      if (block.meta.needs && !block.meta.ignore) {
-        const blockReferenced = globalData._files.flatMap((file) => file.blocks)
-          .find((b) => b.meta.id === block.meta.needs);
-        if (!blockReferenced) {
-          throw new Error(`Block needed not found: ${block.meta.needs}`);
+    if (block.meta.needs && !block.meta.ignore) {
+      const blockReferenced = globalData._files.flatMap((file) => file.blocks)
+        .find((b) => b.meta.id === block.meta.needs);
+      if (!blockReferenced) {
+        throw new Error(`Block needed not found: ${block.meta.needs}`);
+      } else {
+        // Evict infinity loop
+        if (!globalData._blocksAlreadyReferenced.has(blockReferenced)) {
+          globalData._blocksAlreadyReferenced.add(blockReferenced);
+          await runBlock(blockReferenced, globalData, currentFilePath, blocksDone);
         } else {
-          // Evict infinity loop
-          if (!globalData._blocksAlreadyReferenced.has(blockReferenced)) {
-            globalData._blocksAlreadyReferenced.add(blockReferenced);
-            await runBlock(blockReferenced, globalData, currentFilePath, blocksDone);
-          } else {
-            throw new Error(`Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`);
-          }
-        }
-        if (blocksDone.has(block)) {
-          return blocksDone;
+          throw new Error(`Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`);
         }
       }
+      if (blocksDone.has(block)) {
+        return blocksDone;
+      }
+    }
 
-      spinner.start();
+    spinner.start();
 
-      block.meta = {
-        ...globalData.meta,
-        ...block.meta,
-      };
+    block.meta = {
+      ...globalData.meta,
+      ...block.meta,
+    };
 
-      block.request = await parseRequestFromText(block, {
+    block.request = await parseRequestFromText(block, {
+      ...globalData._blocksDone,
+      ...block,
+      ...assertions,
+    });
+
+    spinner.update();
+
+
+    if (block.meta._isFirstBlock && !block.request) {
+      globalData.meta = { ...globalData.meta, ...block.meta };
+    }
+
+    if (!block.request) {
+      spinner.empty();
+      block.meta._isEmptyBlock = true;
+      addToDone(blocksDone, block);
+      return blocksDone;
+    }
+    if (block.meta.ignore) {
+      block.meta._isIgnoredBlock = true;
+      addToDone(blocksDone, block);
+      spinner.ignore();
+      return blocksDone;
+    }
+
+
+    if (block.error) {
+      throw block.error;
+    }
+
+    await fetchBlock(block);
+
+    block.expectedResponse = await parseResponseFromText(
+      block.text,
+      {
         ...globalData._blocksDone,
         ...block,
         ...assertions,
-      });
+        body: await block.actualResponse?.getBody(),
+        // body: block.body,
+        response: block.response,
+      },
+    );
 
-      spinner.update();
-
-
-      if (block.meta._isFirstBlock && !block.request) {
-        globalData.meta = { ...globalData.meta, ...block.meta };
-      }
-
-      if (!block.request) {
-        spinner.empty();
-        block.meta._isEmptyBlock = true;
-        addToDone(blocksDone, block);
-        return blocksDone;
-      }
-       if (block.meta.ignore) {
-        block.meta._isIgnoredBlock = true;
-        addToDone(blocksDone, block);
-        spinner.ignore();
-        return blocksDone;
-      }
-
-
-      if (block.error) {
-        throw block.error;
-      }
-
-      await fetchBlock(block);
-
-      block.expectedResponse = await parseResponseFromText(
-        block.text,
-        {
-          ...globalData._blocksDone,
-          ...block,
-          ...assertions,
-          body: await block.actualResponse?.getBody(),
-          // body: block.body,
-          response: block.response,
-        },
-      );
-
-      if (block.expectedResponse) {
-        await assertResponse(block);
-      }
-
-      block.meta._isSuccessfulBlock = true;
-      spinner.pass();
-      addToDone(blocksDone, block);
-      return blocksDone;
-    } catch (error) {
-
-      block.error = error;
-      block.meta._isFailedBlock = true;
-      spinner.fail();
-      addToDone(blocksDone, block);
-      return blocksDone;
-    } finally {
-      await printBlock(block);
-      await consumeBodies(block);
-
-
-      if (block.meta.id) {
-        const name = block.meta.id as string;
-        block.body = await block.actualResponse?.getBody();
-        globalData._blocksDone[name] = block;
-      }
+    if (block.expectedResponse) {
+      await assertResponse(block);
     }
+
+    block.meta._isSuccessfulBlock = true;
+    spinner.pass();
+    addToDone(blocksDone, block);
+    return blocksDone;
+  } catch (error) {
+
+    block.error = error;
+    block.meta._isFailedBlock = true;
+    spinner.fail();
+    addToDone(blocksDone, block);
+    return blocksDone;
+  } finally {
+    await printBlock(block);
+    await consumeBodies(block);
+
+
+    if (block.meta.id) {
+      const name = block.meta.id as string;
+      block.body = await block.actualResponse?.getBody();
+      globalData._blocksDone[name] = block;
+    }
+  }
 }
 
 
 
 
-async function processMetadata(files: File[], globalData: GlobalData, onlyMode: Set<string>, mustBeImported: Set<string>, blocksDone: Set<Block>) {
+async function processMetadata(files: File[], globalData: GlobalData, onlyMode: Set<string>, mustBeImported: Set<string>, blocksDone: Set<Block>, allPathFilesImported: Set<string>) {
   for (const file of files) {
+    if (allPathFilesImported.has(file.path)) {
+      // evict infinity loop
+      throw new Error(`Infinite loop looking for imports -> ${file.path}`);
+
+    }
     file.relativePath = './' + relative(Deno.cwd(), file.path);
     for (const block of file.blocks) {
       try {
@@ -295,6 +300,7 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
         block.meta._isFailedBlock = true;
       }
     }
+    allPathFilesImported.add(file.path);
   }
   // meta.import logic
   // TODO support for import globs for example -> import: ./src/*.http ./test/*.http
@@ -303,10 +309,12 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
     const needsImport = Array.from(mustBeImported).filter(
       (path) => !allAbsolutePaths.includes(path),
     );
+
     const newFiles = await filePathsToFiles(needsImport);
     const _mustBeImported = new Set<string>();
-    await processMetadata(newFiles, globalData, onlyMode, _mustBeImported, blocksDone);
+    await processMetadata(newFiles, globalData, onlyMode, _mustBeImported, blocksDone,allPathFilesImported);
     files.unshift(...newFiles);
     files.sort(file => mustBeImported.has(file.path) ? -1 : 1)
   }
+
 }

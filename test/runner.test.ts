@@ -3,6 +3,8 @@ import {
   assertEquals,
   assertStringIncludes,
 } from "https://deno.land/std@0.160.0/testing/asserts.ts";
+
+import { stub } from "https://deno.land/std@0.160.0/testing/mock.ts";
 import { runner } from "../src/runner.ts";
 
 const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
@@ -272,29 +274,29 @@ Deno.test("[runner] needs loop",
 
 
 Deno.test("[runner] needs crossed",
-async () => {
-  const { blocksDone } = await runner([
-    "http/needs.http",
-    "http/needs.loop.http",
-  ], {
-    display: "none",
-  });
+  async () => {
+    const { blocksDone } = await runner([
+      "http/needs.http",
+      "http/needs.loop.http",
+    ], {
+      display: "none",
+    });
 
-  const blockInOrder = [...blocksDone]
-  // console.log(blockInOrder.map((b) => b.description));
-  assertEquals(blockInOrder[0].description, "./http/needs.http:0");
-  assertEquals(blockInOrder[1].description, "block3");
-  assertEquals(blockInOrder[2].description, "block2");
-  assertEquals(blockInOrder[3].description, "block1");
-  assertEquals(blockInOrder[4]?.description, "block4");
-  assertEquals(blockInOrder[5]?.description, "block_4");
-  assertEquals(blockInOrder[6]?.description, "block5");
-  assertEquals(blockInOrder[7]?.description, "./http/needs.loop.http:0");
-  assertEquals(blockInOrder[8]?.description, "block_1");
-  assertEquals(blockInOrder[9]?.description, "block_2");
-  assertEquals(blockInOrder[10]?.description, "block_3");
-  assertEquals(blockInOrder[11]?.description, undefined);
-});
+    const blockInOrder = [...blocksDone]
+    // console.log(blockInOrder.map((b) => b.description));
+    assertEquals(blockInOrder[0].description, "./http/needs.http:0");
+    assertEquals(blockInOrder[1].description, "block3");
+    assertEquals(blockInOrder[2].description, "block2");
+    assertEquals(blockInOrder[3].description, "block1");
+    assertEquals(blockInOrder[4]?.description, "block4");
+    assertEquals(blockInOrder[5]?.description, "block_4");
+    assertEquals(blockInOrder[6]?.description, "block5");
+    assertEquals(blockInOrder[7]?.description, "./http/needs.loop.http:0");
+    assertEquals(blockInOrder[8]?.description, "block_1");
+    assertEquals(blockInOrder[9]?.description, "block_2");
+    assertEquals(blockInOrder[10]?.description, "block_3");
+    assertEquals(blockInOrder[11]?.description, undefined);
+  });
 
 
 Deno.test(
@@ -331,17 +333,16 @@ Deno.test(
 
 Deno.test(
   "[runner] meta.import must handle infinite loop",
-  { ignore: true },
   async () => {
-    const { files, exitCode } = await runner([
-      Deno.cwd() + "/http/import.http",
-      Deno.cwd() + "/http/pass.http"
+    const error = stub(console, "error");
+    const { exitCode } = await runner([
+      Deno.cwd() + "/http/import1.http",
     ], {
       display: "none",
     });
-    assert(files.some(f => f.path.includes('import.http')));
-    assert(files.some(f => f.path.includes('pass.http')));
-    assertEquals(exitCode, 0)
+    error.restore();
+    assertEquals(exitCode, 1);
+
   },
 );
 
