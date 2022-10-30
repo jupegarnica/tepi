@@ -144,7 +144,6 @@ function addToDone(blocksDone: Set<Block>, block: Block) {
   }
   block.meta._isDoneBlock = true;
   blocksDone.add(block);
-  // console.log(fmt.cyan("added to blocksDone"), block.description, block.meta._isEmptyBlock ? "empty" : block.meta._isIgnoredBlock ? "ignored" : block.meta._isFailedBlock ? "failed" : block.meta._isSuccessfulBlock ? "successful" : "?????");
 }
 
 async function runBlock(
@@ -153,13 +152,7 @@ async function runBlock(
   currentFilePath: string,
   blocksDone: Set<Block>,
 ): Promise<Set<Block>> {
-  try {
-    // console.group();
-    // console.log(fmt.magenta("runBlock"), block.description);
-
-
     if (blocksDone.has(block)) {
-      // console.log(fmt.green("already done"), block.description);
       return blocksDone;
     }
 
@@ -184,13 +177,7 @@ async function runBlock(
             globalData._blocksAlreadyReferenced.add(blockReferenced);
             await runBlock(blockReferenced, globalData, currentFilePath, blocksDone);
           } else {
-            // console.log(fmt.brightRed("Evict Infinite loop"),blockReferenced.description,`${block.description} needs ${block.meta.needs}`);
             throw new Error(`Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`);
-            // globalData._blocksDone[blockReferenced.meta.id] = blockReferenced;
-            // // return blocksDone;
-            // if (blocksDone.has(blockReferenced)) {
-            //   return blocksDone;
-            // }
           }
         }
       }
@@ -229,7 +216,6 @@ async function runBlock(
         throw block.error;
       }
 
-      // console.log(fmt.brightBlue("fetch"), block.description, !!block.meta._isDoneBlock, blocksDone.has(block));
       await fetchBlock(block);
 
       block.expectedResponse = await parseResponseFromText(
@@ -256,7 +242,6 @@ async function runBlock(
       block.error = error;
       block.meta._isFailedBlock = true;
       spinner?.fail();
-      console.log('fail');
       addToDone(blocksDone, block);
       return blocksDone;
     } finally {
@@ -270,11 +255,6 @@ async function runBlock(
         globalData._blocksDone[name] = block;
       }
     }
-  } finally {
-    // console.groupEnd();
-
-
-  }
 }
 
 

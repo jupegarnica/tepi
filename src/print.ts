@@ -334,7 +334,6 @@ export type Logger = {
 };
 export const logBlock = (block: Block, filePath: string, globalMeta: Meta): Logger => {
   let displayIndex = getDisplayIndex(block.meta);
-  console.log(displayIndex);
   if (displayIndex === Infinity) {
     displayIndex = getDisplayIndex(globalMeta);
   }

@@ -233,7 +233,7 @@ Deno.test(
   async () => {
     Deno.env.set("TEST_ONLY", "true");
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
-      display: "default",
+      display: "none",
     });
     assertEquals(files[0].blocks.length, 3);
     assertEquals(files[0].blocks[1].meta.ignore, true);
