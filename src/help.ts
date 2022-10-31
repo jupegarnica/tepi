@@ -126,9 +126,7 @@ ${c(`tepi --env-file .env --env-file .env.test`)}
 ${d(`> Load environment variables from a .env and .env.test`)}
 `;
 
-const referenceText = `
-
-
+  const referenceText = `
 ${g("## HTTP syntax:")}
 
 * You can use the standard HTTP syntax in your .http files to run a request and response validation.
@@ -143,8 +141,6 @@ HTTP/1.1 400 Bad Request
 content-type: text/plain; charset=utf-8
 
 hola
-
-###
 `)
     }
 
@@ -170,7 +166,7 @@ ${codeBlock(`GET  http://localhost:3000/users
     }
 Or:
 ${codeBlock(
-`    <% if (Math.random() > 0.5) { %>
+      `    <% if (Math.random() > 0.5) { %>
       GET  http://localhost:3000/users/1
     <% } else { %>
       GET  http://localhost:3000/users/2
@@ -181,18 +177,12 @@ ${codeBlock(
 
 ${g("### Interpolation scope:")}
 
-In the Interpolation ${c("<%= %>")} or ${c("<% %>")
-    } you have access to any Deno API and the following variables:
-> request: ${w(`The Request`)} from the actual block.
-> meta: ${w(`The metadata`)
-    } from the actual block. and the frontmatter global metadata.
-> response: ${w(`The standard Response object from the fetch API`)
-    } from the actual request. (only available in the expected response, after the request)
-> body: ${w(`The extracted body`)} an alias of ${c("await response.getBody()")
-    } (only available in the expected response, after the request)
-
-> [name]: ${w(`the named block already run`)} for example: ${c(`<%= loginTest.body.jwt %>`)
-    } or ${c(`<%= loginTest.response.status %>`)}
+In the Interpolation ${c("<%= %>")} or ${c("<% %>")} you have access to any Deno API and the following variables:
+* request: ${w(`The Request`)} from the actual block.
+* meta: ${w(`The metadata`)} from the actual block. and the frontmatter global metadata.
+* response: ${w(`The standard Response object from the fetch API`)} from the actual request. (only available in the expected response, after the request)
+* body: ${w(`The extracted body`)} an alias of ${c("await response.getBody()")} (only available in the expected response, after the request)
+* [id]: ${w(`the id of a block already run`)} for example: ${c(`<%= login.body.jwt %>`)} or ${c(`<%= login.response.status %>`)}
 
 The Block signature is:
 ${codeBlock(
@@ -205,33 +195,35 @@ ${codeBlock(
   expectedResponse?: Response,
   error?: Error,
   body?: any,
-}`,
-      "ts",
-    )
-    }
+}`, "ts",)}
+
+
+The request, response and expectedResponse has a custom method ${c("async getBody()")} to extract the body as json, text or blob depending on the content-type.
+
+The ${c('body')} is an alias for ${c("await response.getBody()")}.
 
 For example:
 ${codeBlock(
-      `---
-id: login
+        `
 ---
-POST https://example.com/login
-Content-Type: application/json
+id: hello
+---
+GET https://faker.deno.dev/?body=hola
 
-{"user": "Garn", "password": "1234"}
+HTTP/1.1 200
+
+hola
+
+###
+POST https://faker.deno.dev/
+
+<%= hello.body %>
 
 HTTP/1.1 200 OK
 
-###
----
-needs: login
-# not really needed, because the requests run in order of declaration
----
-GET https://example.com/onlyAdmin
-Authorization: Bearer <%= loginTest.body.jwt %>
-Content-Type: application/json`,
-      "",
-    )}
+hola
+`,
+        '')}
 
 ${g("## Special metadata keys:")}
 
@@ -252,12 +244,12 @@ The meta.needs is a special metadata value that allows you to run a test in adva
 
 For example:
 ${codeBlock(
-      `---
+          `---
 needs: login
 # will run the login test before this one
 ---
 GET https://example.com/onlyAdmin
-Authorization: Bearer <%= loginTest.body.jwt %>
+Authorization: Bearer <%= login.body.jwt %>
 Content-Type: application/json
 
 ###
@@ -271,8 +263,8 @@ Content-Type: application/json
 
 HTTP/1.1 200 OK
 `,
-      "",
-    )}
+          "",
+        )}
 
 ${g("### meta.id and meta.description")}
 
@@ -291,7 +283,7 @@ The meta.display allows you to override the global display mode for a specific t
 
 For example:
 ${codeBlock(
-      `---
+          `---
 display: verbose
 ---
 GET https://example.com/get
