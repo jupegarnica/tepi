@@ -4,7 +4,6 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 
 ###
 ---
-display: verbose
 id: response conditional
 ---
 GET  /pong?body=1
@@ -22,7 +21,6 @@ HTTP/1.1 200 OK
 
 ---
 id: request conditional
-display: verbose
 ---
 
 <% if (Math.random() > 0.5) { %>
@@ -37,7 +35,6 @@ HTTP/1.1 200 OK
 ###
 
 ---
-display: verbose
 id: meta conditional
 <% if (Math.random() > 0.5) { %>
 rnd: 1

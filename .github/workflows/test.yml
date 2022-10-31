@@ -1,0 +1,15 @@
+## create readme on changes to src/cli.ts
+name: test
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # - uses: denoland/setup-deno@v1
+      # - run: deno task test
+      - run: deno task test-docker

@@ -209,13 +209,13 @@ Deno.test(
     assertEquals(files[0].blocks[1].error, undefined);
     assertEquals(
       files[0].blocks[1].request?.url,
-      "https://faker.deno.dev/?body=2",
+      HOST+"/?body=2",
     );
 
     assertEquals(files[0].blocks[2].error, undefined);
     assertEquals(
       files[0].blocks[2].request?.url,
-      "https://faker.deno.dev/?body=2",
+      HOST+"/?body=2",
     );
   },
 );
@@ -365,7 +365,6 @@ Deno.test(
 
 Deno.test(
   "[runner] parser",
-  { only: true },
   async () => {
     const { blocksDone } = await runner([
       Deno.cwd() + "/http/parseConditional.http",
@@ -382,9 +381,9 @@ Deno.test(
     }
     assertEquals(blockInOrder[2].description, "request conditional");
     try {
-      assertEquals(blockInOrder[2].request?.url, "https://faker.deno.dev/pong?body=2");
+      assertEquals(blockInOrder[2].request?.url.endsWith("/pong?body=2"), true);
     } catch {
-      assertEquals(blockInOrder[2].request?.url, "https://faker.deno.dev/pong?body=3");
+      assertEquals(blockInOrder[2].request?.url.endsWith("/pong?body=3"), true);
     }
     assertEquals(blockInOrder[3].description, "meta conditional");
     try {

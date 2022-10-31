@@ -5,6 +5,7 @@
     // test
     "test": "NO_LOG=1 deno test -A --unstable",
     "test-watch": "FORCE_COLOR=1 deno test -A --unstable --watch test",
+    "test-docker": "docker compose up  --exit-code-from test --no-log-prefix --abort-on-container-exit test ",
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
     // dev
     "install": "deno install -fA --unstable --name tepi ./src/cli.ts",
