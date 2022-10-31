@@ -1,10 +1,10 @@
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 
 export const installCommand =
-  "deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://deno.land/x/tepi/src/cli.ts";
+  "deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";
 
 export const runRemoteCommand =
-  "deno run --unstable --allow-read --allow-env --allow-net --allow-run https://deno.land/x/tepi/src/cli.ts";
+  "deno run --unstable --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts";
 
 export function help(): void {
   const isReadme = !!Deno.env.get("NO_COLOR");
@@ -28,11 +28,8 @@ export function help(): void {
   ));
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
   const title = `
-${g(`-------------------------`)}
-${g(`--------- ${fmt.bold("TEPI")} ----------`)}
-${g(`-------------------------`)}
-${g(`-- A .http Test Runner --`)}
-${g(`-------------------------`)}
+${g(`# ${fmt.bold("TEPI")}`)}
+${g(`### -- A .http Test Runner --`)}
 `;
   const helpText = `
 ${fmt.bold("Test your HTTP APIs with standard http syntax")}
