@@ -4,7 +4,7 @@ import {
   mimesToFormData,
   mimesToJSON,
   mimesToText,
-} from "./mimes.ts";
+} from "./types.ts";
 
 import { delay } from "https://deno.land/std@0.161.0/async/delay.ts";
 

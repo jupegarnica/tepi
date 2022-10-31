@@ -1,6 +1,6 @@
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
-import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./mimes.ts";
+import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 import { contentTypeToLanguage, highlight } from "./highlight.ts";
 import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
