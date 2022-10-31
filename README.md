@@ -1,14 +1,10 @@
 
-
-```
-
 -------------------------
 --------- TEPI ----------
 -------------------------
 -- A .http Test Runner --
 -------------------------
 
-```
 Test your HTTP APIs with standard http syntax
 
 ## Features:
@@ -92,6 +88,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 > Load environment variables from a .env and .env.test
 
 
+
 ## HTTP syntax:
 
 * You can use the standard HTTP syntax in your .http files to run a request and response validation.
@@ -145,7 +142,6 @@ Or:
     <% } %>
 
 ```
-
 
 ### Interpolation scope:
 
@@ -260,6 +256,4 @@ display: verbose
 GET https://example.com/get
 
 ```
-
-
 
