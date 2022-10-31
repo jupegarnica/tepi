@@ -1,9 +1,6 @@
 
--------------------------
---------- TEPI ----------
--------------------------
--- A .http Test Runner --
--------------------------
+# TEPI
+### -- A .http Test Runner --
 
 Test your HTTP APIs with standard http syntax
 
@@ -25,13 +22,13 @@ Test your HTTP APIs with standard http syntax
 
 
 ```bash
-deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://deno.land/x/tepi/src/cli.ts
+deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
 ```
 
 Or run remotely width:
 
 ```bash
-deno run --unstable --allow-read --allow-env --allow-net --allow-run https://deno.land/x/tepi/src/cli.ts
+deno run --unstable --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
 ```
 
 ## Usage:
