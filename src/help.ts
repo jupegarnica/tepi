@@ -35,7 +35,6 @@ ${g(`-- A .http Test Runner --`)}
 ${g(`-------------------------`)}
 `;
   const helpText = `
-${(codeBlock(title, ""))}
 ${fmt.bold("Test your HTTP APIs with standard http syntax")}
 
 ${g("## Features:")}
@@ -125,6 +124,9 @@ ${d(`> Set the display mode. (none, minimal, default and full)`)}
 
 ${c(`tepi --env-file .env --env-file .env.test`)}
 ${d(`> Load environment variables from a .env and .env.test`)}
+`;
+
+const referenceText = `
 
 
 ${g("## HTTP syntax:")}
@@ -168,7 +170,7 @@ ${codeBlock(`GET  http://localhost:3000/users
     }
 Or:
 ${codeBlock(
-      `    <% if (Math.random() > 0.5) { %>
+`    <% if (Math.random() > 0.5) { %>
       GET  http://localhost:3000/users/1
     <% } else { %>
       GET  http://localhost:3000/users/2
@@ -176,7 +178,6 @@ ${codeBlock(
 `,
     )
     }
-
 
 ${g("### Interpolation scope:")}
 
@@ -295,10 +296,8 @@ display: verbose
 ---
 GET https://example.com/get
 `)}
+`
 
-
-`;
-
-  console.info(helpText);
+  console.info(title + helpText + referenceText);
   return;
 }

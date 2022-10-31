@@ -1,4 +1,4 @@
-import type { Block, Meta } from "./types.ts";
+import { Block, Meta, mimesToArrayBuffer } from "./types.ts";
 import { _Request, _Response, httpMethods } from "./types.ts";
 import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts";
 import { extract } from "https://deno.land/std@0.160.0/encoding/front_matter.ts";
@@ -83,7 +83,7 @@ export async function parseRequestFromText(
   const text = await renderTemplate(requestText, dataToInterpolate) || "";
   const lines = splitLines(text);
 
-  let url = "";
+  let url: string | URL = "";
   const headers: Headers = new Headers();
   const requestInit: RequestInit = {
     method: "GET",
@@ -115,7 +115,7 @@ export async function parseRequestFromText(
     }
 
     if (lookingFor === "url" && isRequestStartLine(line)) {
-      const [method, _url] = trimmed.split(" ");
+      const [method, _url] = trimmed.split(/\s+/);
 
       requestInit.method = method;
       url = _url;
@@ -154,6 +154,12 @@ export async function parseRequestFromText(
   if (!url.match(/^https?:\/\//)) {
     url = `http://${url}`;
   }
+  try {
+    url = new URL(url).toString();
+  } catch (error) {
+      throw new error.constructor(`Invalid URL: ${url} -> ${error.message}`);
+  }
+
 
   const request: _Request = new _Request(url, requestInit);
 

@@ -1,0 +1,27 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+
+###
+GET  /pong?body=1
+
+
+HTTP/1.1 200 OK
+
+<% if (Math.random() > 0.5) { %>
+Display this!
+<% } else { %>
+They're not equal
+<% } %>
+
+###
+
+---
+display: verbose
+---
+
+<% if (Math.random() > 0.5) { %>
+GET /ping?body=2
+<% } else { %>
+GET /ping?body=3
+<% } %>
