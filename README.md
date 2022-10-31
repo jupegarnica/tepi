@@ -87,8 +87,6 @@ tepi [OPTIONS] [FILES|GLOBS...]
 `tepi --env-file .env --env-file .env.test`
 > Load environment variables from a .env and .env.test
 
-
-
 ## HTTP syntax:
 
 * You can use the standard HTTP syntax in your .http files to run a request and response validation.
@@ -105,8 +103,6 @@ HTTP/1.1 400 Bad Request
 content-type: text/plain; charset=utf-8
 
 hola
-
-###
 
 ```
 
@@ -146,12 +142,11 @@ Or:
 ### Interpolation scope:
 
 In the Interpolation `<%= %>` or `<% %>` you have access to any Deno API and the following variables:
-> request: The Request from the actual block.
-> meta: The metadata from the actual block. and the frontmatter global metadata.
-> response: The standard Response object from the fetch API from the actual request. (only available in the expected response, after the request)
-> body: The extracted body an alias of `await response.getBody()` (only available in the expected response, after the request)
-
-> [name]: the named block already run for example: `<%= loginTest.body.jwt %>` or `<%= loginTest.response.status %>`
+* request: The Request from the actual block.
+* meta: The metadata from the actual block. and the frontmatter global metadata.
+* response: The standard Response object from the fetch API from the actual request. (only available in the expected response, after the request)
+* body: The extracted body an alias of `await response.getBody()` (only available in the expected response, after the request)
+* [id]: the id of a block already run for example: `<%= login.body.jwt %>` or `<%= login.response.status %>`
 
 The Block signature is:
 
@@ -168,27 +163,33 @@ type Block = {
 }
 ```
 
+
+The request, response and expectedResponse has a custom method `async getBody()` to extract the body as json, text or blob depending on the content-type.
+
+The `body` is an alias for `await response.getBody()`.
+
 For example:
 
 ```
----
-id: login
----
-POST https://example.com/login
-Content-Type: application/json
 
-{"user": "Garn", "password": "1234"}
+---
+id: hello
+---
+GET https://faker.deno.dev/?body=hola
+
+HTTP/1.1 200
+
+hola
+
+###
+POST https://faker.deno.dev/
+
+<%= hello.body %>
 
 HTTP/1.1 200 OK
 
-###
----
-needs: login
-# not really needed, because the requests run in order of declaration
----
-GET https://example.com/onlyAdmin
-Authorization: Bearer <%= loginTest.body.jwt %>
-Content-Type: application/json
+hola
+
 ```
 
 ## Special metadata keys:
