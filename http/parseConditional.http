@@ -1,0 +1,52 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+
+###
+---
+display: verbose
+id: response conditional
+---
+GET  /pong?body=1
+
+
+HTTP/1.1 200 OK
+
+<% if (Math.random() > 0.5) { %>
+1
+<% } else { %>
+2
+<% } %>
+
+###
+
+---
+id: request conditional
+display: verbose
+---
+
+<% if (Math.random() > 0.5) { %>
+GET /pong?body=2
+<% } else { %>
+GET /pong?body=3
+<% } %>
+
+HTTP/1.1 200 OK
+
+
+###
+
+---
+display: verbose
+id: meta conditional
+<% if (Math.random() > 0.5) { %>
+rnd: 1
+<% } else { %>
+rnd: 2
+<% } %>
+---
+
+GET /pong?body=4
+
+
+HTTP/1.1 200 OK
