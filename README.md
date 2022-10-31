@@ -217,7 +217,7 @@ needs: login
 # will run the login test before this one
 ---
 GET https://example.com/onlyAdmin
-Authorization: Bearer <%= loginTest.body.jwt %>
+Authorization: Bearer <%= login.body.jwt %>
 Content-Type: application/json
 
 ###
