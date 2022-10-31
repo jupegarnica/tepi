@@ -38,7 +38,7 @@ Deno.test("[e2e] must return code 1 when fails on failFast mode", async () => {
 
 Deno.test(
   "[e2e] display none all tests",
-  { ignore: Math.random() < 0.95 },
+  { ignore: !!Deno.env.get('IGNORE_TEST') ||  Math.random() < 0.95 },
   async () => {
     const { code, err, out, success } = await run(tepi + "--display none");
     assertEquals(err, "");
@@ -68,7 +68,7 @@ Deno.test("[e2e] run help", async () => {
     assertEquals(success, true);
   });
 
-const mustInstall = Math.random() < 0.95;
+const mustInstall = !!Deno.env.get('IGNORE_TEST') ||  Math.random() < 0.95;
 
 Deno.test("[e2e] help commands must work: installCommand", {
   ignore: mustInstall,
@@ -88,7 +88,7 @@ Deno.test("[e2e] keep install local", { ignore: mustInstall }, async () => {
 
 Deno.test("[e2e] help commands must work: runRemoteCommand", {
   // only: true,
-  ignore: Math.random() < 0.95,
+  ignore: !!Deno.env.get('IGNORE_TEST') ||  Math.random() < 0.95,
 }, async () => {
   const {  out, success } = await run(runRemoteCommand);
   assert(out.length > 0);

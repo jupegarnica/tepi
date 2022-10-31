@@ -24,6 +24,7 @@ services:
     environment:
       - HOST=http://faker:8000
       - HOST_HTTPBIN=http://httpbin
+      - IGNORE_TEST=1
     command: deno task test
     depends_on:
       - faker
