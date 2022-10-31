@@ -41,11 +41,8 @@ export async function parseMetaFromText(
   dataToInterpolate = {},
 ): Promise<Meta> {
   const meta: Meta = {};
-  const lines: string[] = splitLines(textRaw);
-  const requestStartLine = lines.findIndex(isRequestStartLine);
-  const metaText = lines.slice(0, requestStartLine).join("\n");
-  const text = await renderTemplate(metaText, dataToInterpolate) || "";
-
+  const frontMatterTextRaw = textRaw.match(findFrontMatterTextRegex)?.[0] || "";
+  const text = await renderTemplate(frontMatterTextRaw, dataToInterpolate) || "";
   const frontMatterText = text.match(findFrontMatterTextRegex)?.[0] || "";
 
   if (frontMatterText) {
@@ -63,17 +60,18 @@ export async function parseRequestFromText(
   block: Block,
   dataToInterpolate = {},
 ): Promise<_Request | undefined> {
-  const textRaw = block.text || "";
+  const textRaw = block.text.replace(findFrontMatterTextRegex, '');
+
   const meta = block.meta;
   const linesRaw: string[] = splitLines(textRaw);
-  const requestStartLine = linesRaw.findIndex(isRequestStartLine);
-  if (requestStartLine === -1) {
-    return;
-  }
+
+
+  const requestStartLine = 0;
   let requestEndLine = linesRaw.findIndex(
     isResponseStartLine,
     requestStartLine,
   );
+
   if (requestEndLine === -1) requestEndLine = linesRaw.length;
 
   const requestText = linesRaw.slice(requestStartLine, requestEndLine).join(
@@ -81,6 +79,11 @@ export async function parseRequestFromText(
   );
 
   const text = await renderTemplate(requestText, dataToInterpolate) || "";
+
+  const requestStartLineIndex = linesRaw.findIndex(isRequestStartLine);
+  if (requestStartLineIndex === -1) {
+    return;
+  }
   const lines = splitLines(text);
 
   let url: string | URL = "";

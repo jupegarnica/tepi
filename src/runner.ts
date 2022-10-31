@@ -4,7 +4,7 @@ import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 import { relative, isAbsolute, resolve, dirname } from "https://deno.land/std@0.160.0/path/posix.ts";
-import { getDisplayIndex, printBlock, printErrorsSummary, logPath, Logger, logBlock } from "./print.ts";
+import { getDisplayIndex, printBlock, printErrorsSummary, logPath, logBlock } from "./print.ts";
 import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 // import ms from "npm:ms";
 import {
@@ -54,7 +54,7 @@ export async function runner(
 
   try {
     const allPathFilesImported = new Set<string>();
-    await processMetadata(files, globalData, onlyMode, mustBeImported, blocksDone,allPathFilesImported);
+    await processMetadata(files, globalData, onlyMode, mustBeImported, blocksDone, allPathFilesImported);
   } catch (error) {
     console.error(`Error while parsing metadata:`);
     console.error(error.message);
@@ -185,11 +185,16 @@ async function runBlock(
       ...block.meta,
     };
 
-    block.request = await parseRequestFromText(block, {
-      ...globalData._blocksDone,
-      ...block,
-      ...assertions,
-    });
+    try {
+      block.request = await parseRequestFromText(block, {
+        ...globalData._blocksDone,
+        ...block,
+        ...assertions,
+      });
+    } catch (error) {
+      error.message = `Error while parsing request: ${error.message}`;
+      throw error;
+    }
 
     spinner.update();
 
@@ -218,17 +223,23 @@ async function runBlock(
 
     await fetchBlock(block);
 
-    block.expectedResponse = await parseResponseFromText(
-      block.text,
-      {
-        ...globalData._blocksDone,
-        ...block,
-        ...assertions,
-        body: await block.actualResponse?.getBody(),
-        // body: block.body,
-        response: block.response,
-      },
-    );
+    try {
+      block.expectedResponse = await parseResponseFromText(
+        block.text,
+        {
+          ...globalData._blocksDone,
+          ...block,
+          ...assertions,
+          body: await block.actualResponse?.getBody(),
+          // body: block.body,
+          response: block.response,
+        },
+      );
+    } catch (error) {
+      error.message = `Error while parsing response: ${error.message}`;
+      throw error;
+
+    }
 
     if (block.expectedResponse) {
       await assertResponse(block);
@@ -296,6 +307,7 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
           ...meta,
         };
       } catch (error) {
+        error.message = `Error parsing metadata: ${error.message}`;
         block.error = error;
         block.meta._isFailedBlock = true;
       }
@@ -312,7 +324,7 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
 
     const newFiles = await filePathsToFiles(needsImport);
     const _mustBeImported = new Set<string>();
-    await processMetadata(newFiles, globalData, onlyMode, _mustBeImported, blocksDone,allPathFilesImported);
+    await processMetadata(newFiles, globalData, onlyMode, _mustBeImported, blocksDone, allPathFilesImported);
     files.unshift(...newFiles);
     files.sort(file => mustBeImported.has(file.path) ? -1 : 1)
   }

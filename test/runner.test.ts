@@ -53,7 +53,7 @@ Deno.test("[runner] interpolation", async () => {
 
   const thirdBlock = files[0].blocks[1 + 2];
   assertEquals(await thirdBlock.expectedResponse?.getBody(), undefined);
-  assertEquals(thirdBlock.error?.message, "ups");
+  assertEquals(thirdBlock.error?.message, "Error while parsing request: ups");
   const fourthBlock = files[0].blocks[1 + 3];
   assertEquals(await fourthBlock.expectedResponse?.getBody(), "hola");
   assertEquals(fourthBlock.error, undefined);
@@ -89,7 +89,7 @@ Deno.test("[runner] asserts ", async () => {
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.error, undefined);
   const thirdBlock = files[0].blocks[1 + 2];
-  assertEquals(thirdBlock.error?.message, "failed!");
+  assertEquals(thirdBlock.error?.message, "Error while parsing response: failed!");
   const fourthBlock = files[0].blocks[1 + 3];
   assertStringIncludes(
     fourthBlock.error?.message || "",
