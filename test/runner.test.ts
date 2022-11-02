@@ -315,7 +315,7 @@ Deno.test(
 
 
 Deno.test(
-  "[runner] meta.import must run imported files before actual file without using ref",
+  "[runner] meta.import must run imported files before actual file without using needs",
   async () => {
     const { files, exitCode } = await runner([
       Deno.cwd() + "/http/import.http",

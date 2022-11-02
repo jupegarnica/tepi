@@ -4,7 +4,19 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 ---
 import: ./pass.http
-id: needPass.http
+id: needPass
+---
+GET /pong?body=<%= passId.body %>
+quiet: true
+
+HTTP/1.1 200 OK
+
+passed
+
+###
+---
+import: ./pass.http
+id: needPass2
 ---
 GET /pong?body=<%= passId.body %>
 quiet: true
