@@ -95,7 +95,7 @@ export async function runner(
 
   for (const file of files) {
     const relativePath = file.relativePath || "";
-    const path = fmt.gray(`==> running ${relativePath} `);
+    const path = fmt.gray(`running ${relativePath} `);
     const displayIndex = getDisplayIndex(defaultMeta);
     const pathSpinner = logPath(path, displayIndex);
     let _isFirstBlock = true;

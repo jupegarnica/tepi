@@ -7,6 +7,8 @@ import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 
 type FmtMethod = keyof typeof fmt;
+const REFRESH_INTERVAL = 130;
+
 
 function consoleSize(): { rows: number; columns: number } {
   try {
@@ -325,9 +327,9 @@ const log = (text: string, prefix?: string) =>
   wait({
     prefix,
     text,
-    // color: "white",
+    color: "yellow",
     spinner: "dots4",
-    // interval: 200,
+    interval: REFRESH_INTERVAL,
     // discardStdin: true,
   }).start();
 export const logPath = (text: string, displayIndex: number) => {
@@ -379,8 +381,8 @@ export function logBlock(
     prefix: "",
     text,
     spinner: "dots4",
-    color: "gray",
-    interval: 170,
+    color: "yellow",
+    interval: REFRESH_INTERVAL,
     discardStdin: true,
   });
 
@@ -395,7 +397,7 @@ export function logBlock(
   };
   const id = setInterval(() => {
     update();
-  }, 230);
+  }, REFRESH_INTERVAL);
 
   return {
     start() {
