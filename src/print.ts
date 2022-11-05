@@ -8,20 +8,19 @@ import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 
 type FmtMethod = keyof typeof fmt;
 
-// TODO make it work on CI
 function consoleSize(): { rows: number; columns: number } {
   try {
     const { columns, rows } = Deno.consoleSize();
     return { columns, rows };
   } catch {
-    console.debug("Could not get console size, getting default size");
+    // console.debug("Could not get console size, getting default size");
     return { columns: 150, rows: 150 };
   }
 }
 
 function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
   const consoleWidth = consoleSize().columns;
-  // @ts-ignore // TODO: fix this
+  // @ts-ignore - fmtMethod is a key of fmt
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   padLength = padLength < 0 ? 0 : padLength;

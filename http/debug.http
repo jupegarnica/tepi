@@ -1,0 +1,7 @@
+POST https://faker.deno.dev/pong
+
+hola
+
+HTTP/1.1 200 OK
+
+<%= body %>

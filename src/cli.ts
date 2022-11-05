@@ -150,8 +150,6 @@ async function cli() {
 
   // --watch
   /////////////
-  console.log(args["watch-no-clear"]);
-
   if (args.watch || args["watch-no-clear"]) {
     const watch = args.watch || args["watch-no-clear"];
     const filePathsToJustWatch = await globsToFilePaths(
