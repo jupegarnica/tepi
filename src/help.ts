@@ -57,7 +57,7 @@ ${
     )
   }
 
-Or run remotely width:
+Or run remotely with:
 ${
     codeBlock(
       runRemoteCommand,
