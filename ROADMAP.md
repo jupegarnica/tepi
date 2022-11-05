@@ -21,9 +21,8 @@ This document describes the roadmap for the project.
 - [x] Support for meta.display to override the global display mode.
 - [x] Support for meta.timeout to override the global timeout.
 - [x] Support for meta `import:` to import other files
-
+- [x] Support for the `--watch-no-clear`
 - [ ] Support for meta.noColor to override the global noColor.
-- [ ] Better error display.
-- [ ] Support for the `--watch-no-clear`
+- [x] Better error display.
 - [ ] Support for meta `run:` to run shell commands
 - [ ] Concurrent test execution
