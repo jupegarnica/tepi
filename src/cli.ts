@@ -18,7 +18,7 @@ if (import.meta.main) {
   await cli();
 }
 
-async function cli() {
+export async function cli() {
   const options = {
     default: {
       display: "default",
