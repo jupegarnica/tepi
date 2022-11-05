@@ -1,5 +1,10 @@
+# vhs < demo.tape
+
 Output ./demo.gif
 
-Require deno
+# Require deno
 
-Type "deno --version" Enter
+Type "which deno" Enter
+Sleep 2
+Type "which tepi" Enter
+Sleep 2
