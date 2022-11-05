@@ -25,7 +25,7 @@ Test your HTTP APIs with standard http syntax
 deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
 ```
 
-Or run remotely width:
+Or run remotely with:
 
 ```bash
 deno run --unstable --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
