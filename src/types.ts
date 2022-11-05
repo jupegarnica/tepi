@@ -177,6 +177,8 @@ export const mimesToBlob = [
   "application/octet-stream",
   "application/pdf",
   "application/zip",
+  "application/docx",
+  "application/x-docx",
   "application/x-rar-compressed",
   "application/x-7z-compressed",
   "application/x-tar",

@@ -267,9 +267,8 @@ export async function printBody(
     }
     console.info(truncate(body, MAX_BODY_LINES));
   } catch (error) {
-    console.error(fmt.bgYellow(" Error printing block "));
-    console.error(fmt.red(error.name), error.message);
-    // console.error(error.stack);
+    console.error(fmt.bgYellow(" Error printing block "),fmt.red(error.name), error.message);
+    console.info(re.bodyExtracted ?? re.bodyRaw ?? re.body);
   }
 }
 
@@ -302,7 +301,8 @@ async function bodyToText(re: _Request | _Response): Promise<string> {
     return bodyStr;
   }
 
-  throw new Error("Unknown content type " + contentType);
+  return bodyStr;
+
 }
 
 async function imageToText(body: ArrayBuffer): Promise<string> {
