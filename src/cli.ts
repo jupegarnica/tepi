@@ -22,7 +22,7 @@ async function cli() {
       display: "default",
       help: false,
     },
-    collect: ["watch", "envFile"],
+    collect: ["watch", "envFile", 'watch-no-clear'],
     boolean: ["help", "failFast", "noColor", "upgrade"],
     string: ["display", "envFile"],
 
@@ -144,11 +144,15 @@ async function cli() {
 
   // --watch
   /////////////
-  if (args.watch) {
+  console.log( args["watch-no-clear"]);
+
+  if (args.watch || args["watch-no-clear"]) {
+    const watch = args.watch || args["watch-no-clear"];
     const filePathsToJustWatch = await globsToFilePaths(
-      args.watch.filter((i: boolean | string) => typeof i === "string"),
+      watch.filter((i: boolean | string) => typeof i === "string"),
     );
-    watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta).catch(
+    const noClear = !!args["watch-no-clear"];
+    watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta, noClear).catch(
       console.error,
     );
   } else {
@@ -172,6 +176,7 @@ async function watchAndRun(
   filePaths: string[],
   filePathsToJustWatch: string[],
   defaultMeta: Meta,
+  noClear: boolean,
 ) {
   const allFilePaths = filePaths.concat(filePathsToJustWatch);
   const watcher = Deno.watchFs(allFilePaths);
@@ -179,18 +184,17 @@ async function watchAndRun(
 
   for await (const event of watcher) {
     if (event.kind === "access") {
-      // TODO add --no-clear-screen
-      console.clear();
+      noClear || console.clear();
       await runner(filePaths, defaultMeta);
       // logWatchingPaths(filePaths, filePathsToJustWatch);
       if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
         // run all
-        console.clear();
+        noClear || console.clear();
         await runner(filePaths, defaultMeta);
         logWatchingPaths(filePaths, filePathsToJustWatch);
       } else {
         // run just this file
-        console.clear();
+        noClear || console.clear();
         await runner(event.paths, defaultMeta);
         logWatchingPaths(filePaths, filePathsToJustWatch);
       }

@@ -69,25 +69,25 @@ ${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
 
 ${g("## Options:")}
 
-${d("* ")}-w ${c("--watch")}         ${d("Watch files for changes and rerun tests.")
+${d("* ")}-w ${c("--watch")}           ${d("Watch files for changes and rerun tests.")}
+${d("* ")}   ${c("--watch-no-clear")}  ${d("same but without clearing the screen.")}
+${d("* ")}-t ${c("--timeout")}         ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
     }
-${d("* ")}-t ${c("--timeout")}       ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
+${d("* ")}-f ${c("--fail-fast")}       ${d("Stop running tests after the first failure.")
     }
-${d("* ")}-f ${c("--fail-fast")}     ${d("Stop running tests after the first failure.")
+${d("* ")}-d ${c("--display")}         ${d("Set the display mode. (none, minimal, default and full)")
     }
-${d("* ")}-d ${c("--display")}       ${d("Set the display mode. (none, minimal, default and full)")
+${d("       - ")} none: ${d(`display nothing`)}
+${d("       - ")} minimal: ${d(`display only a minimal summary`)}
+${d("       - ")} default: ${d(`list results and full error summary`)}
+${d("       - ")} full: ${d(`display also all HTTP requests and responses`)}
+${d("       - ")} verbose: ${d(`display also all metadata and not truncate data`)
     }
-${d("         * ")} none: ${d(`display nothing`)}
-${d("         * ")} minimal: ${d(`display only a minimal summary`)}
-${d("         * ")} default: ${d(`list results and full error summary`)}
-${d("         * ")} full: ${d(`display also all HTTP requests and responses`)}
-${d("         * ")} verbose: ${d(`display also all metadata and not truncate data`)
+${d("* ")}-h ${c("--help")}           ${d("output usage information")}
+${d("* ")}-e ${c("--env-file")}       ${d("load environment variables from a .env file")
     }
-${d("* ")}-h ${c("--help")}          ${d("output usage information")}
-${d("* ")}-e ${c("--env-file")}     ${d("load environment variables from a .env file")
-    }
-${d("* ")}   ${c("--no-color")}     ${d("output without color")}
-${d("* ")}   ${c("--upgrade")}      ${d("upgrade to the latest version")}
+${d("* ")}   ${c("--no-color")}       ${d("output without color")}
+${d("* ")}   ${c("--upgrade")}        ${d("upgrade to the latest version")}
 
 ${g("## Examples:")}
 
@@ -287,6 +287,6 @@ GET https://example.com/get
 `)}
 `
 
-  console.info(title + helpText + referenceText);
+  console.info(title + helpText );
   return;
 }
