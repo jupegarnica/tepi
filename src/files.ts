@@ -69,12 +69,10 @@ export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
     } catch {
       // console.error(error.message);
       throw new Error("File not found: " + _filePath);
-
     }
     const blocks = fileTextToBlocks(fileContent, _filePath);
     files.push({ path: _filePath, blocks });
   }
-
 
   return files;
 }

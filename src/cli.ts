@@ -10,7 +10,9 @@ import { DISPLAYS, getDisplayIndex } from "./print.ts";
 import { help } from "./help.ts";
 
 const mustExit = !Deno.env.get("TEPI_NOT_EXIT");
-function exit(code: number) { mustExit && Deno.exit(code); }
+function exit(code: number) {
+  mustExit && Deno.exit(code);
+}
 
 if (import.meta.main) {
   await cli();
@@ -22,7 +24,7 @@ async function cli() {
       display: "default",
       help: false,
     },
-    collect: ["watch", "envFile", 'watch-no-clear'],
+    collect: ["watch", "envFile", "watch-no-clear"],
     boolean: ["help", "failFast", "noColor", "upgrade"],
     string: ["display", "envFile"],
 
@@ -76,7 +78,8 @@ async function cli() {
   if (getDisplayIndex(defaultMeta) === Infinity) {
     console.error(
       fmt.brightRed(
-        `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map((t) => fmt.bold(t)).join(", ")
+        `Invalid display mode ${args.display}\n Must be one of: ${
+          DISPLAYS.map((t) => fmt.bold(t)).join(", ")
         }`,
       ),
     );
@@ -101,7 +104,8 @@ async function cli() {
   if (keysLoaded.size && getDisplayIndex(defaultMeta) > 0) {
     console.info(
       fmt.gray(
-        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(envFiles).join(", ")
+        `Loaded ${keysLoaded.size} environment variables from: ${
+          Array.from(envFiles).join(", ")
         }`,
       ),
     );
@@ -126,14 +130,16 @@ async function cli() {
     if (getDisplayIndex(defaultMeta) > 0) {
       console.warn(
         fmt.yellow(
-          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))
+          `\n${
+            fmt.bgYellow(fmt.bold(" ONLY MODE "))
           } ${onlyMode.size} tests are in "only" mode.`,
         ),
       );
       if (!exitCode) {
         console.error(
           fmt.red(
-            `Failed because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
+            `Failed because the ${fmt.bold('"only"')} option was used at ${
+              [...onlyMode].join(", ")
             }`,
           ),
         );
@@ -144,7 +150,7 @@ async function cli() {
 
   // --watch
   /////////////
-  console.log( args["watch-no-clear"]);
+  console.log(args["watch-no-clear"]);
 
   if (args.watch || args["watch-no-clear"]) {
     const watch = args.watch || args["watch-no-clear"];
@@ -152,9 +158,10 @@ async function cli() {
       watch.filter((i: boolean | string) => typeof i === "string"),
     );
     const noClear = !!args["watch-no-clear"];
-    watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta, noClear).catch(
-      console.error,
-    );
+    watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta, noClear)
+      .catch(
+        console.error,
+      );
   } else {
     exit(exitCode);
   }

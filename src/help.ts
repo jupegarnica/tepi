@@ -24,7 +24,7 @@ export function help(): void {
     lang = "",
   ) => (i(
     codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
-    codeBlockDelimiter,
+      codeBlockDelimiter,
   ));
   // const httpHighlight = (t: string) => highlight(t, { language: "http" });
   const title = `
@@ -50,18 +50,20 @@ ${g("## Features:")}
 
 ${g("## Install:")}
 
-${codeBlock(
-    installCommand,
-    "bash",
-  )
-    }
+${
+    codeBlock(
+      installCommand,
+      "bash",
+    )
+  }
 
 Or run remotely width:
-${codeBlock(
+${
+    codeBlock(
       runRemoteCommand,
       "bash",
     )
-    }
+  }
 
 ${g("## Usage:")}
 
@@ -69,23 +71,32 @@ ${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
 
 ${g("## Options:")}
 
-${d("* ")}-w ${c("--watch")}           ${d("Watch files for changes and rerun tests.")}
-${d("* ")}   ${c("--watch-no-clear")}  ${d("same but without clearing the screen.")}
-${d("* ")}-t ${c("--timeout")}         ${d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
-    }
-${d("* ")}-f ${c("--fail-fast")}       ${d("Stop running tests after the first failure.")
-    }
-${d("* ")}-d ${c("--display")}         ${d("Set the display mode. (none, minimal, default and full)")
-    }
+${d("* ")}-w ${c("--watch")}           ${
+    d("Watch files for changes and rerun tests.")
+  }
+${d("* ")}   ${c("--watch-no-clear")}  ${
+    d("same but without clearing the screen.")
+  }
+${d("* ")}-t ${c("--timeout")}         ${
+    d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
+  }
+${d("* ")}-f ${c("--fail-fast")}       ${
+    d("Stop running tests after the first failure.")
+  }
+${d("* ")}-d ${c("--display")}         ${
+    d("Set the display mode. (none, minimal, default and full)")
+  }
 ${d("       - ")} none: ${d(`display nothing`)}
 ${d("       - ")} minimal: ${d(`display only a minimal summary`)}
 ${d("       - ")} default: ${d(`list results and full error summary`)}
 ${d("       - ")} full: ${d(`display also all HTTP requests and responses`)}
-${d("       - ")} verbose: ${d(`display also all metadata and not truncate data`)
-    }
+${d("       - ")} verbose: ${
+    d(`display also all metadata and not truncate data`)
+  }
 ${d("* ")}-h ${c("--help")}           ${d("output usage information")}
-${d("* ")}-e ${c("--env-file")}       ${d("load environment variables from a .env file")
-    }
+${d("* ")}-e ${c("--env-file")}       ${
+    d("load environment variables from a .env file")
+  }
 ${d("* ")}   ${c("--no-color")}       ${d("output without color")}
 ${d("* ")}   ${c("--upgrade")}        ${d("upgrade to the latest version")}
 
@@ -131,7 +142,8 @@ ${g("## HTTP syntax:")}
 * Use frontmatter yaml to set metadata.
 
 For example, validate the headers, status code, status text and body:
-${codeBlock(`
+${
+    codeBlock(`
 GET https://faker.deno.dev/?body=hola&status=400
 
 HTTP/1.1 400 Bad Request
@@ -139,7 +151,7 @@ content-type: text/plain; charset=utf-8
 
 hola
 `)
-    }
+  }
 
 ${g("## Interpolation:")}
 
@@ -156,13 +168,15 @@ ${fmt.underline(`https://deno.land/std/testing/asserts.ts`)}
 
 Use ${c("<% %>")} to run custom assertions or custom JS.
 For example:
-${codeBlock(`GET  http://localhost:3000/users
+${
+    codeBlock(`GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
 `)
-    }
+  }
 Or:
-${codeBlock(
+${
+    codeBlock(
       `    <% if (Math.random() > 0.5) { %>
       GET  http://localhost:3000/users/1
     <% } else { %>
@@ -170,19 +184,30 @@ ${codeBlock(
     <% } %>
 `,
     )
-    }
+  }
 
 ${g("### Interpolation scope:")}
 
-In the Interpolation ${c("<%= %>")} or ${c("<% %>")} you have access to any Deno API and the following variables:
+In the Interpolation ${c("<%= %>")} or ${
+    c("<% %>")
+  } you have access to any Deno API and the following variables:
 * request: ${w(`The Request`)} from the actual block.
-* meta: ${w(`The metadata`)} from the actual block. and the frontmatter global metadata.
-* response: ${w(`The standard Response object from the fetch API`)} from the actual request. (only available in the expected response, after the request)
-* body: ${w(`The extracted body`)} an alias of ${c("await response.getBody()")} (only available in the expected response, after the request)
-* [id]: ${w(`the id of a block already run`)} for example: ${c(`<%= login.body.jwt %>`)} or ${c(`<%= login.response.status %>`)}
+* meta: ${
+    w(`The metadata`)
+  } from the actual block. and the frontmatter global metadata.
+* response: ${
+    w(`The standard Response object from the fetch API`)
+  } from the actual request. (only available in the expected response, after the request)
+* body: ${w(`The extracted body`)} an alias of ${
+    c("await response.getBody()")
+  } (only available in the expected response, after the request)
+* [id]: ${w(`the id of a block already run`)} for example: ${
+    c(`<%= login.body.jwt %>`)
+  } or ${c(`<%= login.response.status %>`)}
 
 The Block signature is:
-${codeBlock(
+${
+    codeBlock(
       `type Block = {
   meta: {
     [key: string]: any,
@@ -192,16 +217,22 @@ ${codeBlock(
   expectedResponse?: Response,
   error?: Error,
   body?: any,
-}`, "ts",)}
+}`,
+      "ts",
+    )
+  }
 
 
-The request, response and expectedResponse has a custom method ${c("async getBody()")} to extract the body as json, text or blob depending on the content-type.
+The request, response and expectedResponse has a custom method ${
+    c("async getBody()")
+  } to extract the body as json, text or blob depending on the content-type.
 
-The ${c('body')} is an alias for ${c("await response.getBody()")}.
+The ${c("body")} is an alias for ${c("await response.getBody()")}.
 
 For example:
-${codeBlock(
-        `
+${
+    codeBlock(
+      `
 ---
 id: hello
 ---
@@ -220,7 +251,9 @@ HTTP/1.1 200 OK
 
 hola
 `,
-        '')}
+      "",
+    )
+  }
 
 ${g("## Special metadata keys:")}
 
@@ -240,8 +273,9 @@ ${g("### meta.needs")}
 The meta.needs is a special metadata value that allows you to run a test in advance and use the result in the current test if needed.
 
 For example:
-${codeBlock(
-          `---
+${
+    codeBlock(
+      `---
 needs: login
 # will run the login test before this one
 ---
@@ -260,8 +294,9 @@ Content-Type: application/json
 
 HTTP/1.1 200 OK
 `,
-          "",
-        )}
+      "",
+    )
+  }
 
 ${g("### meta.id and meta.description")}
 
@@ -279,14 +314,17 @@ ${g("### meta.display:")}
 The meta.display allows you to override the global display mode for a specific test.
 
 For example:
-${codeBlock(
-          `---
+${
+    codeBlock(
+      `---
 display: verbose
 ---
 GET https://example.com/get
-`)}
-`
+`,
+    )
+  }
+`;
 
-  console.info(title + helpText+referenceText );
+  console.info(title + helpText + referenceText);
   return;
 }

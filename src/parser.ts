@@ -42,7 +42,8 @@ export async function parseMetaFromText(
 ): Promise<Meta> {
   const meta: Meta = {};
   const frontMatterTextRaw = textRaw.match(findFrontMatterTextRegex)?.[0] || "";
-  const text = await renderTemplate(frontMatterTextRaw, dataToInterpolate) || "";
+  const text = await renderTemplate(frontMatterTextRaw, dataToInterpolate) ||
+    "";
   const frontMatterText = text.match(findFrontMatterTextRegex)?.[0] || "";
 
   if (frontMatterText) {
@@ -60,11 +61,10 @@ export async function parseRequestFromText(
   block: Block,
   dataToInterpolate = {},
 ): Promise<_Request | undefined> {
-  const textRaw = block.text.replace(findFrontMatterTextRegex, '');
+  const textRaw = block.text.replace(findFrontMatterTextRegex, "");
 
   const meta = block.meta;
   const linesRaw: string[] = splitLines(textRaw);
-
 
   const requestStartLine = 0;
   let requestEndLine = linesRaw.findIndex(
@@ -160,9 +160,8 @@ export async function parseRequestFromText(
   try {
     url = new URL(url).toString();
   } catch (error) {
-      throw new error.constructor(`Invalid URL: ${url} -> ${error.message}`);
+    throw new error.constructor(`Invalid URL: ${url} -> ${error.message}`);
   }
-
 
   const request: _Request = new _Request(url, requestInit);
 

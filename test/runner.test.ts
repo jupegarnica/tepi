@@ -89,7 +89,10 @@ Deno.test("[runner] asserts ", async () => {
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.error, undefined);
   const thirdBlock = files[0].blocks[1 + 2];
-  assertEquals(thirdBlock.error?.message, "Error while parsing response: failed!");
+  assertEquals(
+    thirdBlock.error?.message,
+    "Error while parsing response: failed!",
+  );
   const fourthBlock = files[0].blocks[1 + 3];
   assertStringIncludes(
     fourthBlock.error?.message || "",
@@ -140,7 +143,6 @@ Deno.test("[runner] timeout", async () => {
   assertEquals(thirdBlock.meta.timeout, 100);
   assertEquals(thirdBlock.error?.message, "Timeout of 100ms exceeded");
 });
-
 
 Deno.test(
   "[runner] redirect ",
@@ -209,127 +211,117 @@ Deno.test(
     assertEquals(files[0].blocks[1].error, undefined);
     assertEquals(
       files[0].blocks[1].request?.url,
-      HOST+"/?body=2",
+      HOST + "/?body=2",
     );
 
     assertEquals(files[0].blocks[2].error, undefined);
     assertEquals(
       files[0].blocks[2].request?.url,
-      HOST+"/?body=2",
+      HOST + "/?body=2",
     );
   },
 );
 
-Deno.test("[runner] needs",
-
-  async () => {
-    const { files, blocksDone } = await runner(["http/needs.http"], {
-      display: "none",
-    });
-
-    const firstBlock = files[0].blocks[1];
-    assertEquals(firstBlock.meta.id, "block1");
-    assertEquals(firstBlock.meta._isDoneBlock, true);
-    assertEquals(firstBlock.error, undefined);
-    assertEquals(await firstBlock.request?.getBody(), "RESPONSE!?");
-    const blockInOrder = [...blocksDone]
-
-    assertEquals(blockInOrder[0].description, "./http/needs.http:0");
-    assertEquals(blockInOrder[1].description, "block3");
-    assertEquals(blockInOrder[2].description, "block2");
-    assertEquals(blockInOrder[3].description, "block1");
-    assertEquals(blockInOrder[4].description, "block4");
-    assertEquals(blockInOrder[4].meta._isIgnoredBlock, true);
-    assertEquals(blockInOrder[5].description, "block5");
-
+Deno.test("[runner] needs", async () => {
+  const { files, blocksDone } = await runner(["http/needs.http"], {
+    display: "none",
   });
 
-Deno.test("[runner] needs loop",
-  async () => {
-    const { files, blocksDone } = await runner(["http/needs.loop.http"], {
-      display: "none",
-    });
+  const firstBlock = files[0].blocks[1];
+  assertEquals(firstBlock.meta.id, "block1");
+  assertEquals(firstBlock.meta._isDoneBlock, true);
+  assertEquals(firstBlock.error, undefined);
+  assertEquals(await firstBlock.request?.getBody(), "RESPONSE!?");
+  const blockInOrder = [...blocksDone];
 
-    const firstBlock = files[0].blocks[1];
-    assertEquals(firstBlock.meta.id, "block_1");
-    assertEquals(firstBlock.meta._isDoneBlock, true);
-    assertEquals(firstBlock.error?.message.startsWith('Infinite loop'), true);
+  assertEquals(blockInOrder[0].description, "./http/needs.http:0");
+  assertEquals(blockInOrder[1].description, "block3");
+  assertEquals(blockInOrder[2].description, "block2");
+  assertEquals(blockInOrder[3].description, "block1");
+  assertEquals(blockInOrder[4].description, "block4");
+  assertEquals(blockInOrder[4].meta._isIgnoredBlock, true);
+  assertEquals(blockInOrder[5].description, "block5");
+});
 
-    const secondBlock = files[0].blocks[2];
-    assertEquals(secondBlock.meta.id, "block_2");
-    assertEquals(secondBlock.meta._isDoneBlock, true);
-    assertEquals(secondBlock.error, undefined);
-    assertEquals(await secondBlock.request?.getBody(), "block_1??");
-    assertEquals(secondBlock.request?.headers.get('x-body-block1'), "not found");
-
-    const blockInOrder = [...blocksDone]
-    // console.log(blockInOrder.map((b) => b.description));
-    assertEquals(blockInOrder[0].description, "./http/needs.loop.http:0");
-    assertEquals(blockInOrder[1].description, "block_1");
-    assertEquals(blockInOrder[2].description, "block_2");
-    assertEquals(blockInOrder[3].description, "block_3");
-    assertEquals(blockInOrder[4]?.description, "block_4");
-    assertEquals(blockInOrder[5]?.description, undefined);
+Deno.test("[runner] needs loop", async () => {
+  const { files, blocksDone } = await runner(["http/needs.loop.http"], {
+    display: "none",
   });
 
+  const firstBlock = files[0].blocks[1];
+  assertEquals(firstBlock.meta.id, "block_1");
+  assertEquals(firstBlock.meta._isDoneBlock, true);
+  assertEquals(firstBlock.error?.message.startsWith("Infinite loop"), true);
 
-Deno.test("[runner] needs crossed",
-  async () => {
-    const { blocksDone } = await runner([
-      "http/needs.http",
-      "http/needs.loop.http",
-    ], {
-      display: "none",
-    });
+  const secondBlock = files[0].blocks[2];
+  assertEquals(secondBlock.meta.id, "block_2");
+  assertEquals(secondBlock.meta._isDoneBlock, true);
+  assertEquals(secondBlock.error, undefined);
+  assertEquals(await secondBlock.request?.getBody(), "block_1??");
+  assertEquals(secondBlock.request?.headers.get("x-body-block1"), "not found");
 
-    const blockInOrder = [...blocksDone]
-    // console.log(blockInOrder.map((b) => b.description));
-    assertEquals(blockInOrder[0].description, "./http/needs.http:0");
-    assertEquals(blockInOrder[1].description, "block3");
-    assertEquals(blockInOrder[2].description, "block2");
-    assertEquals(blockInOrder[3].description, "block1");
-    assertEquals(blockInOrder[4]?.description, "block4");
-    assertEquals(blockInOrder[5]?.description, "block_4");
-    assertEquals(blockInOrder[6]?.description, "block5");
-    assertEquals(blockInOrder[7]?.description, "./http/needs.loop.http:0");
-    assertEquals(blockInOrder[8]?.description, "block_1");
-    assertEquals(blockInOrder[9]?.description, "block_2");
-    assertEquals(blockInOrder[10]?.description, "block_3");
-    assertEquals(blockInOrder[11]?.description, undefined);
+  const blockInOrder = [...blocksDone];
+  // console.log(blockInOrder.map((b) => b.description));
+  assertEquals(blockInOrder[0].description, "./http/needs.loop.http:0");
+  assertEquals(blockInOrder[1].description, "block_1");
+  assertEquals(blockInOrder[2].description, "block_2");
+  assertEquals(blockInOrder[3].description, "block_3");
+  assertEquals(blockInOrder[4]?.description, "block_4");
+  assertEquals(blockInOrder[5]?.description, undefined);
+});
+
+Deno.test("[runner] needs crossed", async () => {
+  const { blocksDone } = await runner([
+    "http/needs.http",
+    "http/needs.loop.http",
+  ], {
+    display: "none",
   });
 
+  const blockInOrder = [...blocksDone];
+  // console.log(blockInOrder.map((b) => b.description));
+  assertEquals(blockInOrder[0].description, "./http/needs.http:0");
+  assertEquals(blockInOrder[1].description, "block3");
+  assertEquals(blockInOrder[2].description, "block2");
+  assertEquals(blockInOrder[3].description, "block1");
+  assertEquals(blockInOrder[4]?.description, "block4");
+  assertEquals(blockInOrder[5]?.description, "block_4");
+  assertEquals(blockInOrder[6]?.description, "block5");
+  assertEquals(blockInOrder[7]?.description, "./http/needs.loop.http:0");
+  assertEquals(blockInOrder[8]?.description, "block_1");
+  assertEquals(blockInOrder[9]?.description, "block_2");
+  assertEquals(blockInOrder[10]?.description, "block_3");
+  assertEquals(blockInOrder[11]?.description, undefined);
+});
 
 Deno.test(
   "[runner] meta.import must import",
   async () => {
     const { files, exitCode } = await runner([
-      Deno.cwd() + "/http/import.http"
+      Deno.cwd() + "/http/import.http",
     ], {
       display: "none",
     });
-    assert(files.some(f => f.path.includes('import.http')));
-    assert(files.some(f => f.path.includes('pass.http')));
-    assertEquals(exitCode, 0)
+    assert(files.some((f) => f.path.includes("import.http")));
+    assert(files.some((f) => f.path.includes("pass.http")));
+    assertEquals(exitCode, 0);
   },
 );
-
 
 Deno.test(
   "[runner] meta.import must run imported files before actual file without using needs",
   async () => {
     const { files, exitCode } = await runner([
       Deno.cwd() + "/http/import.http",
-      Deno.cwd() + "/http/pass.http"
+      Deno.cwd() + "/http/pass.http",
     ], {
       display: "none",
     });
-    assert(files.some(f => f.path.includes('import.http')));
-    assert(files.some(f => f.path.includes('pass.http')));
-    assertEquals(exitCode, 0)
+    assert(files.some((f) => f.path.includes("import.http")));
+    assert(files.some((f) => f.path.includes("pass.http")));
+    assertEquals(exitCode, 0);
   },
 );
-
-
 
 Deno.test(
   "[runner] meta.import must handle infinite loop",
@@ -342,10 +334,8 @@ Deno.test(
     });
     error.restore();
     assertEquals(exitCode, 1);
-
   },
 );
-
 
 Deno.test(
   "[runner] logger",
@@ -355,13 +345,9 @@ Deno.test(
     ], {
       display: "none",
     });
-    assertEquals(exitCode, 1)
+    assertEquals(exitCode, 1);
   },
 );
-
-
-
-
 
 Deno.test(
   "[runner] parser",
@@ -371,7 +357,7 @@ Deno.test(
     ], {
       display: "none",
     });
-    const blockInOrder = [...blocksDone]
+    const blockInOrder = [...blocksDone];
     assertEquals(blockInOrder[0].description, "./http/parseConditional.http:0");
     assertEquals(blockInOrder[1].description, "response conditional");
     try {
@@ -390,8 +376,6 @@ Deno.test(
       assertEquals(blockInOrder[3].meta.rnd, 1);
     } catch {
       assertEquals(blockInOrder[3].meta.rnd, 2);
-
     }
-
   },
 );

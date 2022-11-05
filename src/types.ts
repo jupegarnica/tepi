@@ -117,7 +117,7 @@ export type File = {
 export type GlobalData = {
   meta: Meta;
   _files: File[];
-  _blocksAlreadyReferenced: Set<Block>
+  _blocksAlreadyReferenced: Set<Block>;
   _blocksDone: {
     [key: string]: Block;
   };
@@ -136,8 +136,6 @@ export const httpMethods = [
   "TRACE",
   "PATCH",
 ];
-
-
 
 export const mimesToArrayBuffer = [
   "image/png",

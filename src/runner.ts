@@ -3,8 +3,19 @@ import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
-import { relative, isAbsolute, resolve, dirname } from "https://deno.land/std@0.160.0/path/posix.ts";
-import { getDisplayIndex, printBlock, printErrorsSummary, logPath, logBlock } from "./print.ts";
+import {
+  dirname,
+  isAbsolute,
+  relative,
+  resolve,
+} from "https://deno.land/std@0.160.0/path/posix.ts";
+import {
+  getDisplayIndex,
+  logBlock,
+  logPath,
+  printBlock,
+  printErrorsSummary,
+} from "./print.ts";
 import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 // import ms from "npm:ms";
 import {
@@ -18,9 +29,14 @@ export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
   failFast = false,
-): Promise<{ files: File[]; exitCode: number; onlyMode: Set<string>, blocksDone: Set<Block> }> {
-
-
+): Promise<
+  {
+    files: File[];
+    exitCode: number;
+    onlyMode: Set<string>;
+    blocksDone: Set<Block>;
+  }
+> {
   let successfulBlocks = 0;
   let failedBlocks = 0;
   let ignoredBlocks = 0;
@@ -49,18 +65,23 @@ export async function runner(
     _blocksAlreadyReferenced: new Set<Block>(),
   };
 
-
   // parse all metadata first
 
   try {
     const allPathFilesImported = new Set<string>();
-    await processMetadata(files, globalData, onlyMode, mustBeImported, blocksDone, allPathFilesImported);
+    await processMetadata(
+      files,
+      globalData,
+      onlyMode,
+      mustBeImported,
+      blocksDone,
+      allPathFilesImported,
+    );
   } catch (error) {
     console.error(`Error while parsing metadata:`);
     console.error(error.message);
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
-
 
   if (onlyMode.size) {
     for (const file of files) {
@@ -73,7 +94,7 @@ export async function runner(
   }
 
   for (const file of files) {
-    const relativePath = file.relativePath || '';
+    const relativePath = file.relativePath || "";
     const path = fmt.gray(`==> running ${relativePath} `);
     const displayIndex = getDisplayIndex(defaultMeta);
     const pathSpinner = logPath(path, displayIndex);
@@ -105,7 +126,7 @@ export async function runner(
           files,
           exitCode: status,
           onlyMode,
-          blocksDone
+          blocksDone,
         };
       }
     }
@@ -125,8 +146,10 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${
+        fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${
+        fmt.yellow(String(ignoredBlocks))
       } ignored ${prettyGlobalTime}`,
     );
   }
@@ -137,7 +160,6 @@ export async function runner(
 function addToDone(blocksDone: Set<Block>, block: Block) {
   if (blocksDone.has(block)) {
     throw new Error("Block already done: " + block.description);
-
   }
   if (block.meta._isDoneBlock) {
     throw new Error("Block already _isDoneBlock");
@@ -155,10 +177,8 @@ async function runBlock(
   if (blocksDone.has(block)) {
     return blocksDone;
   }
-  const spinner = logBlock(block, currentFilePath, globalData.meta)
+  const spinner = logBlock(block, currentFilePath, globalData.meta);
   try {
-
-
     if (block.meta.needs && !block.meta.ignore) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)
         .find((b) => b.meta.id === block.meta.needs);
@@ -168,9 +188,16 @@ async function runBlock(
         // Evict infinity loop
         if (!globalData._blocksAlreadyReferenced.has(blockReferenced)) {
           globalData._blocksAlreadyReferenced.add(blockReferenced);
-          await runBlock(blockReferenced, globalData, currentFilePath, blocksDone);
+          await runBlock(
+            blockReferenced,
+            globalData,
+            currentFilePath,
+            blocksDone,
+          );
         } else {
-          throw new Error(`Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`);
+          throw new Error(
+            `Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`,
+          );
         }
       }
       if (blocksDone.has(block)) {
@@ -198,7 +225,6 @@ async function runBlock(
 
     spinner.update();
 
-
     if (block.meta._isFirstBlock && !block.request) {
       globalData.meta = { ...globalData.meta, ...block.meta };
     }
@@ -215,7 +241,6 @@ async function runBlock(
       spinner.ignore();
       return blocksDone;
     }
-
 
     if (block.error) {
       throw block.error;
@@ -238,7 +263,6 @@ async function runBlock(
     } catch (error) {
       error.message = `Error while parsing response: ${error.message}`;
       throw error;
-
     }
 
     if (block.expectedResponse) {
@@ -250,7 +274,6 @@ async function runBlock(
     addToDone(blocksDone, block);
     return blocksDone;
   } catch (error) {
-
     block.error = error;
     block.meta._isFailedBlock = true;
     spinner.fail();
@@ -260,7 +283,6 @@ async function runBlock(
     await printBlock(block);
     await consumeBodies(block);
 
-
     if (block.meta.id) {
       const name = block.meta.id as string;
       block.body = await block.actualResponse?.getBody();
@@ -269,17 +291,20 @@ async function runBlock(
   }
 }
 
-
-
-
-async function processMetadata(files: File[], globalData: GlobalData, onlyMode: Set<string>, mustBeImported: Set<string>, blocksDone: Set<Block>, allPathFilesImported: Set<string>) {
+async function processMetadata(
+  files: File[],
+  globalData: GlobalData,
+  onlyMode: Set<string>,
+  mustBeImported: Set<string>,
+  blocksDone: Set<Block>,
+  allPathFilesImported: Set<string>,
+) {
   for (const file of files) {
     if (allPathFilesImported.has(file.path)) {
       // evict infinity loop
       throw new Error(`Infinite loop looking for imports -> ${file.path}`);
-
     }
-    file.relativePath = './' + relative(Deno.cwd(), file.path);
+    file.relativePath = "./" + relative(Deno.cwd(), file.path);
     for (const block of file.blocks) {
       try {
         const meta = await parseMetaFromText(block.text, {
@@ -291,7 +316,7 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
 
         if (meta.only) {
           onlyMode.add(
-            `${block.meta._relativeFilePath}:${block.meta._startLine}`
+            `${block.meta._relativeFilePath}:${block.meta._startLine}`,
           );
         }
         if (meta.import) {
@@ -324,9 +349,15 @@ async function processMetadata(files: File[], globalData: GlobalData, onlyMode: 
 
     const newFiles = await filePathsToFiles(needsImport);
     const _mustBeImported = new Set<string>();
-    await processMetadata(newFiles, globalData, onlyMode, _mustBeImported, blocksDone, allPathFilesImported);
+    await processMetadata(
+      newFiles,
+      globalData,
+      onlyMode,
+      _mustBeImported,
+      blocksDone,
+      allPathFilesImported,
+    );
     files.unshift(...newFiles);
-    files.sort(file => mustBeImported.has(file.path) ? -1 : 1)
+    files.sort((file) => mustBeImported.has(file.path) ? -1 : 1);
   }
-
 }
