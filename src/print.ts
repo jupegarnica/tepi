@@ -432,4 +432,4 @@ export function logBlock (block: Block, filePath: string, globalMeta: Meta): Log
   };
 
 
-};
+}

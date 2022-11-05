@@ -287,6 +287,6 @@ GET https://example.com/get
 `)}
 `
 
-  console.info(title + helpText );
+  console.info(title + helpText+referenceText );
   return;
 }
