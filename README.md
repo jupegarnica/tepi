@@ -1,6 +1,28 @@
 
 # TEPI
-### -- A .http Test Runner --
+### -- HTTP Test Runner--
+
+Tepi is a test runner for .http files.
+
+Write your tests in .http files and run them with `tepi`.
+
+```bash
+
+$ cat test.http
+
+GET http://localhost:3000  # fetch a GET Request
+
+HTTP/1.1 200 OK # assert a 200 OK response
+Content-Type: text/plain # assert a text/plain content type header
+
+Hola mundo! # assert a body with the text "Hola mundo!"
+```
+
+```bash
+$ tepi test.http
+```
+
+
 
 Test your HTTP APIs with standard http syntax
 
@@ -84,6 +106,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 
 `tepi --env-file .env --env-file .env.test`
 > Load environment variables from a .env and .env.test
+
 
 ## HTTP syntax:
 
