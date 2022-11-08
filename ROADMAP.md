@@ -1,6 +1,6 @@
 # Roadmap
 
-This document describes the roadmap for the project.
+This document describes the Roadmap for the project.
 
 ## 1.0.0
 

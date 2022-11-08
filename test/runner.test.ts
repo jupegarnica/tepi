@@ -189,7 +189,7 @@ Deno.test(
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
       display: "none",
     });
-    assertEquals(files[0].blocks.length, 3);
+    assertEquals(files[0].blocks.length, 4);
     assertEquals(files[0].blocks[1].meta.ignore, true);
     assertEquals(files[0].blocks[1].meta.only, undefined);
 
@@ -200,6 +200,48 @@ Deno.test(
     assertEquals(onlyMode, new Set(["./http/only.http:13"]));
   },
 );
+
+
+
+Deno.test(
+  "[runner] only mode do not ignore needed blocks",
+  async () => {
+    Deno.env.set("TEST_ONLY", "true");
+    const { blocksDone } = await runner(["http/only-needs.http"], {
+      display: "none",
+    });
+    assertEquals(blocksDone.size, 4);
+    const blocks = Array.from(blocksDone);
+
+    assertEquals(blocks[0].meta.ignore, true);
+    assertEquals(blocks[1].meta.ignore, true);
+
+    assertEquals(blocks[2].description, 'no ignored');
+    assertEquals(blocks[2].meta.ignore, false);
+
+    assertEquals(blocks[3].meta.needs, 'no ignored');
+  },
+);
+
+
+Deno.test(
+  "[runner] only mode do not fail parse request if the block is ignored",
+  async () => {
+    Deno.env.set("TEST_ONLY", "true");
+    const { exitCode, blocksDone } = await runner(["http/only.http"], {
+      display: "none",
+    });
+    assertEquals(blocksDone.size, 4);
+    const blocks = Array.from(blocksDone);
+    // console.log(blocks.map((b) => b.description));
+
+    assertEquals(blocks[3].meta.ignore, true);
+    assertEquals(blocks[3].error, undefined);
+    assertEquals(exitCode, 0);
+
+  },
+);
+
 
 Deno.test(
   "[runner] global vars",

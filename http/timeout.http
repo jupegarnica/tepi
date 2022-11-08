@@ -32,7 +32,7 @@ x-quiet: true
 ---
 id: delay + timeout
 delay: 200
-timeout: 300
+timeout: 400
 ---
 GET /pong?delay=200
 x-quiet: true

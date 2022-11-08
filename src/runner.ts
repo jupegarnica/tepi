@@ -67,8 +67,9 @@ export async function runner(
 
   // parse all metadata first
 
+  const allPathFilesImported = new Set<string>();
+  const idsNeeded = new Set<string>();
   try {
-    const allPathFilesImported = new Set<string>();
     await processMetadata(
       files,
       globalData,
@@ -76,6 +77,7 @@ export async function runner(
       mustBeImported,
       blocksDone,
       allPathFilesImported,
+      idsNeeded,
     );
   } catch (error) {
     console.error(`Error while parsing metadata:`);
@@ -88,6 +90,9 @@ export async function runner(
       for (const block of file.blocks) {
         if (!block.meta.only) {
           block.meta.ignore = true;
+        }
+        if (idsNeeded.has(block.meta.id)) {
+          block.meta.ignore = false;
         }
       }
     }
@@ -219,8 +224,12 @@ async function runBlock(
         ...assertions,
       });
     } catch (error) {
-      error.message = `Error while parsing request: ${error.message}`;
-      throw error;
+      if (block.meta.ignore) {
+        // should not fail if ignored
+      } else {
+        error.message = `Error while parsing request: ${error.message}`;
+        throw error;
+      }
     }
 
     spinner.update();
@@ -298,6 +307,7 @@ async function processMetadata(
   mustBeImported: Set<string>,
   blocksDone: Set<Block>,
   allPathFilesImported: Set<string>,
+  idsNeeded: Set<string>,
 ) {
   for (const file of files) {
     if (allPathFilesImported.has(file.path)) {
@@ -315,9 +325,7 @@ async function processMetadata(
         block.meta._relativeFilePath ??= file.relativePath;
 
         if (meta.only) {
-          onlyMode.add(
-            `${block.meta._relativeFilePath}:${block.meta._startLine}`,
-          );
+          onlyMode.add(`${block.meta._relativeFilePath}:${block.meta._startLine}`);
         }
         if (meta.import) {
           if (isAbsolute(meta.import)) {
@@ -325,6 +333,9 @@ async function processMetadata(
           } else {
             mustBeImported.add(resolve(dirname(file.path), meta.import));
           }
+        }
+        if (meta.needs) {
+          idsNeeded.add(meta.needs);
         }
         block.meta = {
           ...globalData.meta,
@@ -356,6 +367,7 @@ async function processMetadata(
       _mustBeImported,
       blocksDone,
       allPathFilesImported,
+      idsNeeded,
     );
     files.unshift(...newFiles);
     files.sort((file) => mustBeImported.has(file.path) ? -1 : 1);

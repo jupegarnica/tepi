@@ -3,7 +3,17 @@ host: <%= Deno.env.get("HOST") || "https://faker.deno.dev "%>
 ---
 ###
 ---
+id: ignored, not nedeed
+---
+GET /pong?status=201
+quiet: true
+
+HTTP/1.1 201 Created
+
+###
+---
 id: no ignored
+ignore: true
 ---
 GET /pong?status=204
 quiet: true
@@ -12,8 +22,8 @@ HTTP/1.1 204 No Content
 
 ###
 ---
-id: ignored
 only: <%= !!Deno.env.get('TEST_ONLY') %>
+needs: no ignored
 ---
 
 GET /pong?status=203
@@ -21,9 +31,3 @@ quiet: true
 
 HTTP/1.1 203 Non Authoritative Information
 ###
-
----
-id: should fail
----
-
-GET /pong?body=<%= notFoundVariableShouldThrow %>
