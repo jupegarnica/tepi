@@ -8,7 +8,7 @@ function shouldBeOnly(lineNumberOnly: number | undefined, blockStartLine: number
   return shouldBeOnly;
 }
 
-export function fileTextToBlocks(txt: string, _filePath: string, lineSpec: string): Block[] {
+export function fileTextToBlocks(txt: string, _filePath: string, lineSpec = ''): Block[] {
   const blocks: Block[] = [];
   const lines = txt.replaceAll("\r", "\n").split("\n");
   let currentBlockText = "";

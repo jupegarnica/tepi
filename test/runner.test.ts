@@ -191,7 +191,7 @@ Deno.test(
     });
     assertEquals(files[0].blocks.length, 4);
     assertEquals(files[0].blocks[1].meta.ignore, true);
-    assertEquals(files[0].blocks[1].meta.only, undefined);
+    assertEquals(files[0].blocks[1].meta.only, false);
 
     assertEquals(files[0].blocks[2].meta.ignore, undefined);
     assertEquals(files[0].blocks[2].meta.only, true);
@@ -419,5 +419,60 @@ Deno.test(
     } catch {
       assertEquals(blockInOrder[3].meta.rnd, 2);
     }
+  },
+);
+
+
+
+Deno.test(
+  "[runner] run a line than needs another block",
+  // { only: true },
+  async () => {
+    const { exitCode, blocksDone } = await runner([
+      Deno.cwd() + "/http/line.http:6",
+    ], {
+      display: "none",
+    });
+    const blockInOrder = [...blocksDone];
+    assertEquals(blockInOrder[1].description, '404');
+    assertEquals(blockInOrder[1].meta.only, false);
+    assertEquals(blockInOrder[1].meta.ignore, false);
+    assertEquals(blockInOrder[1].meta._isSuccessfulBlock, true);
+
+    assertEquals(blockInOrder[2].description, 'needs404');
+    assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
+    assertEquals(blockInOrder[2].meta.only, true);
+    assertEquals(blockInOrder[2].meta.ignore, undefined);
+
+    assertEquals(blockInOrder[3].meta.only, false);
+    assertEquals(blockInOrder[3].meta.ignore, true);
+    assertEquals(exitCode, 0);
+  },
+);
+
+
+Deno.test(
+  "[runner] run a line than does not need another block",
+  async () => {
+    const { exitCode, blocksDone } = await runner([
+      Deno.cwd() + "/http/line.http:30",
+    ], {
+      display: "none",
+    });
+    const blockInOrder = [...blocksDone];
+    assertEquals(blockInOrder[1].description, 'needs404');
+    assertEquals(blockInOrder[1].meta._isIgnoredBlock, true);
+    assertEquals(blockInOrder[1].meta.only, false);
+
+    assertEquals(blockInOrder[2].description, '404');
+    assertEquals(blockInOrder[2].meta._isSuccessfulBlock, undefined);
+    assertEquals(blockInOrder[2].meta._isIgnoredBlock, true);
+    assertEquals(blockInOrder[2].meta.only, false);
+
+    assertEquals(blockInOrder[3].description, '400');
+    assertEquals(blockInOrder[3].meta._isIgnoredBlock, undefined);
+    assertEquals(blockInOrder[3].meta.only, true);
+    assertEquals(blockInOrder[3].meta._isSuccessfulBlock, true);
+    assertEquals(exitCode, 0);
   },
 );

@@ -24,6 +24,7 @@ Deno.test("[filePathsToFiles] must have a basic block", async () => {
         _startLine: 4,
         _endLine: 7,
         _filePath: "./http/test1.http",
+        only: false,
       },
       text: "\nGET /html\n\n###\n",
     }),

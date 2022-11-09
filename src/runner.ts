@@ -25,6 +25,8 @@ import {
 } from "./parser.ts";
 import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
 
+
+
 export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
@@ -46,7 +48,7 @@ export async function runner(
   const onlyMode = new Set<string>();
   const mustBeImported = new Set<string>();
 
-   const files: File[] = await filePathsToFiles(filePaths);
+  const files: File[] = await filePathsToFiles(filePaths);
 
   const globalData: GlobalData = {
     meta: {
@@ -68,7 +70,6 @@ export async function runner(
   // parse all metadata first
 
   const allPathFilesImported = new Set<string>();
-  const idsNeeded = new Set<string>();
   try {
     await processMetadata(
       files,
@@ -77,7 +78,6 @@ export async function runner(
       mustBeImported,
       blocksDone,
       allPathFilesImported,
-      idsNeeded,
     );
   } catch (error) {
     console.error(`Error while parsing metadata:`);
@@ -90,9 +90,6 @@ export async function runner(
       for (const block of file.blocks) {
         if (!block.meta.only) {
           block.meta.ignore = true;
-        }
-        if (idsNeeded.has(block.meta.id)) {
-          block.meta.ignore = false;
         }
       }
     }
@@ -110,6 +107,7 @@ export async function runner(
       if (_isFirstBlock) {
         _isFirstBlock = false;
       }
+
       await runBlock(block, globalData, relativePath, blocksDone);
       if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
@@ -141,8 +139,8 @@ export async function runner(
   const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
 
   const exitCode = failedBlocks > 0
-  ? failedBlocks
-  : totalBlocks === 0 ? 1 : 0;
+    ? failedBlocks
+    : totalBlocks === 0 ? 1 : 0;
 
   if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
@@ -156,10 +154,8 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${
-        fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${
-        fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
       } ignored ${prettyGlobalTime}`,
     );
   }
@@ -190,16 +186,18 @@ async function runBlock(
   const spinner = createBlockSpinner(block, currentFilePath, globalData.meta);
   try {
     if (block.meta.needs && !block.meta.ignore) {
-      const blockReferenced = globalData._files.flatMap((file) => file.blocks)
+      const blockNeeded = globalData._files.flatMap((file) => file.blocks)
         .find((b) => b.meta.id === block.meta.needs);
-      if (!blockReferenced) {
+
+      if (!blockNeeded) {
         throw new Error(`Block needed not found: ${block.meta.needs}`);
       } else {
         // Evict infinity loop
-        if (!globalData._blocksAlreadyReferenced.has(blockReferenced)) {
-          globalData._blocksAlreadyReferenced.add(blockReferenced);
+        if (!globalData._blocksAlreadyReferenced.has(blockNeeded)) {
+          globalData._blocksAlreadyReferenced.add(blockNeeded);
+          blockNeeded.meta.ignore = false;
           await runBlock(
-            blockReferenced,
+            blockNeeded,
             globalData,
             currentFilePath,
             blocksDone,
@@ -312,7 +310,6 @@ async function processMetadata(
   mustBeImported: Set<string>,
   blocksDone: Set<Block>,
   allPathFilesImported: Set<string>,
-  idsNeeded: Set<string>,
 ) {
   for (const file of files) {
     if (allPathFilesImported.has(file.path)) {
@@ -343,9 +340,6 @@ async function processMetadata(
             mustBeImported.add(resolve(dirname(file.path), block.meta.import));
           }
         }
-        if (block.meta.needs) {
-          idsNeeded.add(block.meta.needs);
-        }
 
       } catch (error) {
         error.message = `Error parsing metadata: ${error.message}`;
@@ -372,7 +366,6 @@ async function processMetadata(
       _mustBeImported,
       blocksDone,
       allPathFilesImported,
-      idsNeeded,
     );
     files.unshift(...newFiles);
     files.sort((file) => mustBeImported.has(file.path) ? -1 : 1);
