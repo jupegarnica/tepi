@@ -25,7 +25,7 @@ export async function cli() {
       help: false,
     },
     collect: ["watch", "envFile", "watch-no-clear"],
-    boolean: ["help", "failFast", "noColor", "upgrade"],
+    boolean: ["help", "failFast", "noColor", "upgrade", "noAnimation"],
     string: ["display", "envFile"],
 
     alias: {
@@ -37,6 +37,8 @@ export async function cli() {
       e: "envFile",
       envFile: "env-file",
       noColor: "no-color",
+      watchNoClear: "watch-no-clear",
+      noAnimation: "no-animation",
       failFast: "fail-fast",
     },
   };
@@ -47,6 +49,8 @@ export async function cli() {
   if (args.noColor) {
     fmt.setColorEnabled(false);
   }
+  // --upgrade
+  /////////////
   if (args.upgrade) {
     const { code } = await Deno.spawn(Deno.execPath(), {
       args:
@@ -64,6 +68,8 @@ export async function cli() {
     help();
     return;
   }
+
+
   // --display
   /////////////
 
@@ -85,6 +91,13 @@ export async function cli() {
     );
     exit(1);
   }
+
+  // --no-animation
+  /////////////
+  if (args.noAnimation) {
+    defaultMeta._noAnimation = true;
+  }
+
   // --env-file
   /////////////
   const keysLoaded = new Set();

@@ -11,7 +11,7 @@ import {
 } from "https://deno.land/std@0.160.0/path/posix.ts";
 import {
   getDisplayIndex,
-  logBlock,
+  createBlockSpinner,
   logPath,
   printBlock,
   printErrorsSummary,
@@ -102,7 +102,7 @@ export async function runner(
     const relativePath = file.relativePath || "";
     const path = fmt.gray(`running ${relativePath} `);
     const displayIndex = getDisplayIndex(defaultMeta);
-    const pathSpinner = logPath(path, displayIndex);
+    const pathSpinner = logPath(path, displayIndex, defaultMeta._noAnimation);
     let _isFirstBlock = true;
     for (const block of file.blocks) {
       block.meta._relativeFilePath = relativePath;
@@ -182,7 +182,7 @@ async function runBlock(
   if (blocksDone.has(block)) {
     return blocksDone;
   }
-  const spinner = logBlock(block, currentFilePath, globalData.meta);
+  const spinner = createBlockSpinner(block, currentFilePath, globalData.meta);
   try {
     if (block.meta.needs && !block.meta.ignore) {
       const blockReferenced = globalData._files.flatMap((file) => file.blocks)

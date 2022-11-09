@@ -55,6 +55,7 @@ export type Meta = {
   _endLine?: number;
   _filePath?: string;
   _relativeFilePath?: string;
+  _noAnimation?: boolean;
 
   _isEmptyBlock?: boolean;
   _isDoneBlock?: boolean;
