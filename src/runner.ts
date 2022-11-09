@@ -241,18 +241,25 @@ async function runBlock(
       globalData.meta = { ...globalData.meta, ...block.meta };
     }
 
-    if (!block.request) {
-      spinner.empty();
-      block.meta._isEmptyBlock = true;
-      addToDone(blocksDone, block);
-      return blocksDone;
-    }
     if (block.meta.ignore) {
       block.meta._isIgnoredBlock = true;
       addToDone(blocksDone, block);
       spinner.ignore();
       return blocksDone;
     }
+
+
+    if (!block.request ) {
+      if (block.meta._isFirstBlock) {
+        spinner.clear();
+      } else {
+        spinner.empty();
+      }
+      block.meta._isEmptyBlock = true;
+      addToDone(blocksDone, block);
+      return blocksDone;
+    }
+
 
     if (block.error) {
       throw block.error;

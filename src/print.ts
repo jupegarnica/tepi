@@ -348,6 +348,7 @@ export type BlockSpinner = {
   update: () => void;
   empty: () => void;
   start: () => void;
+  clear: () => void;
 };
 export function createBlockSpinner(
   block: Block,
@@ -367,6 +368,7 @@ export function createBlockSpinner(
       update: noop,
       empty: noop,
       start: noop,
+      clear: noop,
     };
   }
   const fromFilePath = block.meta._relativeFilePath;
@@ -423,8 +425,7 @@ export function createBlockSpinner(
         console.info(symbol, text)
         return;
       }
-
-      spinner?.stopAndPersist({
+      spinner.stopAndPersist({
         symbol,
         text,
       });
@@ -441,7 +442,7 @@ export function createBlockSpinner(
         console.info(symbol, text)
         return;
       }
-      spinner?.stopAndPersist({
+      spinner.stopAndPersist({
         symbol,
         text,
       });
@@ -454,14 +455,23 @@ export function createBlockSpinner(
         }${differentFile}`;
       const symbol = fmt.brightGreen("✔");
       clearInterval(id);
+
       if (globalMeta._noAnimation) {
         console.info(symbol, text)
         return;
       }
-      spinner?.stopAndPersist({
+
+      spinner.stopAndPersist({
         symbol,
         text,
       });
+    },
+    clear() {
+      if (globalMeta._noAnimation) {
+        return;
+      }
+      spinner.stop();
+      spinner.clear();
     },
     empty: () => {
       const _elapsedTime = Date.now() - startTime;
@@ -474,7 +484,7 @@ export function createBlockSpinner(
         return;
       }
 
-      spinner?.stopAndPersist({
+      spinner.stopAndPersist({
         symbol,
         text,
       });

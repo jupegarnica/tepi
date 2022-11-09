@@ -207,7 +207,7 @@ Deno.test(
   "[runner] only mode do not ignore needed blocks",
   async () => {
     Deno.env.set("TEST_ONLY", "true");
-    const { blocksDone } = await runner(["http/only-needs.http"], {
+    const { blocksDone } = await runner(["http/needs.only.http"], {
       display: "none",
     });
     assertEquals(blocksDone.size, 4);
