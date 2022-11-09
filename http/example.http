@@ -37,7 +37,6 @@ Content-Type: text/html; charset=UTF-8
 
 ###
 ---
-# display: full
 redirect: follow
 description: |
   you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
@@ -45,10 +44,11 @@ description: |
 GET /image/avatar
 quiet: true
 
+
+HTTP/1.1 400 Bad Request
 ###
 ---
-description: test the response body json declaring an expected response
-id: MUST FAIL because the response it not has all the keys.
+id: assert json body
 ---
 GET https://httpbin.org/json
 

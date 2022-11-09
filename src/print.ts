@@ -142,8 +142,13 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
       if (getDisplayIndex(meta) === 1) {
         // minimal
 
+
+        const descriptionMaybeTruncated = (description.length > maximumLength - 20)
+        ? `${description.slice(0, maximumLength - 20)}...`
+        : description;
+
         const messageText = fmt.stripColor(
-          `${description} => ${error.name}: ${error.message}`,
+          `${descriptionMaybeTruncated} => ${error.name}: ${error.message}`,
         );
         const trimmedMessage = messageText.trim().replaceAll(/\s+/g, " ");
         const messageLength = trimmedMessage.length;
