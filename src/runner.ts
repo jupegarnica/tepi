@@ -46,7 +46,7 @@ export async function runner(
   const onlyMode = new Set<string>();
   const mustBeImported = new Set<string>();
 
-  const files: File[] = await filePathsToFiles(filePaths);
+   const files: File[] = await filePathsToFiles(filePaths);
 
   const globalData: GlobalData = {
     meta: {
@@ -328,25 +328,25 @@ async function processMetadata(
           ...assertions,
         });
         block.meta._relativeFilePath ??= file.relativePath;
-
-        if (meta.only) {
-          onlyMode.add(`${block.meta._relativeFilePath}:${block.meta._startLine}`);
-        }
-        if (meta.import) {
-          if (isAbsolute(meta.import)) {
-            mustBeImported.add(meta.import);
-          } else {
-            mustBeImported.add(resolve(dirname(file.path), meta.import));
-          }
-        }
-        if (meta.needs) {
-          idsNeeded.add(meta.needs);
-        }
         block.meta = {
           ...globalData.meta,
           ...block.meta,
           ...meta,
         };
+        if (block.meta.only) {
+          onlyMode.add(`${block.meta._relativeFilePath}:${block.meta._startLine}`);
+        }
+        if (block.meta.import) {
+          if (isAbsolute(block.meta.import)) {
+            mustBeImported.add(block.meta.import);
+          } else {
+            mustBeImported.add(resolve(dirname(file.path), block.meta.import));
+          }
+        }
+        if (block.meta.needs) {
+          idsNeeded.add(block.meta.needs);
+        }
+
       } catch (error) {
         error.message = `Error parsing metadata: ${error.message}`;
         block.error = error;

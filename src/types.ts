@@ -94,10 +94,11 @@ export class Block {
   // }
   get description(): string {
     if (this.meta.description) {
-      return this.meta.description;
+      return String(this.meta.description);
     }
     if (this.meta.id) {
-      return this.meta.id;
+      return String(this.meta.id)
+
     }
     if (this.request) {
       return `${this.request.method} ${this.request.url}`;

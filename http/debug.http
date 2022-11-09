@@ -1,7 +1,36 @@
-POST https://faker.deno.dev/pong
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+---
+id: needs404
+needs: 404
+---
+POST /pong?status=202
+quiet: true
 
 hola
 
-HTTP/1.1 200 OK
+HTTP/1.1 202 Accepted
 
 <%= body %>
+
+###
+---
+id: 404
+---
+
+GET /pong?status=404
+quiet: true
+
+HTTP/1.1 404 Not Found
+
+###
+---
+id: 400
+---
+
+GET /pong?status=400
+quiet: true
+
+HTTP/1.1 400 Bad Request

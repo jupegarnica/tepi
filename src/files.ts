@@ -1,13 +1,26 @@
 import { File } from "./types.ts";
 import { Block } from "./types.ts";
 
-export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
+
+
+function shouldBeOnly(lineNumberOnly: number | undefined, blockStartLine: number, blockEndLine: number) {
+  const shouldBeOnly = lineNumberOnly !== undefined && lineNumberOnly >= blockStartLine && lineNumberOnly <= blockEndLine;
+  return shouldBeOnly;
+}
+
+export function fileTextToBlocks(txt: string, _filePath: string, lineSpec: string): Block[] {
   const blocks: Block[] = [];
   const lines = txt.replaceAll("\r", "\n").split("\n");
   let currentBlockText = "";
   let blockStartLine = 0;
   let blockEndLine = NaN;
   const blockSeparator = /^###/;
+
+  let lineNumberNotIgnored: number | undefined = undefined;
+
+  if (lineSpec) {
+    lineNumberNotIgnored = Number(lineSpec);
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
@@ -20,6 +33,7 @@ export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
           _startLine: blockStartLine,
           _endLine: blockEndLine,
           _filePath,
+          only: shouldBeOnly(lineNumberNotIgnored, blockStartLine, blockEndLine),
         },
       });
       blocks.push(block);
@@ -35,6 +49,8 @@ export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
           _startLine: blockStartLine,
           _endLine: blockEndLine,
           _filePath,
+          only: shouldBeOnly(lineNumberNotIgnored, blockStartLine, blockEndLine),
+
         },
       });
       blocks.push(block);
@@ -45,13 +61,22 @@ export function fileTextToBlocks(txt: string, _filePath: string): Block[] {
 
 import { expandGlob } from "https://deno.land/std@0.160.0/fs/mod.ts";
 
+
+export const checkGlobHasLineSpec = (glob: string) => new RegExp(":[0-9]+").test(glob);
+
+
 export async function globsToFilePaths(globs: string[]): Promise<string[]> {
   const filePaths: string[] = [];
 
-  for (const glob of globs) {
+  for (let glob of globs) {
+    let lineSpec = '';
+    if (checkGlobHasLineSpec(glob)) {
+      [glob, lineSpec] = glob.split(':');
+      lineSpec = ':' + lineSpec;
+    }
     for await (const fileFound of expandGlob(glob)) {
       if (fileFound.isFile) {
-        filePaths.push(fileFound.path);
+        filePaths.push(fileFound.path + lineSpec);
       }
     }
   }
@@ -62,15 +87,19 @@ export async function globsToFilePaths(globs: string[]): Promise<string[]> {
 export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
   const files: File[] = [];
 
-  for (const _filePath of filePaths) {
+  for (let _filePath of filePaths) {
     let fileContent = "";
+    let lineSpec = '';
+    if (checkGlobHasLineSpec(_filePath)) {
+      [_filePath, lineSpec] = _filePath.split(':');
+    }
     try {
       fileContent = await Deno.readTextFile(_filePath);
     } catch {
       // console.error(error.message);
       throw new Error("File not found: " + _filePath);
     }
-    const blocks = fileTextToBlocks(fileContent, _filePath);
+    const blocks = fileTextToBlocks(fileContent, _filePath, lineSpec);
     files.push({ path: _filePath, blocks });
   }
 

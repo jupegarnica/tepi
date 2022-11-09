@@ -3,7 +3,7 @@ import type { Meta } from "./types.ts";
 import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
 // import ora from "npm:ora";
 import { relative } from "https://deno.land/std@0.160.0/path/posix.ts";
-import { globsToFilePaths } from "./files.ts";
+import { checkGlobHasLineSpec, globsToFilePaths } from "./files.ts";
 import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
@@ -124,10 +124,12 @@ export async function cli() {
     );
   }
 
-  // resolves globs to file paths
+  // resolves globs to file paths and skips globs that have line specs
   /////////////
-  const globs: string = args._.length ? args._.join(" ") : "**/*.http";
-  const filePathsToRun = await globsToFilePaths(globs.split(" "));
+  const globs: string[] = args._.length ? args._ as string[] : ["**/*.http"];
+
+
+  const filePathsToRun = await globsToFilePaths(globs)
 
   // runner
   /////////////
