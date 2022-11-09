@@ -138,14 +138,19 @@ export async function runner(
     pathSpinner?.stop();
     pathSpinner?.clear();
   }
+  const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
+
+  const exitCode = failedBlocks > 0
+  ? failedBlocks
+  : totalBlocks === 0 ? 1 : 0;
+
   if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
 
-    const statusText = failedBlocks
+    const statusText = exitCode > 0
       ? fmt.bgRed(" FAIL ")
       : fmt.bgBrightGreen(" PASS ");
 
-    const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
     const elapsedGlobalTime = Date.now() - startGlobalTime;
     const prettyGlobalTime = fmt.dim(`(${ms(elapsedGlobalTime)})`);
     console.info();
@@ -159,7 +164,7 @@ export async function runner(
     );
   }
   globalData._blocksDone = {}; // clean up blocks referenced
-  return { files, exitCode: failedBlocks, onlyMode, blocksDone };
+  return { files, exitCode, onlyMode, blocksDone };
 }
 
 function addToDone(blocksDone: Set<Block>, block: Block) {

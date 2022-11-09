@@ -141,8 +141,6 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
       firstError || console.error(fmt.dim("------------------"));
       if (getDisplayIndex(meta) === 1) {
         // minimal
-
-
         const descriptionMaybeTruncated = (description.length > maximumLength - 20)
         ? `${description.slice(0, maximumLength - 20)}...`
         : description;

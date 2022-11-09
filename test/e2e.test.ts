@@ -26,6 +26,13 @@ Deno.test("[e2e] must return code 0 when all tests pass", async () => {
   assertEquals(success, true);
 });
 
+Deno.test("[e2e] must fail if no test has been runned",
+  async () => {
+    const { code, success } = await run(tepi + "noTests.http");
+    assertEquals(code, 1);
+    assertEquals(success, false);
+  });
+
 Deno.test("[e2e] must return the code of failing tests", async () => {
   const { code } = await run(tepi + "http/failFast.http");
   assertEquals(code, 2);
