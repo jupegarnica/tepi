@@ -426,7 +426,6 @@ Deno.test(
 
 Deno.test(
   "[runner] run a line than needs another block",
-  // { only: true },
   async () => {
     const { exitCode, blocksDone } = await runner([
       Deno.cwd() + "/http/line.http:6",
