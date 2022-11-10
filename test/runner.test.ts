@@ -480,7 +480,6 @@ Deno.test(
 
 
 Deno.test("[runner] must fail if no test has been run",
-  {only: true},
   async () => {
     const { exitCode } = await runner([
       Deno.cwd() + "/http/noTests.http",
