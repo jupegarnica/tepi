@@ -1,3 +1,5 @@
+![Example pass](./.github/demo/pass.gif)
+![Example](./.github/demo/fail.gif)
 
 # TEPI
 ### -- HTTP Test Runner--
