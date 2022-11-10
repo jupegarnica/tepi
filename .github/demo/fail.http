@@ -1,0 +1,13 @@
+---
+id: random commit message
+---
+
+GET https://faker.deno.dev/git/commitMessage
+
+HTTP/1.1 200 OK
+Content-type: application/json
+
+{
+  "data": "Quia et quia voluptatem.",
+  "docs": "https://fakerjs.dev/api/git.html#commitMessage"
+}

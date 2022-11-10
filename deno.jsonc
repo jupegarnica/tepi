@@ -15,7 +15,8 @@
     // release
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
     "version": "deno run  -A https://deno.land/x/version/index.ts",
-    "readme": "NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help > README.md && git add README.md && git commit -m 'docs: update README.md' || true",
+    "readme": "deno task readme:create && NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help >> README.md && git add README.md && git commit -m 'docs: update README.md' || true",
+    "readme:create":"echo '![Example demo](./.github/demo/demo.gif)\n' > README.md",
     "release": "deno task readme && deno task version patch && git push --tags origin main"
   }
 }
