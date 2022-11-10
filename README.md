@@ -72,6 +72,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * -h `--help`           output usage information
 * -e `--env-file`       load environment variables from a .env file
 *    `--no-color`       output without color
+*    `--no-animation`       output without terminal animations
 *    `--upgrade`        upgrade to the latest version
 
 ## Examples:
