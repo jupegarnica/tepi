@@ -51,11 +51,12 @@ export function getDisplayIndex(meta: Meta): number {
 export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error, meta } = block;
 
-  if (block.meta.ignore) {
-    return;
-  }
+
   const displayIndex = getDisplayIndex(meta);
   if (displayIndex < 3) {
+    return;
+  }
+  if (block.meta.ignore && displayIndex < 4) {
     return;
   }
   console.group();

@@ -476,3 +476,18 @@ Deno.test(
     assertEquals(exitCode, 0);
   },
 );
+
+
+
+Deno.test("[runner] must fail if no test has been run",
+  {only: true},
+  async () => {
+    const { exitCode } = await runner([
+      Deno.cwd() + "/http/noTests.http",
+    ], {
+      display: "none",
+    });
+    assertEquals(exitCode, 1);
+    // console.log([...blocksDone].map((b) => b.meta._isFetchedBlock));
+
+  });

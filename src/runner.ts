@@ -136,11 +136,11 @@ export async function runner(
     pathSpinner?.stop();
     pathSpinner?.clear();
   }
-  const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
 
+  const totalBlockRun = successfulBlocks + failedBlocks ;
   const exitCode = failedBlocks > 0
     ? failedBlocks
-    : totalBlocks === 0 ? 1 : 0;
+    : totalBlockRun === 0 ? 1 : 0;
 
   if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
@@ -149,6 +149,7 @@ export async function runner(
       ? fmt.bgRed(" FAIL ")
       : fmt.bgBrightGreen(" PASS ");
 
+    const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
     const elapsedGlobalTime = Date.now() - startGlobalTime;
     const prettyGlobalTime = fmt.dim(`(${ms(elapsedGlobalTime)})`);
     console.info();
@@ -249,7 +250,7 @@ async function runBlock(
     }
 
 
-    if (!block.request ) {
+    if (!block.request) {
       if (block.meta._isFirstBlock) {
         spinner.clear();
       } else {

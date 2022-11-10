@@ -1,0 +1,19 @@
+---
+host: <%= Deno.env.get("HOST") || "https://faker.deno.dev "%>
+---
+###
+---
+id: ignored
+ignore: true
+---
+GET /pong?status=204
+quiet: true
+
+HTTP/1.1 204 No Content
+
+###
+---
+id: empty
+---
+
+###
