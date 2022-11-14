@@ -436,7 +436,7 @@ export function createBlockSpinner(
 
       const text = `${fmt.yellow(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
-      const symbol = fmt.yellow("")
+      const symbol = fmt.yellow("·")
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
@@ -478,7 +478,7 @@ export function createBlockSpinner(
       const _elapsedTime = Date.now() - startTime;
       const text = `${fmt.dim(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
-      const symbol = fmt.dim("");
+      const symbol = fmt.dim("·");
       clearInterval(id);
       if (globalMeta._noAnimation) {
         console.info(symbol, text)
