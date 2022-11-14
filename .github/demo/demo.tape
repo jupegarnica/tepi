@@ -2,9 +2,9 @@
 # dco run --rm vhs fail.tape
 
 Output ./demo.gif
-Set Framerate 25
+Set Framerate 15
 Set Padding 30
-Set FontSize 18
+Set FontSize 17
 Set Width 800
 Set Height 1100
 
@@ -19,4 +19,4 @@ Type "tepi demo.http"
 Sleep 300ms
 Enter
 
-Sleep 20s
+Sleep 15s

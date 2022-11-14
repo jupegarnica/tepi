@@ -1,11 +1,4 @@
 services:
-  vhs:
-    profiles:
-      - doNotRun
-    image: vhs
-    container_name: vhs
-    volumes:
-      - .github/demo:/vhs
   faker:
     image: jupegarnica/faker.deno.dev
     ports:

@@ -19,7 +19,6 @@ HTTP/1.1 403 Forbidden
 ###  requests separator
 ---
 id: optional name
-only: true
 timeout: 500 # must respond in less than 500ms
 ---
 GET /?body=hola&status=400
