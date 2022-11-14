@@ -1,5 +1,4 @@
-# vhs < fail.tape
-# dco run --rm vhs fail.tape
+# dco run --rm vhs demo.tape
 
 Output ./demo.gif
 Set Framerate 15

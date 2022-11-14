@@ -20,8 +20,7 @@ Content-type: application/json
 
 ###
 ---
-id: fetch delayed response
 ignore: true
 ---
 
-GET https://faker.deno.dev/git/commitMessage?delay=2000
+GET /ignored
