@@ -23,4 +23,4 @@ Type "tepi demo.http"
 Sleep 300ms
 Enter
 
-Sleep 15s
+Sleep 25s
