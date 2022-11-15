@@ -84,6 +84,10 @@
     "https://deno.land/std@0.160.0/testing/asserts.ts": "1e340c589853e82e0807629ba31a43c84ebdcdeca910c4a9705715dfdb0f5ce8",
     "https://deno.land/std@0.160.0/testing/mock.ts": "d7ad40139cda87476c4dc1efeffe406bbfb4a5f82b688e0b85bffe9e911526a2",
     "https://deno.land/std@0.161.0/async/delay.ts": "0419dfc993752849692d1f9647edf13407c7facc3509b099381be99ffbc9d699",
+    "https://deno.land/std@0.164.0/fmt/colors.ts": "9e36a716611dcd2e4865adea9c4bec916b5c60caad4cdcdc630d4974e6bb8bd4",
+    "https://deno.land/std@0.164.0/testing/_diff.ts": "a23e7fc2b4d8daa3e158fa06856bedf5334ce2a2831e8bf9e509717f455adb2c",
+    "https://deno.land/std@0.164.0/testing/_format.ts": "cd11136e1797791045e639e9f0f4640d5b4166148796cad37e6ef75f7d7f3832",
+    "https://deno.land/std@0.164.0/testing/asserts.ts": "1e340c589853e82e0807629ba31a43c84ebdcdeca910c4a9705715dfdb0f5ce8",
     "https://deno.land/std@0.77.0/_util/assert.ts": "e1f76e77c5ccb5a8e0dbbbe6cce3a56d2556c8cb5a9a8802fc9565af72462149",
     "https://deno.land/std@0.77.0/flags/mod.ts": "1beaf22677d1d5fe13fb15b08552065aea032bca4a9664b73cad618d2c1f34ed",
     "https://deno.land/std@0.77.0/fmt/colors.ts": "c5665c66f1a67228f21c5989bbb04b36d369b98dd7ceac06f5e26856c81c2531",
@@ -144,7 +148,10 @@
     "https://deno.land/x/wait@0.1.12/spinners.ts": "289346d54f8d6152a5dcd67b67e47784cf9b7a8a8f6f0b6dc041ebc2ef6bb76c"
   },
   "npm": {
-    "specifiers": { "cli-highlight": "cli-highlight@2.1.11" },
+    "specifiers": {
+      "cli-highlight": "cli-highlight@2.1.11",
+      "lodash": "lodash@4.17.21"
+    },
     "packages": {
       "ansi-regex@5.0.1": {
         "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==",
@@ -214,6 +221,10 @@
       },
       "is-fullwidth-code-point@3.0.0": {
         "integrity": "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg==",
+        "dependencies": {}
+      },
+      "lodash@4.17.21": {
+        "integrity": "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==",
         "dependencies": {}
       },
       "mz@2.7.0": {

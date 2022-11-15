@@ -6,14 +6,6 @@ FROM denoland/deno:alpine
 
 COPY --from=ghcr.io/charmbracelet/vhs /usr/bin/vhs /usr/bin/vhs
 RUN chmod +x /usr/bin/vhs
-# Install Dependencies
-RUN apk add --no-cache ffmpeg chromium bash shadow
-COPY --from=tsl0922/ttyd:alpine /usr/bin/ttyd /usr/bin/ttyd
-
-RUN apk add bat curl
-RUN deno cache --unstable https://tepi.deno.dev/src/cli.ts
-RUN deno install --unstable -Af -n tepi https://tepi.deno.dev/src/cli.ts
-
 
 # Install Fonts
 RUN apk add --no-cache \
@@ -33,6 +25,26 @@ RUN apk add --no-cache \
     font-roboto-mono \
     font-ubuntu font-ubuntu-mono-nerd \
     font-noto-emoji
+
+# Install VHS Dependencies
+RUN apk add --no-cache ffmpeg chromium bash shadow
+COPY --from=tsl0922/ttyd:alpine /usr/bin/ttyd /usr/bin/ttyd
+
+
+# INSTALL TEPI
+RUN deno cache --unstable https://tepi.deno.dev/src/cli.ts
+RUN deno install --unstable -Af -n tepi https://tepi.deno.dev/src/cli.ts
+
+# INSTALL BAT
+RUN apk add bat curl
+ENV COLORTERM=24bit
+ENV TERM=xterm-256color
+
+ENV BAT_OPTS="--color=always --style=numbers,changes,header,grid --tabs=2 --pager=never"
+
+ENV FORCE_COLOR=2
+ENV CLICOLOR=1
+ENV CLICOLOR_FORCE=1
 
 ENTRYPOINT ["/usr/bin/vhs"]
 WORKDIR /vhs
