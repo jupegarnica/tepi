@@ -123,6 +123,7 @@ ${d("* ")}   ${c("--no-animation")}       ${
     d("output without terminal animations")
   }
 ${d("* ")}   ${c("--upgrade")}        ${d("upgrade to the latest version")}
+${d("* ")}   ${c("--version")}        ${d("output the version number")}
 
 ${g("## Examples:")}
 

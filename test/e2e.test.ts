@@ -10,13 +10,13 @@ function textDecode(buffer: Uint8Array) {
 
 async function run(command: string) {
   const [cmd, ...args] = command.split(/\s+/);
-  const { code, stdout, stderr, success } = await Deno.spawn(cmd, { args });
+  const { code, stdout, stderr, success } = await new Deno.Command(cmd, { args }).output();
   const out = textDecode(stdout);
   const err = textDecode(stderr);
 
   return { code, err, out, success };
 }
-const tepi = "deno run -A --unstable ./src/cli.ts ";
+const tepi = "deno run -A ./src/cli.ts ";
 
 Deno.test("[e2e] must return code 0 when all tests pass", async () => {
   const { code, out, success } = await run(tepi + "http/pass.http");

@@ -51,14 +51,25 @@ export async function cli() {
   // --upgrade
   /////////////
   if (args.upgrade) {
-    const { code } = await Deno.spawn(Deno.execPath(), {
+    const { code } = await new Deno.Command(Deno.execPath(), {
       args:
-        "install --unstable --allow-read --allow-env --allow-net --reload -f -n tepi https://tepi.deno.dev/src/cli.ts?upgrade=true"
+        "install --unstable -A --reload -f -n tepi https://tepi.deno.dev/src/cli.ts?upgrade=true"
           .split(" "),
       stdout: "inherit",
       stderr: "inherit",
-    });
+    }).output();
     exit(code);
+  }
+
+  // --version
+  /////////////
+  if (args.version) {
+    // fetch VERSION file
+    const version = await fetch("https://tepi.deno.dev/VERSION")
+      .then((r) => r.text())
+    console.log(version);
+    exit(0);
+    return;
   }
 
   // --help
@@ -82,8 +93,7 @@ export async function cli() {
   if (getDisplayIndex(defaultMeta) === Infinity) {
     console.error(
       fmt.brightRed(
-        `Invalid display mode ${args.display}\n Must be one of: ${
-          DISPLAYS.map((t) => fmt.bold(t)).join(", ")
+        `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map((t) => fmt.bold(t)).join(", ")
         }`,
       ),
     );
@@ -115,8 +125,7 @@ export async function cli() {
   if (keysLoaded.size && getDisplayIndex(defaultMeta) > 0) {
     console.info(
       fmt.gray(
-        `Loaded ${keysLoaded.size} environment variables from: ${
-          Array.from(envFiles).join(", ")
+        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(envFiles).join(", ")
         }`,
       ),
     );
@@ -142,16 +151,14 @@ export async function cli() {
     if (getDisplayIndex(defaultMeta) > 0) {
       console.warn(
         fmt.yellow(
-          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${
-            onlyMode.size === 1 ? "test" : "tests"
+          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${onlyMode.size === 1 ? "test" : "tests"
           } are in "only" mode.`,
         ),
       );
       if (!exitCode) {
         console.error(
           fmt.red(
-            `Failed because the ${fmt.bold('"only"')} option was used at ${
-              [...onlyMode].join(", ")
+            `Failed because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
             }`,
           ),
         );
