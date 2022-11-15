@@ -76,6 +76,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 *    `--no-color`       output without color
 *    `--no-animation`       output without terminal animations
 *    `--upgrade`        upgrade to the latest version
+*    `--version`        output the version number
 
 ## Examples:
 
