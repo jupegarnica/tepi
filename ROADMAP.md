@@ -22,7 +22,7 @@ This document describes the Roadmap for the project.
 - [x] Support for meta.timeout to override the global timeout.
 - [x] Support for meta `import:` to import other files
 - [x] Support for the `--watch-no-clear`
-- [ ] Support for meta.noColor to override the global noColor.
 - [x] Better error display.
+- [ ] Support for meta.noColor to override the global noColor.
 - [ ] Support for meta `run:` to run shell commands
 - [ ] Concurrent test execution

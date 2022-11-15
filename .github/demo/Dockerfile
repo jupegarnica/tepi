@@ -2,7 +2,7 @@
 
 # COPY --from=ghcr.io/charmbracelet/vhs /vhs /vhs
 
-FROM denoland/deno:alpine
+FROM denoland/deno:alpine-1.28.0
 
 COPY --from=ghcr.io/charmbracelet/vhs /usr/bin/vhs /usr/bin/vhs
 RUN chmod +x /usr/bin/vhs
@@ -33,7 +33,7 @@ COPY --from=tsl0922/ttyd:alpine /usr/bin/ttyd /usr/bin/ttyd
 
 # INSTALL TEPI
 RUN deno cache --unstable https://tepi.deno.dev/src/cli.ts
-RUN deno install --unstable -Af -n tepi https://tepi.deno.dev/src/cli.ts
+RUN deno install --unstable -rAf -n tepi https://tepi.deno.dev/src/cli.ts
 
 # INSTALL BAT
 RUN apk add bat curl
@@ -45,6 +45,10 @@ ENV BAT_OPTS="--color=always --style=numbers,changes,header,grid --tabs=2 --page
 ENV FORCE_COLOR=2
 ENV CLICOLOR=1
 ENV CLICOLOR_FORCE=1
+
+# create a alias for cat
+RUN deno cache --unstable npm:cli-highlight
+RUN echo "alias cat='deno run -A npm:cli-highlight'" >> ~/.bashrc
 
 ENTRYPOINT ["/usr/bin/vhs"]
 WORKDIR /vhs

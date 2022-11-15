@@ -8,7 +8,7 @@ try {
   hl = highlight;
   supportsLang = supportsLanguage;
 } catch {
-  console.error("cli-highlight not available");
+  // console.error("cli-highlight not available");
 }
 
 export function highlight(txt: string, language: string): string {
