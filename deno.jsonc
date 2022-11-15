@@ -11,7 +11,7 @@
     "install": "deno install -fA --unstable --name tepi ./src/cli.ts",
     "help": " deno run -A --unstable --watch ./src/cli.ts --help",
     // chore
-    "udd": "deno run -A --reload https://deno.land/x/udd/main.ts --test='deno task test'  'src/**/*.ts' 'test/**/*.ts'",
+    "udd": "deno run -A --reload https://deno.land/x/udd/main.ts --test='deno task test --fail-fast'  'src/**/*.ts' 'test/**/*.ts'",
     // release
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
     "version": "deno run  -A https://deno.land/x/version/index.ts",
