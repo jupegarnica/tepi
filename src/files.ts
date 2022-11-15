@@ -59,7 +59,7 @@ export function fileTextToBlocks(txt: string, _filePath: string, lineSpec = ''):
   return blocks;
 }
 
-import { expandGlob } from "https://deno.land/std@0.160.0/fs/mod.ts";
+import { expandGlob } from "https://deno.land/std@0.164.0/fs/mod.ts";
 
 
 export const checkGlobHasLineSpec = (glob: string) => new RegExp(":[0-9]+").test(glob);

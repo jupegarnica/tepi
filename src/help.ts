@@ -1,4 +1,4 @@
-import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
 
 export const installCommand =
   "deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";

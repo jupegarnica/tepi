@@ -2,13 +2,13 @@ import { filePathsToFiles } from "./files.ts";
 import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
-import * as fmt from "https://deno.land/std@0.160.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
 import {
   dirname,
   isAbsolute,
   relative,
   resolve,
-} from "https://deno.land/std@0.160.0/path/posix.ts";
+} from "https://deno.land/std@0.164.0/path/posix.ts";
 import {
   getDisplayIndex,
   createBlockSpinner,
@@ -17,13 +17,12 @@ import {
   printErrorsSummary,
 } from "./print.ts";
 import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
-// import ms from "npm:ms";
 import {
   parseMetaFromText,
   parseRequestFromText,
   parseResponseFromText,
 } from "./parser.ts";
-import * as assertions from "https://deno.land/std@0.160.0/testing/asserts.ts";
+import * as assertions from "https://deno.land/std@0.164.0/testing/asserts.ts";
 
 
 

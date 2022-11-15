@@ -6,7 +6,7 @@ import {
   mimesToText,
 } from "./types.ts";
 
-import { delay } from "https://deno.land/std@0.161.0/async/delay.ts";
+import { delay } from "https://deno.land/std@0.164.0/async/delay.ts";
 
 import { type _Request, _Response, type Block } from "./types.ts";
 

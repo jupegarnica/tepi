@@ -1,10 +1,9 @@
 import { type Args, parse } from "https://deno.land/std@0.164.0/flags/mod.ts";
 import type { Meta } from "./types.ts";
 import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
-// import ora from "npm:ora";
 import { relative } from "https://deno.land/std@0.164.0/path/posix.ts";
-import { checkGlobHasLineSpec, globsToFilePaths } from "./files.ts";
-import { config } from "https://deno.land/std@0.160.0/dotenv/mod.ts";
+import { globsToFilePaths } from "./files.ts";
+import { config } from "https://deno.land/std@0.164.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
 import { help } from "./help.ts";
@@ -54,7 +53,7 @@ export async function cli() {
   if (args.upgrade) {
     const { code } = await Deno.spawn(Deno.execPath(), {
       args:
-        "install --unstable --allow-read --allow-env --allow-net --reload -f -n tepi https://deno.land/x/tepi/src/cli.ts"
+        "install --unstable --allow-read --allow-env --allow-net --reload -f -n tepi https://tepi.deno.dev/src/cli.ts?upgrade=true"
           .split(" "),
       stdout: "inherit",
       stderr: "inherit",

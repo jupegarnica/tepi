@@ -1,16 +1,14 @@
-import { extension } from "https://deno.land/std@0.160.0/media_types/mod.ts?source=cli";
-// @ts-ignore ¿?¿ it has a named highlight export
-// import { highlight as hl,supportsLanguage  } from "npm:cli-highlight";
+import { extension } from "https://deno.land/std@0.164.0/media_types/mod.ts?source=cli";
 
 let supportsLang = (_: string) => true;
 let hl = (code: string, { language: _ }: { language: string }) => code;
 
 try {
-  const { highlight, supportsLanguage } = await import("npm:cli-highlight");
+  const { highlight, supportsLanguage } = await import("npm:cli-highlight@2.1.11");
   hl = highlight;
   supportsLang = supportsLanguage;
 } catch {
-  console.error("cli-highlight not found");
+  console.error("cli-highlight not available");
 }
 
 export function highlight(txt: string, language: string): string {
