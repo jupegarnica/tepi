@@ -1,6 +1,5 @@
 import { extractBody } from "./fetchBlock.ts";
-// TODO
-// import makeSynchronous from 'npm:make-synchronous';
+// TODO make-synchronous?
 
 export class _Response extends Response {
   bodyRaw?: BodyInit | null;

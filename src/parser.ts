@@ -1,7 +1,7 @@
 import { Block, Meta } from "./types.ts";
 import { _Request, _Response, httpMethods } from "./types.ts";
 import * as eta from "https://deno.land/x/eta@v1.12.3/mod.ts";
-import { extract } from "https://deno.land/std@0.160.0/encoding/front_matter.ts";
+import { extract } from "https://deno.land/std@0.160.0/encoding/front_matter.ts#=";
 
 async function renderTemplate(template: string, data: Record<string, unknown>) {
   const result = await eta.render(
