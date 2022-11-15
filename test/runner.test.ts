@@ -201,8 +201,6 @@ Deno.test(
   },
 );
 
-
-
 Deno.test(
   "[runner] only mode do not ignore needed blocks",
   async () => {
@@ -216,13 +214,12 @@ Deno.test(
     assertEquals(blocks[0].meta.ignore, true);
     assertEquals(blocks[1].meta.ignore, true);
 
-    assertEquals(blocks[2].description, 'no ignored');
+    assertEquals(blocks[2].description, "no ignored");
     assertEquals(blocks[2].meta.ignore, false);
 
-    assertEquals(blocks[3].meta.needs, 'no ignored');
+    assertEquals(blocks[3].meta.needs, "no ignored");
   },
 );
-
 
 Deno.test(
   "[runner] only mode do not fail parse request if the block is ignored",
@@ -238,10 +235,8 @@ Deno.test(
     assertEquals(blocks[3].meta.ignore, true);
     assertEquals(blocks[3].error, undefined);
     assertEquals(exitCode, 0);
-
   },
 );
-
 
 Deno.test(
   "[runner] global vars",
@@ -422,8 +417,6 @@ Deno.test(
   },
 );
 
-
-
 Deno.test(
   "[runner] run a line than needs another block",
   async () => {
@@ -433,12 +426,12 @@ Deno.test(
       display: "none",
     });
     const blockInOrder = [...blocksDone];
-    assertEquals(blockInOrder[1].description, '404');
+    assertEquals(blockInOrder[1].description, "404");
     assertEquals(blockInOrder[1].meta.only, false);
     assertEquals(blockInOrder[1].meta.ignore, false);
     assertEquals(blockInOrder[1].meta._isSuccessfulBlock, true);
 
-    assertEquals(blockInOrder[2].description, 'needs404');
+    assertEquals(blockInOrder[2].description, "needs404");
     assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
     assertEquals(blockInOrder[2].meta.only, true);
     assertEquals(blockInOrder[2].meta.ignore, undefined);
@@ -449,7 +442,6 @@ Deno.test(
   },
 );
 
-
 Deno.test(
   "[runner] run a line than does not need another block",
   async () => {
@@ -459,16 +451,16 @@ Deno.test(
       display: "none",
     });
     const blockInOrder = [...blocksDone];
-    assertEquals(blockInOrder[1].description, 'needs404');
+    assertEquals(blockInOrder[1].description, "needs404");
     assertEquals(blockInOrder[1].meta._isIgnoredBlock, true);
     assertEquals(blockInOrder[1].meta.only, false);
 
-    assertEquals(blockInOrder[2].description, '404');
+    assertEquals(blockInOrder[2].description, "404");
     assertEquals(blockInOrder[2].meta._isSuccessfulBlock, undefined);
     assertEquals(blockInOrder[2].meta._isIgnoredBlock, true);
     assertEquals(blockInOrder[2].meta.only, false);
 
-    assertEquals(blockInOrder[3].description, '400');
+    assertEquals(blockInOrder[3].description, "400");
     assertEquals(blockInOrder[3].meta._isIgnoredBlock, undefined);
     assertEquals(blockInOrder[3].meta.only, true);
     assertEquals(blockInOrder[3].meta._isSuccessfulBlock, true);
@@ -476,16 +468,12 @@ Deno.test(
   },
 );
 
-
-
-Deno.test("[runner] must fail if no test has been run",
-  async () => {
-    const { exitCode } = await runner([
-      Deno.cwd() + "/http/noTests.http",
-    ], {
-      display: "none",
-    });
-    assertEquals(exitCode, 1);
-    // console.log([...blocksDone].map((b) => b.meta._isFetchedBlock));
-
+Deno.test("[runner] must fail if no test has been run", async () => {
+  const { exitCode } = await runner([
+    Deno.cwd() + "/http/noTests.http",
+  ], {
+    display: "none",
   });
+  assertEquals(exitCode, 1);
+  // console.log([...blocksDone].map((b) => b.meta._isFetchedBlock));
+});

@@ -34,7 +34,9 @@ ${g(`### -- HTTP Test Runner--`)}
 ${orange(`${fmt.bold("Tepi")} is a test runner for .http files.`)}
 
 Write your tests in .http files and run them with ${c("tepi")}.
-${codeBlock(`
+${
+    codeBlock(
+      `
 $ cat test.http
 
 GET http://localhost:3000  ${d(`# fetch a GET Request`)}
@@ -42,11 +44,13 @@ GET http://localhost:3000  ${d(`# fetch a GET Request`)}
 HTTP/1.1 200 OK ${d(`# assert a 200 OK response`)}
 Content-Type: text/plain ${d(`# assert a text/plain content type header`)}
 
-Hola mundo! ${d(`# assert a body with the text "Hola mundo!"`)}`, "bash")}
+Hola mundo! ${d(`# assert a body with the text "Hola mundo!"`)}`,
+      "bash",
+    )
+  }
 ${codeBlock(`$ tepi test.http`, "bash")}
 
 `;
-
 
   const helpText = `
 ${fmt.bold("Test your HTTP APIs with standard http syntax")}
@@ -107,13 +111,17 @@ ${d("       - ")} none: ${d(`display nothing`)}
 ${d("       - ")} minimal: ${d(`display only a minimal summary`)}
 ${d("       - ")} default: ${d(`list results and full error summary`)}
 ${d("       - ")} full: ${d(`display also all HTTP requests and responses`)}
-${d("       - ")} verbose: ${d(`display also all metadata and not truncate data`)}
+${d("       - ")} verbose: ${
+    d(`display also all metadata and not truncate data`)
+  }
 ${d("* ")}-h ${c("--help")}           ${d("output usage information")}
 ${d("* ")}-e ${c("--env-file")}       ${
     d("load environment variables from a .env file")
   }
 ${d("* ")}   ${c("--no-color")}       ${d("output without color")}
-${d("* ")}   ${c("--no-animation")}       ${d("output without terminal animations")}
+${d("* ")}   ${c("--no-animation")}       ${
+    d("output without terminal animations")
+  }
 ${d("* ")}   ${c("--upgrade")}        ${d("upgrade to the latest version")}
 
 ${g("## Examples:")}
@@ -341,8 +349,8 @@ GET https://example.com/get
   }
 `;
 
-  console.info(title );
-  console.info( helpText);
-  console.info( referenceText);
+  console.info(title);
+  console.info(helpText);
+  console.info(referenceText);
   return;
 }

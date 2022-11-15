@@ -19,13 +19,12 @@ async function run(command: string) {
 const tepi = "deno run -A --unstable ./src/cli.ts ";
 
 Deno.test("[e2e] must return code 0 when all tests pass", async () => {
-  const { code,  out, success } = await run(tepi + "http/pass.http");
+  const { code, out, success } = await run(tepi + "http/pass.http");
   assert(out.length > 0);
   assertEquals(code, 0);
   assertEquals(success, true);
   // assertEquals(err, "");
 });
-
 
 Deno.test("[e2e] must return the code of failing tests", async () => {
   const { code } = await run(tepi + "http/failFast.http");

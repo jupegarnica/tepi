@@ -1,14 +1,21 @@
 import { File } from "./types.ts";
 import { Block } from "./types.ts";
 
-
-
-function shouldBeOnly(lineNumberOnly: number | undefined, blockStartLine: number, blockEndLine: number) {
-  const shouldBeOnly = lineNumberOnly !== undefined && lineNumberOnly >= blockStartLine && lineNumberOnly <= blockEndLine;
+function shouldBeOnly(
+  lineNumberOnly: number | undefined,
+  blockStartLine: number,
+  blockEndLine: number,
+) {
+  const shouldBeOnly = lineNumberOnly !== undefined &&
+    lineNumberOnly >= blockStartLine && lineNumberOnly <= blockEndLine;
   return shouldBeOnly;
 }
 
-export function fileTextToBlocks(txt: string, _filePath: string, lineSpec = ''): Block[] {
+export function fileTextToBlocks(
+  txt: string,
+  _filePath: string,
+  lineSpec = "",
+): Block[] {
   const blocks: Block[] = [];
   const lines = txt.replaceAll("\r", "\n").split("\n");
   let currentBlockText = "";
@@ -33,7 +40,11 @@ export function fileTextToBlocks(txt: string, _filePath: string, lineSpec = ''):
           _startLine: blockStartLine,
           _endLine: blockEndLine,
           _filePath,
-          only: shouldBeOnly(lineNumberNotIgnored, blockStartLine, blockEndLine),
+          only: shouldBeOnly(
+            lineNumberNotIgnored,
+            blockStartLine,
+            blockEndLine,
+          ),
         },
       });
       blocks.push(block);
@@ -49,8 +60,11 @@ export function fileTextToBlocks(txt: string, _filePath: string, lineSpec = ''):
           _startLine: blockStartLine,
           _endLine: blockEndLine,
           _filePath,
-          only: shouldBeOnly(lineNumberNotIgnored, blockStartLine, blockEndLine),
-
+          only: shouldBeOnly(
+            lineNumberNotIgnored,
+            blockStartLine,
+            blockEndLine,
+          ),
         },
       });
       blocks.push(block);
@@ -61,18 +75,17 @@ export function fileTextToBlocks(txt: string, _filePath: string, lineSpec = ''):
 
 import { expandGlob } from "https://deno.land/std@0.164.0/fs/mod.ts";
 
-
-export const checkGlobHasLineSpec = (glob: string) => new RegExp(":[0-9]+").test(glob);
-
+export const checkGlobHasLineSpec = (glob: string) =>
+  new RegExp(":[0-9]+").test(glob);
 
 export async function globsToFilePaths(globs: string[]): Promise<string[]> {
   const filePaths: string[] = [];
 
   for (let glob of globs) {
-    let lineSpec = '';
+    let lineSpec = "";
     if (checkGlobHasLineSpec(glob)) {
-      [glob, lineSpec] = glob.split(':');
-      lineSpec = ':' + lineSpec;
+      [glob, lineSpec] = glob.split(":");
+      lineSpec = ":" + lineSpec;
     }
     for await (const fileFound of expandGlob(glob)) {
       if (fileFound.isFile) {
@@ -89,9 +102,9 @@ export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
 
   for (let _filePath of filePaths) {
     let fileContent = "";
-    let lineSpec = '';
+    let lineSpec = "";
     if (checkGlobHasLineSpec(_filePath)) {
-      [_filePath, lineSpec] = _filePath.split(':');
+      [_filePath, lineSpec] = _filePath.split(":");
     }
     try {
       fileContent = await Deno.readTextFile(_filePath);

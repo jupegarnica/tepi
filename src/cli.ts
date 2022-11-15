@@ -68,7 +68,6 @@ export async function cli() {
     return;
   }
 
-
   // --display
   /////////////
 
@@ -83,7 +82,8 @@ export async function cli() {
   if (getDisplayIndex(defaultMeta) === Infinity) {
     console.error(
       fmt.brightRed(
-        `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map((t) => fmt.bold(t)).join(", ")
+        `Invalid display mode ${args.display}\n Must be one of: ${
+          DISPLAYS.map((t) => fmt.bold(t)).join(", ")
         }`,
       ),
     );
@@ -115,7 +115,8 @@ export async function cli() {
   if (keysLoaded.size && getDisplayIndex(defaultMeta) > 0) {
     console.info(
       fmt.gray(
-        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(envFiles).join(", ")
+        `Loaded ${keysLoaded.size} environment variables from: ${
+          Array.from(envFiles).join(", ")
         }`,
       ),
     );
@@ -125,8 +126,7 @@ export async function cli() {
   /////////////
   const globs: string[] = args._.length ? args._ as string[] : ["**/*.http"];
 
-
-  const filePathsToRun = await globsToFilePaths(globs)
+  const filePathsToRun = await globsToFilePaths(globs);
 
   // runner
   /////////////
@@ -142,14 +142,16 @@ export async function cli() {
     if (getDisplayIndex(defaultMeta) > 0) {
       console.warn(
         fmt.yellow(
-          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))
-          } ${onlyMode.size} ${onlyMode.size === 1 ? 'test' : 'tests'} are in "only" mode.`,
+          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${
+            onlyMode.size === 1 ? "test" : "tests"
+          } are in "only" mode.`,
         ),
       );
       if (!exitCode) {
         console.error(
           fmt.red(
-            `Failed because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
+            `Failed because the ${fmt.bold('"only"')} option was used at ${
+              [...onlyMode].join(", ")
             }`,
           ),
         );

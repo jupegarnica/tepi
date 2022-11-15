@@ -96,8 +96,7 @@ export class Block {
       return String(this.meta.description);
     }
     if (this.meta.id) {
-      return String(this.meta.id)
-
+      return String(this.meta.id);
     }
     if (this.request) {
       return `${this.request.method} ${this.request.url}`;

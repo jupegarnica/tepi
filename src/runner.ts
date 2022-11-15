@@ -10,8 +10,8 @@ import {
   resolve,
 } from "https://deno.land/std@0.164.0/path/posix.ts";
 import {
-  getDisplayIndex,
   createBlockSpinner,
+  getDisplayIndex,
   logPath,
   printBlock,
   printErrorsSummary,
@@ -23,8 +23,6 @@ import {
   parseResponseFromText,
 } from "./parser.ts";
 import * as assertions from "https://deno.land/std@0.164.0/testing/asserts.ts";
-
-
 
 export async function runner(
   filePaths: string[],
@@ -136,10 +134,12 @@ export async function runner(
     pathSpinner?.clear();
   }
 
-  const totalBlockRun = successfulBlocks + failedBlocks ;
+  const totalBlockRun = successfulBlocks + failedBlocks;
   const exitCode = failedBlocks > 0
     ? failedBlocks
-    : totalBlockRun === 0 ? 1 : 0;
+    : totalBlockRun === 0
+    ? 1
+    : 0;
 
   if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
@@ -154,8 +154,10 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${
+        fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${
+        fmt.yellow(String(ignoredBlocks))
       } ignored ${prettyGlobalTime}`,
     );
   }
@@ -248,7 +250,6 @@ async function runBlock(
       return blocksDone;
     }
 
-
     if (!block.request) {
       if (block.meta._isFirstBlock) {
         spinner.clear();
@@ -259,7 +260,6 @@ async function runBlock(
       addToDone(blocksDone, block);
       return blocksDone;
     }
-
 
     if (block.error) {
       throw block.error;
@@ -338,7 +338,9 @@ async function processMetadata(
           ...meta,
         };
         if (block.meta.only) {
-          onlyMode.add(`${block.meta._relativeFilePath}:${block.meta._startLine}`);
+          onlyMode.add(
+            `${block.meta._relativeFilePath}:${block.meta._startLine}`,
+          );
         }
         if (block.meta.import) {
           if (isAbsolute(block.meta.import)) {
@@ -347,7 +349,6 @@ async function processMetadata(
             mustBeImported.add(resolve(dirname(file.path), block.meta.import));
           }
         }
-
       } catch (error) {
         error.message = `Error parsing metadata: ${error.message}`;
         block.error = error;

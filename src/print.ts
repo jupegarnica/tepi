@@ -9,7 +9,6 @@ import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 type FmtMethod = keyof typeof fmt;
 const REFRESH_INTERVAL = 130;
 
-
 function consoleSize(): { rows: number; columns: number } {
   try {
     const { columns, rows } = Deno.consoleSize();
@@ -27,8 +26,9 @@ function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   padLength = padLength < 0 ? 0 : padLength;
   const separator = fmt.gray("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
-    }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${
+    separator.repeat(padLength)
+  }`;
   console.info(output);
 }
 
@@ -51,7 +51,6 @@ export function getDisplayIndex(meta: Meta): number {
 export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error, meta } = block;
 
-
   const displayIndex = getDisplayIndex(meta);
   if (displayIndex < 3) {
     return;
@@ -64,8 +63,9 @@ export async function printBlock(block: Block): Promise<void> {
     block.meta._relativeFilePath &&
     (request || actualResponse || expectedResponse || error)
   ) {
-    const path = `\n${fmt.dim("Data from:")} ${fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)
-      }`;
+    const path = `\n${fmt.dim("Data from:")} ${
+      fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)
+    }`;
     console.info(path);
   }
   if (meta && displayIndex >= 4) {
@@ -142,9 +142,10 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
       firstError || console.error(fmt.dim("------------------"));
       if (getDisplayIndex(meta) === 1) {
         // minimal
-        const descriptionMaybeTruncated = (description.length > maximumLength - 20)
-        ? `${description.slice(0, maximumLength - 20)}...`
-        : description;
+        const descriptionMaybeTruncated =
+          (description.length > maximumLength - 20)
+            ? `${description.slice(0, maximumLength - 20)}...`
+            : description;
 
         const messageText = fmt.stripColor(
           `${descriptionMaybeTruncated} => ${error.name}: ${error.message}`,
@@ -161,13 +162,15 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
         message = `${fmt.red("✖")}  ${finalMsg} ${messagePath}`;
       } else {
         // default
-        message = `${fmt.red("✖")} ${fmt.red(description + " => ")} ${fmt.bold(error.name)
-          }\n${fmt.white(error.message)} \n${messagePath}`;
+        message = `${fmt.red("✖")} ${fmt.red(description + " => ")} ${
+          fmt.bold(error.name)
+        }\n${fmt.white(error.message)} \n${messagePath}`;
       }
     } else {
       // already displayed
-      message = `${fmt.red(description + " => ")} ${fmt.bold(error.name).padEnd(maximumLength)
-        } ${messagePath}`;
+      message = `${fmt.red(description + " => ")} ${
+        fmt.bold(error.name).padEnd(maximumLength)
+      } ${messagePath}`;
     }
     console.error(message);
     firstError = false;
@@ -208,10 +211,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-      ? fmt.yellow
-      : response.status >= 400 && response.status < 500
-        ? fmt.red
-        : fmt.bgRed;
+    ? fmt.yellow
+    : response.status >= 400 && response.status < 500
+    ? fmt.red
+    : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -253,8 +256,9 @@ export function headersToText(headers: Headers, displayIndex: number): string {
     maxLengthKey = Math.max(maxLengthKey, truncate(key, truncateAt).length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))
-      } ${fmt.dim(truncate(value, truncateAt))}\n`;
+    result += `${
+      fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))
+    } ${fmt.dim(truncate(value, truncateAt))}\n`;
   }
 
   return result;
@@ -332,7 +336,11 @@ const log = (text: string, prefix?: string) =>
     // discardStdin: true,
   }).start();
 
-export const logPath = (text: string, displayIndex: number, noAnimation = false) => {
+export const logPath = (
+  text: string,
+  displayIndex: number,
+  noAnimation = false,
+) => {
   if (displayIndex === 1) {
     return noAnimation ? console.info(text) : log(text);
   }
@@ -340,7 +348,6 @@ export const logPath = (text: string, displayIndex: number, noAnimation = false)
     return console.info(text);
   }
 };
-
 
 export type BlockSpinner = {
   fail: () => void;
@@ -378,8 +385,9 @@ export function createBlockSpinner(
     ? fmt.dim(` needed -> ${fromFilePath}`)
     : "";
   const startTime = Date.now();
-  const text = `${block.description} ${"   "} ${fmt.gray("0ms")
-    }${differentFile}`;
+  const text = `${block.description} ${"   "} ${
+    fmt.gray("0ms")
+  }${differentFile}`;
 
   const spinner = wait({
     prefix: "",
@@ -395,8 +403,9 @@ export function createBlockSpinner(
       return;
     }
     const _elapsedTime = Date.now() - startTime;
-    const text = `${fmt.brightWhite(block.description)} ${"   "} ${fmt.gray(`${(_elapsedTime)}ms`)
-      }${differentFile}`;
+    const text = `${fmt.brightWhite(block.description)} ${"   "} ${
+      fmt.gray(`${(_elapsedTime)}ms`)
+    }${differentFile}`;
     if (text !== spinner.text) {
       spinner.text = text;
     }
@@ -417,13 +426,14 @@ export function createBlockSpinner(
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status || "");
       const statusText = status ? (" " + status) : (" ERR");
-      const text = `${fmt.red(block.description)} ${statusText} ${fmt.gray(`${ms(_elapsedTime)}`)
-        }${differentFile}`;
+      const text = `${fmt.red(block.description)} ${statusText} ${
+        fmt.gray(`${ms(_elapsedTime)}`)
+      }${differentFile}`;
       const symbol = fmt.brightRed("✖");
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
-        console.info(symbol, text)
+        console.info(symbol, text);
         return;
       }
       spinner.stopAndPersist({
@@ -434,13 +444,14 @@ export function createBlockSpinner(
     ignore: () => {
       const _elapsedTime = Date.now() - startTime;
 
-      const text = `${fmt.yellow(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
-        }${differentFile}`;
-      const symbol = fmt.yellow("·")
+      const text = `${fmt.yellow(block.description)} ${"   "} ${
+        fmt.gray(`${ms(_elapsedTime)}`)
+      }${differentFile}`;
+      const symbol = fmt.yellow("·");
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
-        console.info(symbol, text)
+        console.info(symbol, text);
         return;
       }
       spinner.stopAndPersist({
@@ -452,13 +463,14 @@ export function createBlockSpinner(
       const _elapsedTime = Date.now() - startTime;
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status);
-      const text = `${fmt.green(block.description)} ${status} ${fmt.gray(`${ms(_elapsedTime)}`)
-        }${differentFile}`;
+      const text = `${fmt.green(block.description)} ${status} ${
+        fmt.gray(`${ms(_elapsedTime)}`)
+      }${differentFile}`;
       const symbol = fmt.brightGreen("✔");
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
-        console.info(symbol, text)
+        console.info(symbol, text);
         return;
       }
 
@@ -476,12 +488,13 @@ export function createBlockSpinner(
     },
     empty: () => {
       const _elapsedTime = Date.now() - startTime;
-      const text = `${fmt.dim(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
-        }${differentFile}`;
+      const text = `${fmt.dim(block.description)} ${"   "} ${
+        fmt.gray(`${ms(_elapsedTime)}`)
+      }${differentFile}`;
       const symbol = fmt.dim("·");
       clearInterval(id);
       if (globalMeta._noAnimation) {
-        console.info(symbol, text)
+        console.info(symbol, text);
         return;
       }
 
