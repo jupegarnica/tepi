@@ -1,6 +1,7 @@
 # dco run --rm vhs demo.tape
 
 Output ./demo.gif
+# Output ./demo.ascii
 Set Framerate 15
 Set Padding 30
 Set FontSize 17
