@@ -13,17 +13,6 @@ Set FontSize 18
 Set Width 800
 Set Height 300
 
-# Require deno
-# Hide
-# Type "deno cache --unstable https://tepi.deno.dev/src/cli.ts" Enter
-# Sleep 15s
-# Type "clear" Enter
-#
-# Show
-#
-# Sleep 100ms
-# Type "deno install --unstable -Af -n tepi https://tepi.deno.dev/src/cli.ts"
-# Sleep 300ms
 
 
 
