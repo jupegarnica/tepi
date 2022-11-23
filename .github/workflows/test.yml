@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v2
+      - uses: denoland/setup-deno@v1
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
 
