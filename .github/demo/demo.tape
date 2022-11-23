@@ -16,7 +16,7 @@ Enter
 Type "deno install --unstable -Af -n tepi ../../src/cli.ts"
 Type "deno cache -A npm:cli-highlight" Enter
 Type "alias cat='deno run -A npm:cli-highlight'" Enter
-# Sleep 15s
+Sleep 15s
 Type clear Enter
 Show
 
