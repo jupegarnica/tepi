@@ -1,4 +1,7 @@
 name: vhs
+# depends on another workflow succeeding
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idneeds
+
 on:
   push:
     paths:
@@ -10,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: setup deno
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: v1.x
       - uses: charmbracelet/vhs-action@v1
         with:
           path: '.github/demo/demo.tape'
