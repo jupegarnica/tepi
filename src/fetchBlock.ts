@@ -1,5 +1,4 @@
 import {
-  mimesToArrayBuffer,
   mimesToBlob,
   mimesToFormData,
   mimesToJSON,
@@ -73,11 +72,7 @@ export async function extractBody(
     re.bodyExtracted = undefined;
     return re;
   }
-  if (mimesToArrayBuffer.some(includes)) {
-    const body = await re.arrayBuffer();
-    re.bodyExtracted = body;
-    return re;
-  }
+
   if (mimesToText.some(includes)) {
     const body = await re.text();
     re.bodyExtracted = body;
@@ -98,7 +93,13 @@ export async function extractBody(
     re.bodyExtracted = body;
     return re;
   }
-  throw new Error("Unknown content type " + contentType);
+  // TODO: arrayBuffer as default?
+  const body = await re.arrayBuffer();
+  re.bodyExtracted = body;
+  return re;
+  // if (mimesToArrayBuffer.some(includes)) {
+  // } else {}
+  // throw new Error("Unknown content type " + contentType);
 }
 
 export async function consumeBodies(block: Block): Promise<void> {
