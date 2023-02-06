@@ -1,0 +1,74 @@
+{
+  "name": "vscode-tepi",
+  "displayName": "vscode-tepi",
+  "description": "support for .http file handle by tepi",
+  "version": "0.0.1",
+  "publisher": "tepi",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "main": "./run.js",
+  "categories": [
+    "Programming Languages"
+  ],
+  "capabilities": {
+    "codeLensProvider": {
+      "resolveProvider": "true"
+    }
+  },
+  "activationEvents": [
+    "onLanguage:http",
+    "onCommand:vscode-tepi.toggle"
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Tepi Configuration",
+      "properties": {
+        "regex-previewer.enableCodeLens": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": true,
+          "description": "Enables code lens"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "http",
+        "aliases": [
+          "http",
+          "http"
+        ],
+        "extensions": [
+          "http"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "http",
+        "scopeName": "http",
+        "path": "./syntaxes/http.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "vscode-tepi.toggle",
+        "title": "tepi toggle"
+      },
+      {
+        "command": "vscode-tepi.run",
+        "title": "tepi toggle"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-tepi.toggle",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      }
+    ]
+  }
+}
