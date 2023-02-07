@@ -1,0 +1,64 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+explanation: If the first block does not have a request its metadata will be use globally for all requests.
+---
+###
+---
+needs: loginTest
+id: depends on login
+---
+POST https://example.com/onlyAdmin
+Authorization: Bearer <%= loginTest.body.jwt %>
+Content-Type: application/json
+
+{"name": "Garn"}
+
+# write the expected response to validate the actual response
+HTTP/1.1 403 Forbidden
+
+###  requests separator
+---
+id: optional name
+timeout: 500 # must respond in less than 500ms
+---
+GET /?body=hola&status=400
+host: https://faker.deno.dev
+quiet: true
+
+###
+---
+id: name
+---
+GET https://example.com
+
+
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+
+
+###
+---
+redirect: follow
+description: |
+  you can pass the requestInit has metadata: fetch api doc: https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#parameters
+---
+GET /image/avatar
+quiet: true
+
+
+HTTP/1.1 400 Bad Request
+###
+---
+id: assert json body
+---
+GET https://httpbin.org/json
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "slideshow": {
+    "title": "Sample Slide Show"
+  },
+  "unexpected": "this should not be here"
+}

@@ -3,17 +3,7 @@ const vscode = require("vscode");
 // create a activation function for the extension
 // this function is called when the extension is activated
 function activate(context) {
-  // check if tepi is installed using the command line
-  const { exec } = require("child_process");
-  exec("tep --version", (error, stdout, stderr) => {
-    if (error) {
-      vscode.window.showErrorMessage(
-        `TEPI is not installed. Please install it.`,
-        {title: "Install", command: "tepi.install"},
 
-      );
-    }
-  });
 
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider("http", { provideCodeLenses }),
@@ -52,6 +42,18 @@ function activate(context) {
       },
     ),
   );
+  // check if tepi is installed using the command line
+  const { exec } = require("child_process");
+  exec("tepi --version", (error, stdout, stderr) => {
+    console.log({error, stdout, stderr});
+    if (error) {
+      vscode.window.showErrorMessage(
+        `TEPI is not installed. Please install it.`,
+        {title: "Install", command: "tepi.install"},
+
+      );
+    }
+  });
 
   function provideCodeLenses(document, token) {
     const matches = findRegexes(document);

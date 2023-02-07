@@ -72,7 +72,7 @@
       },
       {
         "command": "tepi.install",
-        "title": "install tepi with deno install"
+        "title": "install tepi latest versionl"
       }
     ],
     "keybindings": [
