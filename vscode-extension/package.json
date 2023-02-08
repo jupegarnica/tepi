@@ -1,13 +1,16 @@
 {
-  "name": "vscode-tepi",
-  "displayName": "vscode-tepi",
+  "name": "tepi",
+  "displayName": "tepi",
   "description": "support for .http file handle by tepi",
   "version": "0.0.1",
   "publisher": "tepi",
+  "scripts": {
+    "publish": "npx vsce package && npx vsce publish"
+  },
   "engines": {
     "vscode": "^1.73.0"
   },
-  "main": "./run.js",
+  "main": "./main.js",
   "categories": [
     "Programming Languages"
   ],
@@ -17,8 +20,7 @@
     }
   },
   "activationEvents": [
-    "onLanguage:http",
-    "onCommand:vscode-tepi.toggle"
+    "onLanguage:http"
   ],
   "contributes": {
     "configuration": {
@@ -49,26 +51,39 @@
     "grammars": [
       {
         "language": "http",
-        "scopeName": "http",
-        "path": "./syntaxes/http.tmLanguage.json"
+        "scopeName": "source.http",
+        "path": "./http.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.json": "json",
+          "meta.embedded.block.javascript": "javascript",
+          "meta.embedded.block.html": "html",
+          "meta.embedded.block.graphql": "graphql"
+        }
       }
     ],
     "commands": [
       {
-        "command": "vscode-tepi.toggle",
-        "title": "tepi toggle"
+        "command": "tepi.run-all",
+        "title": "tepi run all"
       },
       {
-        "command": "vscode-tepi.run",
-        "title": "tepi toggle"
+        "command": "tepi.run",
+        "title": "tepi run line"
+      },
+      {
+        "command": "tepi.install",
+        "title": "install tepi latest versionl"
       }
     ],
     "keybindings": [
       {
-        "command": "vscode-tepi.toggle",
+        "command": "tepi.run-all",
         "key": "ctrl+alt+m",
         "mac": "cmd+alt+m"
       }
     ]
+  },
+  "dependencies": {
+    "@vscode/vsce": "^2.17.0"
   }
 }
