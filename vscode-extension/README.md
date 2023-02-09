@@ -1,4 +1,3 @@
-![Example demo](./.github/demo/demo.gif)
 
 
 # TEPI
@@ -284,4 +283,3 @@ display: verbose
 GET https://example.com/get
 
 ```
-
