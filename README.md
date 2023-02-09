@@ -67,12 +67,13 @@ tepi [OPTIONS] [FILES|GLOBS...]
 *    `--watch-no-clear`  same but without clearing the screen.
 * -t `--timeout`         Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * -f `--fail-fast`       Stop running tests after the first failure.
-* -d `--display`         Set the display mode. (none, minimal, default and full)
+* -d `--display`         Set the display mode. (none, minimal, default, truncate, full and verbose)
        -  none: display nothing
        -  minimal: display only a minimal summary
        -  default: list results and full error summary
-       -  full: display also all HTTP requests and responses
-       -  verbose: display also all metadata and not truncate data
+       -  truncate: list results and full error summary but truncate data
+       -  full: display also all HTTP requests and responses and not truncate data
+       -  verbose: display also all metadata
 * -h `--help`           output usage information
 * -e `--env-file`       load environment variables from a .env file
 *    `--no-color`       output without color
