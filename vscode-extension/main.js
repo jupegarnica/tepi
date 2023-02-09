@@ -3,8 +3,6 @@ const vscode = require("vscode");
 // create a activation function for the extension
 // this function is called when the extension is activated
 function activate(context) {
-
-
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider("http", { provideCodeLenses }),
   );
@@ -37,23 +35,29 @@ function activate(context) {
       "tepi.install",
       () => {
         const terminal = vscode.window.createTerminal("tepi");
-        terminal.sendText(`deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts`);
         terminal.show();
+        terminal.sendText(
+          `deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts`,
+        );
       },
     ),
   );
   // check if tepi is installed using the command line
-  const { exec } = require("child_process");
-  exec("tepi --version", (error, stdout, stderr) => {
-    console.log({error, stdout, stderr});
-    if (error) {
-      vscode.window.showErrorMessage(
-        `TEPI is not installed. Please install it.`,
-        {title: "Install", command: "tepi.install"},
+  // TODO
+  // const { exec } = require("node:child_process");
+  // console.log("Checking if TEPI is installed");
+  // exec("tepi --version", (error, stdout, stderr) => {
+  //   console.log({error, stdout, stderr});
+  //   if (error) {
+  //     console.log("TEPI is not installed");
+  //     console.log({error, stdout, stderr});
+  //     vscode.window.showErrorMessage(
+  //       `TEPI is not installed. Please install it.\n https://tepi.deno.dev`,
+  //       {title: "Install", command: "tepi.install"},
 
-      );
-    }
-  });
+  //     );
+  //   }
+  // });
 
   function provideCodeLenses(document, token) {
     const matches = findRegexes(document);
