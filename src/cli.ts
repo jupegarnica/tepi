@@ -158,7 +158,7 @@ export async function cli() {
       if (!exitCode) {
         console.error(
           fmt.red(
-            `Failed because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
+            `\nExited with code 1 because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
             }`,
           ),
         );
