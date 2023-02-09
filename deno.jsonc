@@ -15,8 +15,9 @@
     // release
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
     "version": "deno run  -A https://deno.land/x/version/index.ts",
-    "readme": "deno task readme:create && NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help >> README.md && git add README.md && git commit -m 'docs: update README.md' || true",
+    "readme": "deno task readme:create && NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help >> README.md && deno task readme:copy && git add README.md vscode-extension/README.md && git commit -m 'docs: update README.md' || true",
     "readme:create": "echo '![Example demo](./.github/demo/demo.gif)\n' > README.md",
+    "readme:copy": "cp README.md vscode-extension/README.md",
     "release": "deno task readme && deno task version patch && git push --tags origin main",
     "publish-image":"export IMAGE_NAME=jupegarnica/tepi && export IMAGE_TAG=$(deno task version get) && docker build -t $IMAGE_NAME:$IMAGE_TAG . && docker push $IMAGE_NAME:$IMAGE_TAG && docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest && docker push $IMAGE_NAME:latest"
   }

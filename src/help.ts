@@ -31,6 +31,8 @@ export function help(): void {
 ${g(`# ${fmt.bold("TEPI")}`)}
 ${g(`### -- HTTP Test Runner--`)}
 
+https://tepi.deno.dev
+
 ${orange(`${fmt.bold("Tepi")} is a test runner for .http files.`)}
 
 Write your tests in .http files and run them with ${c("tepi")}.
