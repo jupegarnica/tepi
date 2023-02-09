@@ -23,3 +23,8 @@ Content-Type: application/json
   },
   "unexpected": "this should not be here"
 }
+
+
+###
+
+GET https://garn.dev

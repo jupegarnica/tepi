@@ -36,6 +36,7 @@ export const DISPLAYS = [
   "none",
   "minimal",
   "default",
+  "truncate",
   "full",
   "verbose",
 ];
