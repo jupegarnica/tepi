@@ -68,16 +68,13 @@
     ],
     "commands": [
       {
-        "command": "tepi.run-all",
-        "title": "tepi run all"
+        "command": "tepi.help",
+        "title": "show tepi help"
       },
-      {
-        "command": "tepi.run",
-        "title": "tepi run line"
-      },
+
       {
         "command": "tepi.install",
-        "title": "install tepi latest versionl"
+        "title": "install tepi latest version"
       }
     ],
     "keybindings": [

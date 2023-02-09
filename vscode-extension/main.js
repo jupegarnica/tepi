@@ -7,9 +7,20 @@ function activate(context) {
     vscode.languages.registerCodeLensProvider("http", { provideCodeLenses }),
   );
   context.subscriptions.push(
-    // register a command for the extension
     vscode.commands.registerCommand("tepi.run", (match) => {
-      const terminal = vscode.window.activeTerminal ||  vscode.window.createTerminal("tepi");
+      const terminal = vscode.window.activeTerminal ||
+        vscode.window.createTerminal("tepi");
+      const path = match.documentFile;
+      const fileLine = match.documentLine.lineNumber + 1;
+      terminal.sendText(`tepi ${path}:${fileLine}`);
+      terminal.show();
+    }),
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("tepi.run-display-full", (match) => {
+      const terminal = vscode.window.activeTerminal ||
+        vscode.window.createTerminal("tepi");
       const path = match.documentFile;
       const fileLine = match.documentLine.lineNumber + 1;
       terminal.sendText(`tepi ${path}:${fileLine} --display full`);
@@ -17,11 +28,20 @@ function activate(context) {
     }),
   );
   context.subscriptions.push(
-    // register a command for the extension
+    vscode.commands.registerCommand("tepi.help", () => {
+      const terminal = vscode.window.activeTerminal ||
+        vscode.window.createTerminal("tepi");
+      terminal.sendText(`tepi --help`);
+      terminal.show();
+    }),
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand(
       "tepi.run-all",
       (match) => {
-        const terminal = vscode.window.activeTerminal ||  vscode.window.createTerminal("tepi");
+        const terminal = vscode.window.activeTerminal ||
+          vscode.window.createTerminal("tepi");
         const path = match.documentFile;
         terminal.sendText(`tepi ${path}`);
         terminal.show();
@@ -30,11 +50,11 @@ function activate(context) {
   );
 
   context.subscriptions.push(
-    // register a command for the extension
     vscode.commands.registerCommand(
       "tepi.install",
       () => {
-        const terminal = vscode.window.activeTerminal ||  vscode.window.createTerminal("tepi");
+        const terminal = vscode.window.activeTerminal ||
+          vscode.window.createTerminal("tepi");
         terminal.show();
         terminal.sendText(
           `deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts`,
@@ -42,6 +62,7 @@ function activate(context) {
       },
     ),
   );
+
   // check if tepi is installed using the command line
   // TODO
   // const { exec } = require("node:child_process");
@@ -66,14 +87,23 @@ function activate(context) {
     for (const match of matches) {
       codeLenses.push(
         new vscode.CodeLens(match.range, {
-          title: "TEPI - run line",
+          title: "TEPI - run line ",
           command: "tepi.run",
           arguments: [match],
         }),
         new vscode.CodeLens(match.range, {
-          title: "TEPI - run all",
+          title: "run line --display full ",
+          command: "tepi.run-display-full",
+          arguments: [match],
+        }),
+        new vscode.CodeLens(match.range, {
+          title: " run file ",
           command: "tepi.run-all",
           arguments: [match],
+        }),
+        new vscode.CodeLens(match.range, {
+          title: " help ",
+          command: "tepi.help"
         }),
       );
     }
