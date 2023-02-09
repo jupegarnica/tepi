@@ -2,11 +2,11 @@
   "name": "tepi",
   "displayName": "tepi",
   "description": "support for .http file handle by tepi",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "jupegarnica",
   "scripts": {
     "package": "vsce package",
-    "publish": "vsce publish"
+    "publish": "google-chrome https://marketplace.visualstudio.com/manage/publishers/jupegarnica"
   },
   "repository": {
     "type": "git",
