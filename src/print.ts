@@ -9,6 +9,37 @@ import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
 type FmtMethod = keyof typeof fmt;
 const REFRESH_INTERVAL = 130;
 
+export const DISPLAYS = [
+  "none",     // 0
+  "minimal",  // 1
+  "default",  // 2
+  "truncate", // 3
+  "full",     // 4
+  "verbose",  // 5
+];
+
+
+
+const DISPLAY_INDEX_NONE = getDisplayIndexNamed("none");
+const DISPLAY_INDEX_MINIMAL = getDisplayIndexNamed("minimal");
+const DISPLAY_INDEX_DEFAULT = getDisplayIndexNamed("default");
+const DISPLAY_INDEX_TRUNCATE = getDisplayIndexNamed("truncate");
+const DISPLAY_INDEX_FULL = getDisplayIndexNamed("full");
+const DISPLAY_INDEX_VERBOSE = getDisplayIndexNamed("verbose");
+console.log(
+  {
+    DISPLAY_INDEX_NONE,
+    DISPLAY_INDEX_MINIMAL,
+    DISPLAY_INDEX_DEFAULT,
+    DISPLAY_INDEX_TRUNCATE,
+    DISPLAY_INDEX_FULL,
+    DISPLAY_INDEX_VERBOSE,
+
+  }
+);
+
+
+
 function consoleSize(): { rows: number; columns: number } {
   try {
     const { columns, rows } = Deno.consoleSize();
@@ -32,14 +63,7 @@ function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
   console.info(output);
 }
 
-export const DISPLAYS = [
-  "none",
-  "minimal",
-  "default",
-  "truncate",
-  "full",
-  "verbose",
-];
+
 export function getDisplayIndex(meta: Meta): number {
   const display = meta.display;
   const index = DISPLAYS.indexOf(display);
@@ -49,14 +73,24 @@ export function getDisplayIndex(meta: Meta): number {
   return index;
 }
 
+function getDisplayIndexNamed(name: string): number {
+  const index = DISPLAYS.indexOf(name);
+  if (index === -1) {
+    return Infinity;
+  }
+  return index;
+}
+
+
+
 export async function printBlock(block: Block): Promise<void> {
   const { request, actualResponse, expectedResponse, error, meta } = block;
 
   const displayIndex = getDisplayIndex(meta);
-  if (displayIndex < 3) {
+  if (displayIndex < DISPLAY_INDEX_TRUNCATE) {
     return;
   }
-  if (block.meta.ignore && displayIndex < 4) {
+  if (block.meta.ignore && displayIndex < DISPLAY_INDEX_VERBOSE) {
     return;
   }
   console.group();
@@ -69,7 +103,7 @@ export async function printBlock(block: Block): Promise<void> {
     }`;
     console.info(path);
   }
-  if (meta && displayIndex >= 4) {
+  if (meta && displayIndex >= DISPLAY_INDEX_TRUNCATE) {
     printTitle("⬇   Meta    ⬇");
     console.info(metaToText(meta));
   }
@@ -248,7 +282,7 @@ export function headersToText(headers: Headers, displayIndex: number): string {
   let result = "";
   let truncate = truncateCols;
 
-  if (displayIndex >= 4) {
+  if (displayIndex >= DISPLAY_INDEX_FULL) {
     // verbose, do not truncate
     truncate = (str: string, _: number) => str;
   }
@@ -266,14 +300,14 @@ export function headersToText(headers: Headers, displayIndex: number): string {
 }
 export async function printBody(
   re: _Response | _Request,
-  displayIndex = 4,
+  displayIndex = DISPLAY_INDEX_FULL,
 ): Promise<void> {
   let truncate = truncateRows;
   const MAX_BODY_LINES = 40;
   try {
     let body = await bodyToText(re);
     body &&= body.trim() + "\n";
-    if (displayIndex >= 4) {
+    if (displayIndex >= DISPLAY_INDEX_FULL) {
       truncate = (str: string, _: number) => str;
     }
     console.info(truncate(body, MAX_BODY_LINES));
@@ -342,10 +376,10 @@ export const logPath = (
   displayIndex: number,
   noAnimation = false,
 ) => {
-  if (displayIndex === 1) {
+  if (displayIndex === DISPLAY_INDEX_MINIMAL) {
     return noAnimation ? console.info(text) : log(text);
   }
-  if (displayIndex > 1) {
+  if (displayIndex > DISPLAY_INDEX_MINIMAL) {
     return console.info(text);
   }
 };
@@ -369,7 +403,7 @@ export function createBlockSpinner(
     displayIndex = getDisplayIndex(globalMeta);
   }
 
-  if (displayIndex < 2) {
+  if (displayIndex < DISPLAY_INDEX_DEFAULT) {
     return {
       pass: noop,
       ignore: noop,
