@@ -1,6 +1,10 @@
+![Example demo](./.github/demo/demo.gif)
+
 
 # TEPI
 ### -- HTTP Test Runner--
+
+https://tepi.deno.dev
 
 Tepi is a test runner for .http files.
 
@@ -280,3 +284,4 @@ display: verbose
 GET https://example.com/get
 
 ```
+

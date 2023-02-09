@@ -4,6 +4,8 @@
 # TEPI
 ### -- HTTP Test Runner--
 
+https://tepi.deno.dev
+
 Tepi is a test runner for .http files.
 
 Write your tests in .http files and run them with `tepi`.
