@@ -3,9 +3,10 @@
   "displayName": "tepi",
   "description": "support for .http file handle by tepi",
   "version": "0.0.1",
-  "publisher": "tepi",
+  "publisher": "jupegarnica",
   "scripts": {
-    "publish": "npx vsce package && npx vsce publish"
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "repository": {
     "type": "git",
@@ -86,8 +87,5 @@
         "mac": "cmd+alt+m"
       }
     ]
-  },
-  "dependencies": {
-    "@vscode/vsce": "^2.17.0"
   }
 }
