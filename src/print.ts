@@ -20,25 +20,12 @@ export const DISPLAYS = [
 
 
 
-const DISPLAY_INDEX_NONE = getDisplayIndexNamed("none");
+// const DISPLAY_INDEX_NONE = getDisplayIndexNamed("none");
 const DISPLAY_INDEX_MINIMAL = getDisplayIndexNamed("minimal");
 const DISPLAY_INDEX_DEFAULT = getDisplayIndexNamed("default");
 const DISPLAY_INDEX_TRUNCATE = getDisplayIndexNamed("truncate");
 const DISPLAY_INDEX_FULL = getDisplayIndexNamed("full");
 const DISPLAY_INDEX_VERBOSE = getDisplayIndexNamed("verbose");
-console.log(
-  {
-    DISPLAY_INDEX_NONE,
-    DISPLAY_INDEX_MINIMAL,
-    DISPLAY_INDEX_DEFAULT,
-    DISPLAY_INDEX_TRUNCATE,
-    DISPLAY_INDEX_FULL,
-    DISPLAY_INDEX_VERBOSE,
-
-  }
-);
-
-
 
 function consoleSize(): { rows: number; columns: number } {
   try {
