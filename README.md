@@ -1,5 +1,13 @@
 ![Example demo](./.github/demo/demo.gif)
 
+{
+  DISPLAY_INDEX_NONE: 0,
+  DISPLAY_INDEX_MINIMAL: 1,
+  DISPLAY_INDEX_DEFAULT: 2,
+  DISPLAY_INDEX_TRUNCATE: 3,
+  DISPLAY_INDEX_FULL: 4,
+  DISPLAY_INDEX_VERBOSE: 5
+}
 
 # TEPI
 ### -- HTTP Test Runner--
