@@ -1,0 +1,17 @@
+{
+
+    "number": ["green", "bold"],
+    "string": ["white", "italic"],
+    "comment": "dim",
+    "operator": "green",
+    "class_name": "red",
+    "function": "blue",
+    "keyword": "cyan",
+    "literal": "bold",
+    "params": "gray",
+    "title": "bold",
+    "type": "yellow",
+    "variable": "purple",
+    "attr": "cyan"
+
+  }

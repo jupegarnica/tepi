@@ -1,6 +1,7 @@
 GET http://httpbin.org/status/200
 
 HTTP/1.1 200 OK
+
 ###
 ---
 id: fetch delayed response
@@ -14,8 +15,12 @@ Content-type: application/json
   "data": "Quia et quia voluptatem.",
   "docs": "https://fakerjs.dev/api/git.html#commitMessage"
 }
+
 ###
+
 ---
 ignore: true
 ---
 GET /ignored
+
+###
