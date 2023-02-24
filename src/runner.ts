@@ -87,6 +87,8 @@ export async function runner(
       for (const block of file.blocks) {
         if (!block.meta.only) {
           block.meta.ignore = true;
+        } else {
+          block.meta.ignore = undefined;
         }
       }
     }
@@ -138,8 +140,8 @@ export async function runner(
   const exitCode = failedBlocks > 0
     ? failedBlocks
     : totalBlockRun === 0
-    ? 1
-    : 0;
+      ? 1
+      : 0;
 
   if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
@@ -154,10 +156,8 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${
-        fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${
-        fmt.yellow(String(ignoredBlocks))
+      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
+      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
       } ignored ${prettyGlobalTime}`,
     );
   }
@@ -193,23 +193,21 @@ async function runBlock(
 
       if (!blockNeeded) {
         throw new Error(`Block needed not found: ${block.meta.needs}`);
-      } else {
-        // Evict infinity loop
-        if (!globalData._blocksAlreadyReferenced.has(blockNeeded)) {
-          globalData._blocksAlreadyReferenced.add(blockNeeded);
-          blockNeeded.meta.ignore = false;
-          await runBlock(
-            blockNeeded,
-            globalData,
-            currentFilePath,
-            blocksDone,
-          );
-        } else {
-          throw new Error(
-            `Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`,
-          );
-        }
       }
+      if (globalData._blocksAlreadyReferenced.has(blockNeeded)) {
+        // Evict infinity loop
+        throw new Error(
+          `Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`,
+        );
+      }
+      globalData._blocksAlreadyReferenced.add(blockNeeded);
+      blockNeeded.meta.ignore = false; // override ignore if needed
+      await runBlock(
+        blockNeeded,
+        globalData,
+        currentFilePath,
+        blocksDone,
+      );
       if (blocksDone.has(block)) {
         return blocksDone;
       }
