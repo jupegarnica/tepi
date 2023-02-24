@@ -48,13 +48,13 @@ Test your HTTP APIs with standard http syntax
 
 
 ```bash
-deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
+deno install --reload   --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
 ```
 
 Or run remotely with:
 
 ```bash
-deno run --unstable --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
+deno run  --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
 ```
 
 ## Usage:
@@ -285,4 +285,3 @@ display: verbose
 GET https://example.com/get
 
 ```
-
