@@ -82,6 +82,10 @@ export async function runner(
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
 
+
+
+
+
   if (onlyMode.size) {
     for (const file of files) {
       for (const block of file.blocks) {
@@ -93,6 +97,25 @@ export async function runner(
       }
     }
   }
+
+   // look for all blocks needed
+   const allIdsNeeded = new Set<string>();
+   for (const file of files) {
+     for (const block of file.blocks) {
+       if (block.meta.needs) {
+         allIdsNeeded.add(block.meta.needs);
+       }
+     }
+   }
+   const allBlockNeeded = new Map<string, Block>();
+   for (const file of files) {
+     for (const block of file.blocks) {
+       if (allIdsNeeded.has(block.meta.id)) {
+         allBlockNeeded.set(block.meta.id, block);
+         block.meta.ignore = false;
+       }
+     }
+   }
 
   for (const file of files) {
     const relativePath = file.relativePath || "";
@@ -107,7 +130,7 @@ export async function runner(
         _isFirstBlock = false;
       }
 
-      await runBlock(block, globalData, relativePath, blocksDone);
+      await runBlock(block, globalData, relativePath, blocksDone, allBlockNeeded);
       if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
       }
@@ -181,6 +204,7 @@ async function runBlock(
   globalData: GlobalData,
   currentFilePath: string,
   blocksDone: Set<Block>,
+  allBlockNeeded: Map<string, Block>,
 ): Promise<Set<Block>> {
   if (blocksDone.has(block)) {
     return blocksDone;
@@ -188,11 +212,7 @@ async function runBlock(
   const spinner = createBlockSpinner(block, currentFilePath, globalData.meta);
   try {
     if (block.meta.needs && !block.meta.ignore) {
-      const blockNeeded = globalData._files.flatMap((file) => file.blocks)
-
-        .find((b) => b.meta.id === block.meta.needs);
-
-
+      const blockNeeded = allBlockNeeded.get(block.meta.needs)
       if (!blockNeeded) {
         throw new Error(`Block needed not found: ${block.meta.needs}`);
       }
@@ -203,21 +223,22 @@ async function runBlock(
         );
       }
       globalData._blocksAlreadyReferenced.add(blockNeeded);
-      // is needed but ignore in first run? remove it from blockdone
-      if (blockNeeded.meta._isDoneBlock && blockNeeded.meta.ignore) {
-        blocksDone.delete(blockNeeded);
-        blockNeeded.meta._isDoneBlock = false;
-        blockNeeded.meta.ignore = false; // override ignore if needed
-      }
+      // // is needed but ignore in first run? remove it from blockdone
+      // TODO: NOT NEEDED FOR NOW?
+      // if (blockNeeded.meta._isDoneBlock && blockNeeded.meta.ignore) {
+      //   blocksDone.delete(blockNeeded);
+      //   blockNeeded.meta._isDoneBlock = false;
+      //   blockNeeded.meta.ignore = false; // override ignore if needed
+      // }
 
       await runBlock(
         blockNeeded,
         globalData,
         currentFilePath,
         blocksDone,
+        allBlockNeeded,
       );
       if (blocksDone.has(block)) {
-        console.debug("--------------------already done", block);
         return blocksDone;
       }
     }

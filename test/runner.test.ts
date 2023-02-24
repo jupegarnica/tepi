@@ -456,8 +456,8 @@ Deno.test(
     assertEquals(blockInOrder[1].meta.only, false);
 
     assertEquals(blockInOrder[2].description, "404");
-    assertEquals(blockInOrder[2].meta._isSuccessfulBlock, undefined);
-    assertEquals(blockInOrder[2].meta._isIgnoredBlock, true);
+    assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
+    assertEquals(blockInOrder[2].meta._isIgnoredBlock, undefined);
     assertEquals(blockInOrder[2].meta.only, false);
 
     assertEquals(blockInOrder[3].description, "400");
