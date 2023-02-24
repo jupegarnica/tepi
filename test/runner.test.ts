@@ -264,11 +264,11 @@ Deno.test("[runner] needs", async () => {
     display: "none",
   });
 
-  const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.meta.id, "block1");
-  assertEquals(firstBlock.meta._isDoneBlock, true);
-  assertEquals(firstBlock.error, undefined);
-  assertEquals(await firstBlock.request?.getBody(), "RESPONSE!?");
+  const secondBlock = files[0].blocks[2];
+  assertEquals(secondBlock.meta.id, "block1");
+  assertEquals(secondBlock.meta._isDoneBlock, true);
+  assertEquals(secondBlock.error, undefined);
+  assertEquals(await secondBlock.request?.getBody(), "RESPONSE!?");
   const blockInOrder = [...blocksDone];
 
   assertEquals(blockInOrder[0].description, "./http/needs.http:0");

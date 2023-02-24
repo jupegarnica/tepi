@@ -2,17 +2,6 @@
 host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ---
 ###
-
----
-id:  block1
-needs: block2
----
-POST /pong?status=201
-x-quiet: true
-
-<%= await block2?.response?.getBody() + '?'  %>
-
-###
 ---
 id:  block2
 needs: block3
@@ -23,6 +12,20 @@ x-quiet: true
 RESPONSE!
 ###
 
+---
+id:  block1
+needs: block2
+---
+POST /pong?status=201
+x-quiet: true
+
+<%= await block2?.response?.getBody() + '?'  %>
+
+HTTP/1.1 201 Created
+
+RESPONSE!?
+
+###
 ---
 id:  block3
 ---

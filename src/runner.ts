@@ -189,7 +189,9 @@ async function runBlock(
   try {
     if (block.meta.needs && !block.meta.ignore) {
       const blockNeeded = globalData._files.flatMap((file) => file.blocks)
+
         .find((b) => b.meta.id === block.meta.needs);
+
 
       if (!blockNeeded) {
         throw new Error(`Block needed not found: ${block.meta.needs}`);
@@ -201,7 +203,13 @@ async function runBlock(
         );
       }
       globalData._blocksAlreadyReferenced.add(blockNeeded);
-      blockNeeded.meta.ignore = false; // override ignore if needed
+      // is needed but ignore in first run? remove it from blockdone
+      if (blockNeeded.meta._isDoneBlock && blockNeeded.meta.ignore) {
+        blocksDone.delete(blockNeeded);
+        blockNeeded.meta._isDoneBlock = false;
+        blockNeeded.meta.ignore = false; // override ignore if needed
+      }
+
       await runBlock(
         blockNeeded,
         globalData,
@@ -209,6 +217,7 @@ async function runBlock(
         blocksDone,
       );
       if (blocksDone.has(block)) {
+        console.debug("--------------------already done", block);
         return blocksDone;
       }
     }
