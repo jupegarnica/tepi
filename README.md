@@ -7,7 +7,7 @@ Test your HTTP APIs with standard http syntax
 
 - 📝  Write end to end API REST tests in `.http` files
 - 🔎  Validate Response status, headers and/or body.
-- 🔥  Interpolate javascript with `(eta)[http://eta.js.org/]` template `<%= %>` eta url:
+- 🔥  Interpolate javascript with `[eta](http://eta.js.org/)` template `<%= %>` eta url:
 - 🖊   Write metadata as frontmatter yaml
 - 📦  Reference by id another test to run them in advance
 - ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
