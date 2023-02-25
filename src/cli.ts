@@ -6,7 +6,7 @@ import { globsToFilePaths } from "./files.ts";
 import { config } from "https://deno.land/std@0.164.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
-import { help } from "./help.ts";
+import { help, readme } from "./help.ts";
 
 const mustExit = !Deno.env.get("TEPI_NOT_EXIT");
 function exit(code: number) {
@@ -76,6 +76,11 @@ export async function cli() {
   /////////////
   if (args.help) {
     help();
+    return;
+  }
+
+  if (args.readme) {
+    readme();
     return;
   }
 

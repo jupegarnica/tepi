@@ -1,33 +1,32 @@
 import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
+const isReadme = !!Deno.env.get("NO_COLOR");
 
 export const installCommand =
-  "deno install --reload  --unstable --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";
+  "deno install --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";
 
 export const runRemoteCommand =
-  "deno run --unstable --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts";
+  "deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts";
 
-export function help(): void {
-  const isReadme = !!Deno.env.get("NO_COLOR");
 
-  // const b = fmt.cyan;
-  const w = fmt.brightWhite;
-  // const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
-  const d = fmt.dim;
-  const g = fmt.brightGreen;
-  const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
-  const codeDelimiter = isReadme ? "`" : "";
-  const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
-  const codeBlockDelimiter = isReadme ? "\n```" : "";
-  const i = fmt.italic;
-  const codeBlock = (
-    t: string,
-    lang = "",
-  ) => (i(
-    codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
-      codeBlockDelimiter,
-  ));
-  // const httpHighlight = (t: string) => highlight(t, { language: "http" });
-  const title = `
+// const b = fmt.cyan;
+const w = fmt.brightWhite;
+// const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
+const d = fmt.dim;
+const g = fmt.brightGreen;
+const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
+const codeDelimiter = isReadme ? "`" : "";
+const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
+const codeBlockDelimiter = isReadme ? "\n```" : "";
+const i = fmt.italic;
+const codeBlock = (
+  t: string,
+  lang = "",
+) => (i(
+  codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
+    codeBlockDelimiter,
+));
+// const httpHighlight = (t: string) => highlight(t, { language: "http" });
+const title = `
 ${g(`# ${fmt.bold("TEPI")}`)}
 ${g(`### -- HTTP Test Runner--`)}
 
@@ -37,8 +36,8 @@ ${orange(`${fmt.bold("Tepi")} is a test runner for .http files.`)}
 
 Write your tests in .http files and run them with ${c("tepi")}.
 ${
-    codeBlock(
-      `
+  codeBlock(
+    `
 $ cat test.http
 
 GET http://localhost:3000  ${d(`# fetch a GET Request`)}
@@ -47,23 +46,23 @@ HTTP/1.1 200 OK ${d(`# assert a 200 OK response`)}
 Content-Type: text/plain ${d(`# assert a text/plain content type header`)}
 
 Hola mundo! ${d(`# assert a body with the text "Hola mundo!"`)}`,
-      "bash",
-    )
-  }
+    "bash",
+  )
+}
 ${codeBlock(`$ tepi test.http`, "bash")}
 
 `;
 
-  const helpText = `
+const helpText = `
 ${fmt.bold("Test your HTTP APIs with standard http syntax")}
 
 ${g("## Features:")}
 
 - 📝  Write end to end API REST tests in ${c(".http")} files
 - 🔎  Validate Response status, headers and/or body.
-- 🔥  Interpolate javascript with eta template ${c("<%= %>")}
+- 🔥  Interpolate javascript with [eta](http://eta.js.org/) template ${c("<%= %>")} eta url:
 - 🖊   Write metadata as frontmatter yaml
-- 📦  Reference by name another test to run them in advance
+- 📦  Reference by id another test to run them in advance
 - ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
 - 🚨  Stop running tests after the first failure.
 - 🔋  Use ${("env files")} to load environment variables
@@ -74,19 +73,19 @@ ${g("## Features:")}
 ${g("## Install:")}
 
 ${
-    codeBlock(
-      installCommand,
-      "bash",
-    )
-  }
+  codeBlock(
+    installCommand,
+    "bash",
+  )
+}
 
 Or run remotely with:
 ${
-    codeBlock(
-      runRemoteCommand,
-      "bash",
-    )
-  }
+  codeBlock(
+    runRemoteCommand,
+    "bash",
+  )
+}
 
 ${g("## Usage:")}
 
@@ -95,36 +94,35 @@ ${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
 ${g("## Options:")}
 
 ${d("* ")}-w ${c("--watch")}           ${
-    d("Watch files for changes and rerun tests.")
-  }
+  d("Watch files for changes and rerun tests.")
+}
 ${d("* ")}   ${c("--watch-no-clear")}  ${
-    d("same but without clearing the screen.")
-  }
+  d("same but without clearing the screen.")
+}
 ${d("* ")}-t ${c("--timeout")}         ${
-    d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
-  }
+  d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
+}
 ${d("* ")}-f ${c("--fail-fast")}       ${
-    d("Stop running tests after the first failure.")
-  }
+  d("Stop running tests after the first failure.")
+}
 ${d("* ")}-d ${c("--display")}         ${
-    d("Set the display mode. (none, minimal, default, truncate, full and verbose)")
-  }
-${d("       - ")} none: ${d(`display nothing`)}
-${d("       - ")} minimal: ${d(`display only a minimal summary`)}
-${d("       - ")} default: ${d(`list results and full error summary`)}
+  d("Set the display mode. (none, minimal, default, truncate, full and verbose)")
+}
+${d("       - ")} none: ${d(`    display nothing`)}
+${d("       - ")} minimal: ${d(` display only a minimal summary`)}
+${d("       - ")} default: ${d(` list results and full error summary`)}
 ${d("       - ")} truncate: ${d(`list results and full error summary but truncate data`)}
-${d("       - ")} full: ${d(`display also all HTTP requests and responses and not truncate data`)}
-${d("       - ")} verbose: ${d(`display also all metadata`)}
-${d("* ")}-h ${c("--help")}           ${d("output usage information")}
+${d("       - ")} full: ${d(`    display also all HTTP requests and responses and not truncate data`)}
+${d("       - ")} verbose: ${d(` display also all metadata`)}
 ${d("* ")}-e ${c("--env-file")}       ${
-    d("load environment variables from a .env file")
-  }
+  d("load environment variables from a .env file")
+}
 ${d("* ")}   ${c("--no-color")}       ${d("output without color")}
-${d("* ")}   ${c("--no-animation")}       ${
-    d("output without terminal animations")
-  }
+${d("* ")}   ${c("--no-animation")}   ${d("output without terminal animations")}
 ${d("* ")}   ${c("--upgrade")}        ${d("upgrade to the latest version")}
 ${d("* ")}   ${c("--version")}        ${d("output the version number")}
+${d("* ")}-h ${c("--help")}           ${d("output help index information")}
+${d("* ")}-r ${c("--readme")}         ${d("output usage information")}
 
 ${g("## Examples:")}
 
@@ -160,7 +158,7 @@ ${c(`tepi --env-file .env --env-file .env.test`)}
 ${d(`> Load environment variables from a .env and .env.test`)}
 `;
 
-  const referenceText = `
+const referenceText = `
 ${g("## HTTP syntax:")}
 
 * You can use the standard HTTP syntax in your .http files to run a request and response validation.
@@ -169,7 +167,7 @@ ${g("## HTTP syntax:")}
 
 For example, validate the headers, status code, status text and body:
 ${
-    codeBlock(`
+  codeBlock(`
 GET https://faker.deno.dev/?body=hola&status=400
 
 HTTP/1.1 400 Bad Request
@@ -177,7 +175,7 @@ content-type: text/plain; charset=utf-8
 
 hola
 `)
-  }
+}
 
 ${g("## Interpolation:")}
 
@@ -195,70 +193,70 @@ ${fmt.underline(`https://deno.land/std/testing/asserts.ts`)}
 Use ${c("<% %>")} to run custom assertions or custom JS.
 For example:
 ${
-    codeBlock(`GET  http://localhost:3000/users
+  codeBlock(`GET  http://localhost:3000/users
 
 <% assert(response.status === 200) %>
 `)
-  }
+}
 Or:
 ${
-    codeBlock(
-      `    <% if (Math.random() > 0.5) { %>
-      GET  http://localhost:3000/users/1
-    <% } else { %>
-      GET  http://localhost:3000/users/2
-    <% } %>
+  codeBlock(
+    `    <% if (Math.random() > 0.5) { %>
+    GET  http://localhost:3000/users/1
+  <% } else { %>
+    GET  http://localhost:3000/users/2
+  <% } %>
 `,
-    )
-  }
+  )
+}
 
 ${g("### Interpolation scope:")}
 
 In the Interpolation ${c("<%= %>")} or ${
-    c("<% %>")
-  } you have access to any Deno API and the following variables:
+  c("<% %>")
+} you have access to any Deno API and the following variables:
 * request: ${w(`The Request`)} from the actual block.
 * meta: ${
-    w(`The metadata`)
-  } from the actual block. and the frontmatter global metadata.
+  w(`The metadata`)
+} from the actual block. and the frontmatter global metadata.
 * response: ${
-    w(`The standard Response object from the fetch API`)
-  } from the actual request. (only available in the expected response, after the request)
+  w(`The standard Response object from the fetch API`)
+} from the actual request. (only available in the expected response, after the request)
 * body: ${w(`The extracted body`)} an alias of ${
-    c("await response.getBody()")
-  } (only available in the expected response, after the request)
+  c("await response.getBody()")
+} (only available in the expected response, after the request)
 * [id]: ${w(`the id of a block already run`)} for example: ${
-    c(`<%= login.body.jwt %>`)
-  } or ${c(`<%= login.response.status %>`)}
+  c(`<%= login.body.jwt %>`)
+} or ${c(`<%= login.response.status %>`)}
 
 The Block signature is:
 ${
-    codeBlock(
-      `type Block = {
-  meta: {
-    [key: string]: any,
-  },
-  request?: Request,
-  response?: Response,
-  expectedResponse?: Response,
-  error?: Error,
-  body?: any,
+  codeBlock(
+    `type Block = {
+meta: {
+  [key: string]: any,
+},
+request?: Request,
+response?: Response,
+expectedResponse?: Response,
+error?: Error,
+body?: any,
 }`,
-      "ts",
-    )
-  }
+    "ts",
+  )
+}
 
 
 The request, response and expectedResponse has a custom method ${
-    c("async getBody()")
-  } to extract the body as json, text or blob depending on the content-type.
+  c("async getBody()")
+} to extract the body as json, text or blob depending on the content-type.
 
 The ${c("body")} is an alias for ${c("await response.getBody()")}.
 
 For example:
 ${
-    codeBlock(
-      `
+  codeBlock(
+    `
 ---
 id: hello
 ---
@@ -277,9 +275,9 @@ HTTP/1.1 200 OK
 
 hola
 `,
-      "",
-    )
-  }
+    "",
+  )
+}
 
 ${g("## Special metadata keys:")}
 
@@ -300,8 +298,8 @@ The meta.needs is a special metadata value that allows you to run a test in adva
 
 For example:
 ${
-    codeBlock(
-      `---
+  codeBlock(
+    `---
 needs: login
 # will run the login test before this one
 ---
@@ -320,9 +318,9 @@ Content-Type: application/json
 
 HTTP/1.1 200 OK
 `,
-      "",
-    )
-  }
+    "",
+  )
+}
 
 ${g("### meta.id and meta.description")}
 
@@ -341,18 +339,29 @@ The meta.display allows you to override the global display mode for a specific t
 
 For example:
 ${
-    codeBlock(
-      `---
+  codeBlock(
+    `---
 display: verbose
 ---
 GET https://example.com/get
 `,
-    )
-  }
+  )
+}
 `;
 
+
+
+
+
+export function readme(): void {
   console.info(title);
   console.info(helpText);
   console.info(referenceText);
+  return;
+}
+
+
+export function help(): void {
+  console.info(helpText);
   return;
 }

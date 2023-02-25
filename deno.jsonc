@@ -15,7 +15,7 @@
     // release
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
     "version": "deno run  -A https://deno.land/x/version/index.ts",
-    "readme": "deno task readme:create && NO_COLOR=1 deno run -A --unstable ./src/cli.ts --help >> README.md && deno task readme:copy && git add README.md vscode-extension/README.md && git commit -m 'docs: update README.md' || true",
+    "readme": "deno task readme:create && NO_COLOR=1 deno run -A --unstable ./src/cli.ts --readme >> README.md && deno task readme:copy && git add README.md vscode-extension/README.md && git commit -m 'docs: update README.md' || true",
     "readme:create": "echo '![Example demo](./.github/demo/demo.gif)\n' > README.md",
     "readme:copy": "cp README.md vscode-extension/README.md",
     "release": "deno task readme && deno task version patch && git push --tags origin main",
