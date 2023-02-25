@@ -1,7 +1,7 @@
-import * as Marked from 'npm:marked';
-import * as Renderer from 'npm:marked-terminal';
+import * as Marked from 'npm:marked@4.2.12';
+import * as Renderer from 'npm:marked-terminal@5.1.1';
 import chalk from 'npm:chalk';
-import { dirname , fromFileUrl, normalize} from "https://deno.land/std@0.178.0/path/posix.ts";
+import { dirname , fromFileUrl, normalize} from "https://deno.land/std@0.178.0/path/mod.ts";
 
 export const installCommand =
   "deno install --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";

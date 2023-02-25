@@ -1,7 +1,7 @@
 import { type Args, parse } from "https://deno.land/std@0.164.0/flags/mod.ts";
 import type { Meta } from "./types.ts";
 import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
-import { relative } from "https://deno.land/std@0.164.0/path/posix.ts";
+import { relative } from "https://deno.land/std@0.178.0/path/posix.ts";
 import { globsToFilePaths } from "./files.ts";
 import { config } from "https://deno.land/std@0.164.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
