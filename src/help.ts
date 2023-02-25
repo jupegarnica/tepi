@@ -1,5 +1,7 @@
-import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
-const isReadme = !!Deno.env.get("NO_COLOR");
+import * as Marked from 'npm:marked';
+import * as Renderer from 'npm:marked-terminal';
+import chalk from 'npm:chalk';
+import { dirname , fromFileUrl, normalize} from "https://deno.land/std@0.178.0/path/posix.ts";
 
 export const installCommand =
   "deno install --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";
@@ -8,360 +10,72 @@ export const runRemoteCommand =
   "deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts";
 
 
-// const b = fmt.cyan;
-const w = fmt.brightWhite;
-// const d = (t:string) => isReadme ? '> '+ t : fmt.dim('> '+ t);
-const d = fmt.dim;
-const g = fmt.brightGreen;
-const orange = (t: string) => fmt.rgb24(t, 0xFF6600);
-const codeDelimiter = isReadme ? "`" : "";
-const c = (t: string) => orange(codeDelimiter + t + codeDelimiter);
-const codeBlockDelimiter = isReadme ? "\n```" : "";
-const i = fmt.italic;
-const codeBlock = (
-  t: string,
-  lang = "",
-) => (i(
-  codeBlockDelimiter + (isReadme ? lang : "") + "\n" + t +
-    codeBlockDelimiter,
-));
-// const httpHighlight = (t: string) => highlight(t, { language: "http" });
-const title = `
-${g(`# ${fmt.bold("TEPI")}`)}
-${g(`### -- HTTP Test Runner--`)}
-
-https://tepi.deno.dev
-
-${orange(`${fmt.bold("Tepi")} is a test runner for .http files.`)}
-
-Write your tests in .http files and run them with ${c("tepi")}.
-${
-  codeBlock(
-    `
-$ cat test.http
-
-GET http://localhost:3000  ${d(`# fetch a GET Request`)}
-
-HTTP/1.1 200 OK ${d(`# assert a 200 OK response`)}
-Content-Type: text/plain ${d(`# assert a text/plain content type header`)}
-
-Hola mundo! ${d(`# assert a body with the text "Hola mundo!"`)}`,
-    "bash",
-  )
+function getFileTextFromRemoteOrLocal(url: string): Promise<string> {
+  url = normalize(url);
+  if (url.startsWith("file://")) {
+    return Deno.readTextFile(fromFileUrl(url));
+  } else {
+    return fetch(url).then((res) => res.text());
+  }
 }
-${codeBlock(`$ tepi test.http`, "bash")}
+const baseURL = dirname(import.meta.url);
 
-`;
+const marked = Marked.marked;
+const TerminalRenderer = Renderer.default;
 
-const helpText = `
-${fmt.bold("Test your HTTP APIs with standard http syntax")}
+const defaultOptions = {
+  // Colors
+  code: chalk.magenta,
+  codespan: chalk.magentaBright,
+  blockquote: chalk.dim.italic,
+  html: chalk.gray,
+  heading: chalk.green.bold,
+  firstHeading: chalk.magenta.underline.bold,
+  hr: chalk.reset,
+  listitem: chalk.reset,
+  table: chalk.reset,
+  paragraph: chalk.reset,
+  strong: chalk.bold,
+  em: chalk.italic,
+  del: chalk.dim.gray.strikethrough,
+  link: chalk.blue,
+  href: chalk.blue.underline,
 
-${g("## Features:")}
+  // Formats the bullet points and numbers for lists
+  // list: function (_body, _ordered) {},
 
-- 📝  Write end to end API REST tests in ${c(".http")} files
-- 🔎  Validate Response status, headers and/or body.
-- 🔥  Interpolate javascript with [eta](http://eta.js.org/) template ${c("<%= %>")} eta url:
-- 🖊   Write metadata as frontmatter yaml
-- 📦  Reference by id another test to run them in advance
-- ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
-- 🚨  Stop running tests after the first failure.
-- 🔋  Use ${("env files")} to load environment variables
-- 😎  Fully featured and colorful display modes. (none, minimal, default and full)
-- 👁   Watch files for changes and rerun tests.
-- 🍯  Standard Response and Request with a automatic getBody()
+  // Reflow and print-out width
+  width: 80, // only applicable when reflow is true
+  reflowText: false,
 
-${g("## Install:")}
+  // Should it prefix headers?
+  showSectionPrefix: true,
 
-${
-  codeBlock(
-    installCommand,
-    "bash",
-  )
+  // Whether or not to undo marked escaping
+  // of entities (" -> &quot; etc)
+  unescape: true,
+
+  // Whether or not to show emojis
+  emoji: true,
+
+  // Options passed to cli-table3
+  tableOptions: {},
+
+  // The size of tabs in number of spaces or as tab characters
+  tab: 3 // examples: 4, 2, \t, \t\t
+
+  // image: function (_href, _title, _text) {} // function for overriding the default image handling.
+};
+marked.setOptions({
+  renderer: new TerminalRenderer(defaultOptions)
+});
+
+export async function help(): Promise<void> {
+  const usageMDText = await getFileTextFromRemoteOrLocal(`${baseURL}/../docs/usage.md`);
+  console.info(marked(usageMDText));
 }
 
-Or run remotely with:
-${
-  codeBlock(
-    runRemoteCommand,
-    "bash",
-  )
-}
-
-${g("## Usage:")}
-
-${w(`tepi [OPTIONS] [FILES|GLOBS...]`)}
-
-${g("## Options:")}
-
-${d("* ")}-w ${c("--watch")}           ${
-  d("Watch files for changes and rerun tests.")
-}
-${d("* ")}   ${c("--watch-no-clear")}  ${
-  d("same but without clearing the screen.")
-}
-${d("* ")}-t ${c("--timeout")}         ${
-  d("Set the timeout for each test in milliseconds. After the timeout, the test will fail.")
-}
-${d("* ")}-f ${c("--fail-fast")}       ${
-  d("Stop running tests after the first failure.")
-}
-${d("* ")}-d ${c("--display")}         ${
-  d("Set the display mode. (none, minimal, default, truncate, full and verbose)")
-}
-${d("       - ")} none: ${d(`    display nothing`)}
-${d("       - ")} minimal: ${d(` display only a minimal summary`)}
-${d("       - ")} default: ${d(` list results and full error summary`)}
-${d("       - ")} truncate: ${d(`list results and full error summary but truncate data`)}
-${d("       - ")} full: ${d(`    display also all HTTP requests and responses and not truncate data`)}
-${d("       - ")} verbose: ${d(` display also all metadata`)}
-${d("* ")}-e ${c("--env-file")}       ${
-  d("load environment variables from a .env file")
-}
-${d("* ")}   ${c("--no-color")}       ${d("output without color")}
-${d("* ")}   ${c("--no-animation")}   ${d("output without terminal animations")}
-${d("* ")}   ${c("--upgrade")}        ${d("upgrade to the latest version")}
-${d("* ")}   ${c("--version")}        ${d("output the version number")}
-${d("* ")}-h ${c("--help")}           ${d("output help index information")}
-${d("* ")}-r ${c("--readme")}         ${d("output usage information")}
-
-${g("## Examples:")}
-
-${c(`tepi`)}
-${d(`> Run all .http in the current directory and folders. (same as tepi ./**/*.http)`)}
-
-${c(`tepi test.http ./test2.http`)}
-${d(`> Run test.http and test2.http`)}
-
-${c(`tepi **/*.http`)}
-${d(`> Run all .http in the current directory and folders.`)}
-
-${c(`tepi rest.http --watch`)}
-${d(`> Run rest.http and rerun when it changes`)}
-
-${c(`tepi rest.http  --watch "src/**/*.ts"`)}
-${d(`> Run rest.http and rerun when any .ts file in the src folder changes.`)}
-
-${c(`tepi rest.http  --watch "src/**/*.json" --watch "src/**/*.ts"`)}
-${d(`> You can use multiple --watch flags.`)}
-${d(`> Note: You can use globs here too, but use quotes to avoid the shell expanding them.`)}
-
-${c(`tepi --timeout 10000`)}
-${d(`> Set the timeout for each test in milliseconds. After the timeout, the test will fail.`)}
-
-${c(`tepi --fail-fast`)}
-${d(`> Stop running tests after the first failure.`)}
-
-${c(`tepi --display minimal`)}
-${d(`> Set the display mode. (none, minimal, default and full)`)}
-
-${c(`tepi --env-file .env --env-file .env.test`)}
-${d(`> Load environment variables from a .env and .env.test`)}
-`;
-
-const referenceText = `
-${g("## HTTP syntax:")}
-
-* You can use the standard HTTP syntax in your .http files to run a request and response validation.
-* Use the ${c("###")} to separate the requests.
-* Use frontmatter yaml to set metadata.
-
-For example, validate the headers, status code, status text and body:
-${
-  codeBlock(`
-GET https://faker.deno.dev/?body=hola&status=400
-
-HTTP/1.1 400 Bad Request
-content-type: text/plain; charset=utf-8
-
-hola
-`)
-}
-
-${g("## Interpolation:")}
-
-It's deno 🔥
-
-Uses eta as template engine, see docs:
-${fmt.underline(`https://deno.land/x/eta`)}
-
-Use ${c("<%= %>")} to interpolate values.
-
-All the std assertion module is available:
-${fmt.underline(`https://deno.land/std/testing/asserts.ts`)}
-
-
-Use ${c("<% %>")} to run custom assertions or custom JS.
-For example:
-${
-  codeBlock(`GET  http://localhost:3000/users
-
-<% assert(response.status === 200) %>
-`)
-}
-Or:
-${
-  codeBlock(
-    `    <% if (Math.random() > 0.5) { %>
-    GET  http://localhost:3000/users/1
-  <% } else { %>
-    GET  http://localhost:3000/users/2
-  <% } %>
-`,
-  )
-}
-
-${g("### Interpolation scope:")}
-
-In the Interpolation ${c("<%= %>")} or ${
-  c("<% %>")
-} you have access to any Deno API and the following variables:
-* request: ${w(`The Request`)} from the actual block.
-* meta: ${
-  w(`The metadata`)
-} from the actual block. and the frontmatter global metadata.
-* response: ${
-  w(`The standard Response object from the fetch API`)
-} from the actual request. (only available in the expected response, after the request)
-* body: ${w(`The extracted body`)} an alias of ${
-  c("await response.getBody()")
-} (only available in the expected response, after the request)
-* [id]: ${w(`the id of a block already run`)} for example: ${
-  c(`<%= login.body.jwt %>`)
-} or ${c(`<%= login.response.status %>`)}
-
-The Block signature is:
-${
-  codeBlock(
-    `type Block = {
-meta: {
-  [key: string]: any,
-},
-request?: Request,
-response?: Response,
-expectedResponse?: Response,
-error?: Error,
-body?: any,
-}`,
-    "ts",
-  )
-}
-
-
-The request, response and expectedResponse has a custom method ${
-  c("async getBody()")
-} to extract the body as json, text or blob depending on the content-type.
-
-The ${c("body")} is an alias for ${c("await response.getBody()")}.
-
-For example:
-${
-  codeBlock(
-    `
----
-id: hello
----
-GET https://faker.deno.dev/?body=hola
-
-HTTP/1.1 200
-
-hola
-
-###
-POST https://faker.deno.dev/
-
-<%= hello.body %>
-
-HTTP/1.1 200 OK
-
-hola
-`,
-    "",
-  )
-}
-
-${g("## Special metadata keys:")}
-
-There are some especial metadata keys used by tepi, as:  meta.needs, meta.id, meta.description, meta.display, meta.timeout and meta.import
-
-${g("### meta.delay:")}
-The meta.delay allows you to delay the execution of the request fetch for a specific time in milliseconds.
-
-${g("### meta.timeout:")}
-The meta.timeout allows you to override the global timeout for a specific test.
-If the request takes longer than the timeout, the test will fail.
-The delay is not included in the timeout.
-
-
-${g("### meta.needs")}
-
-The meta.needs is a special metadata value that allows you to run a test in advance and use the result in the current test if needed.
-
-For example:
-${
-  codeBlock(
-    `---
-needs: login
-# will run the login test before this one
----
-GET https://example.com/onlyAdmin
-Authorization: Bearer <%= login.body.jwt %>
-Content-Type: application/json
-
-###
----
-id: login
----
-POST https://example.com/login
-Content-Type: application/json
-
-{"user": "Garn", "password": "1234"}
-
-HTTP/1.1 200 OK
-`,
-    "",
-  )
-}
-
-${g("### meta.id and meta.description")}
-
-The meta.id allows you to identify a test for reference.
-The meta.description it's used to display the test name in the console if not set, it will use the meta.id.
-
-${g("### meta.import:")}
-
-The meta.import allows you to import a file before running the test.
-The imported file will run before the file that imports it.
-
-
-${g("### meta.display:")}
-
-The meta.display allows you to override the global display mode for a specific test.
-
-For example:
-${
-  codeBlock(
-    `---
-display: verbose
----
-GET https://example.com/get
-`,
-  )
-}
-`;
-
-
-
-
-
-export function readme(): void {
-  console.info(title);
-  console.info(helpText);
-  console.info(referenceText);
-  return;
-}
-
-
-export function help(): void {
-  console.info(helpText);
-  return;
+export async function readme(): Promise<void> {
+  const readmeMDText = await fetch(`${baseURL}/../README.md`).then((res) => res.text());
+  console.info(marked(readmeMDText));
 }
