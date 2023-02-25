@@ -57,14 +57,6 @@ Or run remotely with:
 deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
 ```
 
-### Permissions:
-
-* `--allow-read`  Needed to read files from the file system.
-* `--allow-net`   Needed to make HTTP requests.
-* `--allow-env`   (optional) Needed to load and read environment variables. Required if you use the --env-file option.
-* `--allow-run`   (optional) Needed to run the upgrade command. Required if you use the --upgrade option.
-
-
 ## Usage:
 
 tepi [OPTIONS] [FILES|GLOBS...]
@@ -294,3 +286,4 @@ display: verbose
 GET https://example.com/get
 
 ```
+
