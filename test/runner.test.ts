@@ -132,8 +132,8 @@ Deno.test("[runner] timeout", async () => {
   });
 
   const firstBlock = files[0].blocks[1];
-  assertEquals(firstBlock.meta.timeout, 100);
-  assertEquals(firstBlock.error?.message, "Timeout of 100ms exceeded");
+  assertEquals(firstBlock.meta.timeout, 50);
+  assertEquals(firstBlock.error?.message, "Timeout of 50ms exceeded");
 
   const secondBlock = files[0].blocks[2];
   assertEquals(secondBlock.meta.timeout, 0);
