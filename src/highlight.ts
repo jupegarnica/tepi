@@ -1,4 +1,4 @@
-import { extension } from "https://deno.land/std@0.164.0/media_types/mod.ts?source=cli";
+import { extension } from "https://deno.land/std@0.178.0/media_types/mod.ts?source=cli";
 
 let supportsLang = (_: string) => true;
 let hl = (code: string, { language: _ }: { language: string }) => code;

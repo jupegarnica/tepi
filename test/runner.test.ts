@@ -2,9 +2,9 @@ import {
   assert,
   assertEquals,
   assertStringIncludes,
-} from "https://deno.land/std@0.164.0/testing/asserts.ts";
+} from "https://deno.land/std@0.178.0/testing/asserts.ts";
 
-import { stub } from "https://deno.land/std@0.164.0/testing/mock.ts";
+import { stub } from "https://deno.land/std@0.178.0/testing/mock.ts";
 import { runner } from "../src/runner.ts";
 
 const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";

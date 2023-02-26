@@ -2,13 +2,13 @@ import { filePathsToFiles } from "./files.ts";
 import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
-import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
 import {
   dirname,
   isAbsolute,
   relative,
   resolve,
-} from "https://deno.land/std@0.164.0/path/posix.ts";
+} from "https://deno.land/std@0.178.0/path/posix.ts";
 import {
   createBlockSpinner,
   getDisplayIndex,
@@ -22,7 +22,7 @@ import {
   parseRequestFromText,
   parseResponseFromText,
 } from "./parser.ts";
-import * as assertions from "https://deno.land/std@0.164.0/testing/asserts.ts";
+import * as assertions from "https://deno.land/std@0.178.0/testing/asserts.ts";
 
 export async function runner(
   filePaths: string[],

@@ -1,10 +1,10 @@
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.164.0/testing/asserts.ts";
+} from "https://deno.land/std@0.178.0/testing/asserts.ts";
 import { parseBlockText } from "../src/parser.ts";
-import { stub } from "https://deno.land/std@0.164.0/testing/mock.ts";
-import { YAMLError } from "https://deno.land/std@0.164.0/encoding/_yaml/error.ts";
+import { stub } from "https://deno.land/std@0.178.0/testing/mock.ts";
+import { YAMLError } from "https://deno.land/std@0.178.0/encoding/_yaml/error.ts";
 import { Block } from "../src/types.ts";
 
 Deno.env.get("NO_LOG") && stub(console, "info");

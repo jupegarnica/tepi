@@ -1,7 +1,7 @@
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@0.164.0/testing/asserts.ts";
+} from "https://deno.land/std@0.178.0/testing/asserts.ts";
 import { installCommand, runRemoteCommand } from "../src/help.ts";
 
 function textDecode(buffer: Uint8Array) {
@@ -19,11 +19,13 @@ async function run(command: string) {
 const tepi = "deno run -A ./src/cli.ts ";
 
 Deno.test("[e2e] must return code 0 when all tests pass", async () => {
-  const { code, out, success } = await run(tepi + "http/pass.http");
+  const { code, out, success,err } = await run(tepi + "http/pass.http");
+  // console.log(out, out.length);
+
   assert(out.length > 0);
   assertEquals(code, 0);
   assertEquals(success, true);
-  // assertEquals(err, "");
+  assertEquals(err, "");
 });
 
 Deno.test("[e2e] must return the code of failing tests", async () => {

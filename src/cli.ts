@@ -1,9 +1,9 @@
-import { type Args, parse } from "https://deno.land/std@0.164.0/flags/mod.ts";
+import { type Args, parse } from "https://deno.land/std@0.178.0/flags/mod.ts";
 import type { Meta } from "./types.ts";
-import * as fmt from "https://deno.land/std@0.164.0/fmt/colors.ts";
+import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
 import { relative } from "https://deno.land/std@0.178.0/path/posix.ts";
 import { globsToFilePaths } from "./files.ts";
-import { config } from "https://deno.land/std@0.164.0/dotenv/mod.ts";
+import { load } from "https://deno.land/std@0.178.0/dotenv/mod.ts";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
 import { help, readme } from "./help.ts";
@@ -116,10 +116,9 @@ export async function cli() {
   const keysLoaded = new Set();
   const envFiles = new Set();
   for (const path of args.envFile) {
-    const vars = await config({
+    const vars = await load({
       export: true,
-      path,
-      safe: true,
+      envPath: path,
       allowEmptyValues: true,
     });
     for (const key in vars) {
