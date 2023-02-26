@@ -376,6 +376,7 @@
   "npm": {
     "specifiers": {
       "chalk": "chalk@5.2.0",
+      "chalk@5.2.0": "chalk@5.2.0",
       "cli-highlight": "cli-highlight@2.1.11",
       "cli-highlight@2.1.11": "cli-highlight@2.1.11",
       "lodash": "lodash@4.17.21",
