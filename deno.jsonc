@@ -9,6 +9,7 @@
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
     // dev
     "install": "deno install -fA --unstable --name tepi ./src/cli.ts",
+    "install:x": "deno install --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts",
     "help": " deno run -A --unstable --watch ./src/cli.ts --help",
     // chore
     "udd": "deno run -A --reload https://deno.land/x/udd/main.ts --test='deno task test --fail-fast'  'src/**/*.ts' 'test/**/*.ts'",
