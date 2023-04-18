@@ -425,7 +425,7 @@ export function createBlockSpinner(
       return;
     }
     const _elapsedTime = Date.now() - startTime;
-    const text = `${fmt.brightWhite(block.description)} ${"   "} ${
+    const text = `${fmt.white(block.description)} ${"   "} ${
       fmt.gray(`${(_elapsedTime)}ms`)
     }${differentFile}`;
     if (text !== spinner.text) {
@@ -448,7 +448,7 @@ export function createBlockSpinner(
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status || "");
       const statusText = status ? (" " + status) : (" ERR");
-      const text = `${fmt.red(block.description)} ${statusText} ${
+      const text = `${fmt.white(block.description)} ${fmt.bold(statusText)} ${
         fmt.gray(`${ms(_elapsedTime)}`)
       }${differentFile}`;
       const symbol = fmt.brightRed("✖");
@@ -466,7 +466,7 @@ export function createBlockSpinner(
     ignore: () => {
       const _elapsedTime = Date.now() - startTime;
 
-      const text = `${fmt.yellow(block.description)} ${"   "} ${
+      const text = `${fmt.white(block.description)} ${"   "} ${
         fmt.gray(`${ms(_elapsedTime)}`)
       }${differentFile}`;
       const symbol = fmt.yellow("·");
@@ -485,7 +485,7 @@ export function createBlockSpinner(
       const _elapsedTime = Date.now() - startTime;
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status);
-      const text = `${fmt.green(block.description)} ${status} ${
+      const text = `${fmt.white(block.description)} ${fmt.bold(status)} ${
         fmt.gray(`${ms(_elapsedTime)}`)
       }${differentFile}`;
       const symbol = fmt.brightGreen("✔");
