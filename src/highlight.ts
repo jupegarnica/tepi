@@ -15,7 +15,7 @@ try {
 
 export function highlight(txt: string, language: string): string {
   if (language === "json") {
-    return Deno.inspect(JSON.parse(txt), { colors: !Deno.noColor });
+    return Deno.inspect(JSON.parse(txt), { colors: !Deno.noColor, strAbbreviateSize: 2_000  });
   }
   if (supportsLang(language)) return hl(txt, { language });
   return txt;
