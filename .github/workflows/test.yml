@@ -14,8 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: denoland/setup-deno@v1
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
+      # - uses: satackey/action-docker-layer-caching@v0.0.11
+      #   continue-on-error: true
 
       # - run: deno task test
       - run: deno task test-docker
