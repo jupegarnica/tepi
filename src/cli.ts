@@ -13,6 +13,11 @@ function exit(code: number) {
   mustExit && Deno.exit(code);
 }
 
+Deno.addSignalListener("SIGINT", () => {
+  console.info(fmt.yellow('\nForcefully exiting with code 143 (SIGINT)'));
+  exit(143);
+});
+
 if (import.meta.main) {
   await cli();
 }

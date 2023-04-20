@@ -1,5 +1,10 @@
-FROM denoland/deno
+FROM denoland/deno:alpine-1.32.5
 WORKDIR /app
-COPY . .
+COPY ./src ./src
+COPY ./deno.jsonc ./deno.jsonc
+COPY ./deno.lock ./deno.lock
 RUN deno task install
-CMD tepi
+ENTRYPOINT [ "tepi" ]
+# ENTRYPOINT [ "echo" ]
+WORKDIR /app/http
+CMD [ "**/*.http" ]
