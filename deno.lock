@@ -392,9 +392,7 @@
       },
       "ansi-escapes@5.0.0": {
         "integrity": "sha512-5GFMVX8HqE/TB+FuBJGuO5XG0WrsA6ptUqoODaT/n9mmUaZFkqnBueB4leqGBCmrUHnCnC4PCZTCd0E7QQ83bA==",
-        "dependencies": {
-          "type-fest": "type-fest@1.4.0"
-        }
+        "dependencies": { "type-fest": "type-fest@1.4.0" }
       },
       "ansi-regex@5.0.1": {
         "integrity": "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==",
@@ -402,9 +400,7 @@
       },
       "ansi-styles@4.3.0": {
         "integrity": "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==",
-        "dependencies": {
-          "color-convert": "color-convert@2.0.1"
-        }
+        "dependencies": { "color-convert": "color-convert@2.0.1" }
       },
       "ansicolors@0.3.2": {
         "integrity": "sha512-QXu7BPrP29VllRxH8GwB7x5iX5qWKAAMLqKQGWTeLWVlNHNOpVMJ91dsxQAIWXpjuW5wqvxu3Jd/nRjrJ+0pqg==",
@@ -460,9 +456,7 @@
       },
       "color-convert@2.0.1": {
         "integrity": "sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==",
-        "dependencies": {
-          "color-name": "color-name@1.1.4"
-        }
+        "dependencies": { "color-name": "color-name@1.1.4" }
       },
       "color-name@1.1.4": {
         "integrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==",
@@ -526,9 +520,7 @@
       },
       "node-emoji@1.11.0": {
         "integrity": "sha512-wo2DpQkQp7Sjm2A0cq+sN7EHKO6Sl0ctXeBdFZrL9T9+UywORbufTcTZxom8YqpLQt/FqNMUkOpkZrJVYSKD3A==",
-        "dependencies": {
-          "lodash": "lodash@4.17.21"
-        }
+        "dependencies": { "lodash": "lodash@4.17.21" }
       },
       "object-assign@4.1.1": {
         "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==",
@@ -536,9 +528,7 @@
       },
       "parse5-htmlparser2-tree-adapter@6.0.1": {
         "integrity": "sha512-qPuWvbLgvDGilKc5BoicRovlT4MtYT6JfJyBOMDsKoiT+GiuP5qyrPCnR9HcPECIJJmZh5jRndyNThnhhb/vlA==",
-        "dependencies": {
-          "parse5": "parse5@6.0.1"
-        }
+        "dependencies": { "parse5": "parse5@6.0.1" }
       },
       "parse5@5.1.1": {
         "integrity": "sha512-ugq4DFI0Ptb+WWjAdOK16+u/nHfiIrcE+sh8kZMaM0WllQKLI9rOUq6c2b7cwPkXdzfQESqvoqK6ug7U/Yyzug==",
@@ -550,9 +540,7 @@
       },
       "redeyed@2.1.1": {
         "integrity": "sha512-FNpGGo1DycYAdnrKFxCMmKYgo/mILAqtRYbkdQD8Ep/Hk2PQ5+aEAEx+IU713RTDmuBaH0c8P5ZozurNu5ObRQ==",
-        "dependencies": {
-          "esprima": "esprima@4.0.1"
-        }
+        "dependencies": { "esprima": "esprima@4.0.1" }
       },
       "require-directory@2.1.1": {
         "integrity": "sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==",
@@ -568,15 +556,11 @@
       },
       "strip-ansi@6.0.1": {
         "integrity": "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==",
-        "dependencies": {
-          "ansi-regex": "ansi-regex@5.0.1"
-        }
+        "dependencies": { "ansi-regex": "ansi-regex@5.0.1" }
       },
       "supports-color@7.2.0": {
         "integrity": "sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==",
-        "dependencies": {
-          "has-flag": "has-flag@4.0.0"
-        }
+        "dependencies": { "has-flag": "has-flag@4.0.0" }
       },
       "supports-hyperlinks@2.3.0": {
         "integrity": "sha512-RpsAZlpWcDwOPQA22aCH4J0t7L8JmAvsCxfOSEwm7cQs3LshN36QaTkwd70DnBOXDWGssw2eUoc8CaRWT0XunA==",
@@ -587,15 +571,11 @@
       },
       "thenify-all@1.6.0": {
         "integrity": "sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==",
-        "dependencies": {
-          "thenify": "thenify@3.3.1"
-        }
+        "dependencies": { "thenify": "thenify@3.3.1" }
       },
       "thenify@3.3.1": {
         "integrity": "sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==",
-        "dependencies": {
-          "any-promise": "any-promise@1.3.0"
-        }
+        "dependencies": { "any-promise": "any-promise@1.3.0" }
       },
       "type-fest@1.4.0": {
         "integrity": "sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==",

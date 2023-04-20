@@ -4,6 +4,7 @@
     "debug": "TEPI_NOT_EXIT=1 deno run --inspect-brk -A --unstable ./src/cli.ts ",
     // test
     "test": "NO_LOG=1 deno test -A --unstable",
+    "test-debug":"deno test -A --unstable --filter='code 0'",
     "test-watch": "FORCE_COLOR=1 deno test -A --unstable --watch test",
     "test-docker": "docker compose up  --exit-code-from test --no-log-prefix --abort-on-container-exit test ",
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
