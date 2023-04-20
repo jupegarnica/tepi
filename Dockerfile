@@ -5,6 +5,6 @@ COPY ./deno.jsonc ./deno.jsonc
 COPY ./deno.lock ./deno.lock
 RUN deno task install
 ENTRYPOINT [ "tepi" ]
-# ENTRYPOINT [ "echo" ]
+COPY ./docs ./docs
 WORKDIR /app/http
 CMD [ "**/*.http" ]
