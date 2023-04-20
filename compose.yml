@@ -15,7 +15,7 @@ services:
   test:
     networks:
       - tepi-net
-    image: jupegarnica/tepi
+    # image: jupegarnica/tepi
     build:
       context: .
       dockerfile: Dockerfile
