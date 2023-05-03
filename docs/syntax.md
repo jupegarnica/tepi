@@ -168,3 +168,11 @@ display: verbose
 GET https://example.com/get
 
 ```
+
+## VScode extension
+
+You can use the vscode extension to run the tests from the editor.
+
+Just install the extension and open a .http file and click the hover button to run the test.
+
+https://marketplace.visualstudio.com/items?itemName=jupegarnica.tepi
