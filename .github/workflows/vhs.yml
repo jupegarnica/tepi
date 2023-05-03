@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: denoland/setup-deno@v1
+      - run:  deno task install
       - uses: charmbracelet/vhs-action@v1
         with:
           path: '.github/demo/demo.tape'
