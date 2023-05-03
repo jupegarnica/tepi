@@ -2,13 +2,24 @@ const vscode = require("vscode");
 
 // create a activation function for the extension
 // this function is called when the extension is activated
+
+function getTerminal(name) {
+  const terminals = vscode.window.terminals;
+  for (const terminal of terminals) {
+    if (terminal.name === name) {
+      return terminal;
+    }
+  }
+  return null;
+}
+
 function activate(context) {
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider("http", { provideCodeLenses }),
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("tepi.run", (match) => {
-      const terminal = vscode.window.activeTerminal ||
+      const terminal = getTerminal('tepi') ||
         vscode.window.createTerminal("tepi");
       const path = match.documentFile;
       const fileLine = match.documentLine.lineNumber + 1;
@@ -19,7 +30,7 @@ function activate(context) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("tepi.run-display-full", (match) => {
-      const terminal = vscode.window.activeTerminal ||
+      const terminal = getTerminal('tepi') ||
         vscode.window.createTerminal("tepi");
       const path = match.documentFile;
       const fileLine = match.documentLine.lineNumber + 1;
@@ -29,7 +40,7 @@ function activate(context) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("tepi.help", () => {
-      const terminal = vscode.window.activeTerminal ||
+      const terminal = getTerminal('tepi') ||
         vscode.window.createTerminal("tepi");
       terminal.sendText(`tepi --help`);
       terminal.show();
@@ -40,7 +51,7 @@ function activate(context) {
     vscode.commands.registerCommand(
       "tepi.run-all",
       (match) => {
-        const terminal = vscode.window.activeTerminal ||
+        const terminal = getTerminal('tepi') ||
           vscode.window.createTerminal("tepi");
         const path = match.documentFile;
         terminal.sendText(`tepi ${path}`);
@@ -53,7 +64,7 @@ function activate(context) {
     vscode.commands.registerCommand(
       "tepi.install",
       () => {
-        const terminal = vscode.window.activeTerminal ||
+        const terminal = getTerminal('tepi') ||
           vscode.window.createTerminal("tepi");
         terminal.show();
         terminal.sendText(
