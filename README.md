@@ -292,8 +292,6 @@ GET https://example.com/get
 ```
 
 
-
-
 ## VScode extension
 
 You can use the vscode extension to run the tests from the editor.
