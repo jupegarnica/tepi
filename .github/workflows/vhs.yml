@@ -1,6 +1,11 @@
 name: vhs
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/vhs.yml
+      - vhs/**
+      # - src/**
   workflow_run:
     workflows: ["test"]
     branches: ['main']
@@ -20,7 +25,7 @@ jobs:
       - run:  deno task install
       - uses: charmbracelet/vhs-action@v1
         with:
-          path: '.github/demo/demo.tape'
+          path: 'vhs/demo.tape'
       - uses: stefanzweifel/git-auto-commit-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -30,4 +35,4 @@ jobs:
           commit_user_name: vhs-action 📼
           commit_user_email: actions@github.com
           commit_author: vhs-action 📼 <actions@github.com>
-          file_pattern: '*.gif'
+          file_pattern: 'vhs/*.gif'
