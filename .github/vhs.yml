@@ -22,8 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: install batcat
-        run: |
-          sudo apt-get install bat
+        run: which bat || sudo apt-get install bat
       - uses: denoland/setup-deno@v1
       - run:  deno task install
       - run: cd vhs
