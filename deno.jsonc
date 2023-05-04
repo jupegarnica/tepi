@@ -21,6 +21,6 @@
     "readme:copy": "cp README.md vscode-extension/README.md",
     "release": "deno task readme && deno task version patch && git push --tags origin main",
     "publish-image":"export IMAGE_NAME=jupegarnica/tepi && export IMAGE_TAG=$(deno task version get) && docker build -t $IMAGE_NAME:$IMAGE_TAG . && docker push $IMAGE_NAME:$IMAGE_TAG && docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest && docker push $IMAGE_NAME:latest",
-    "vhs":"bash -s 'cd vhs && vhs < demo.tape'"
+    "vhs":"bash -c 'cd vhs && vhs < demo.tape'"
   }
 }
