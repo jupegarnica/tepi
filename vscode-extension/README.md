@@ -26,7 +26,7 @@ Test your HTTP APIs with standard http syntax
 
 ## Demo:
 
-![Example demo](./.github/demo/demo.gif)
+![Example demo](./vhs/demo.gif)
 
 
 ## Features:
