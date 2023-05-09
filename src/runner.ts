@@ -58,6 +58,10 @@ export async function runner(
         // do not save only in global meta
         return undefined;
       },
+      get id() {
+        // do not save id in global meta
+        return undefined;
+      }
     },
     _files: files,
     _blocksDone: {},
