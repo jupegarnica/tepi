@@ -61,6 +61,10 @@ export async function runner(
       get id() {
         // do not save id in global meta
         return undefined;
+      },
+      get description() {
+        // do not save description in global meta
+        return undefined;
       }
     },
     _files: files,
