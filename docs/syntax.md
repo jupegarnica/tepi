@@ -122,7 +122,7 @@ This metadata is available in the interpolation scope as `meta` and in the `meta
 
 ### Global metadata:
 
-You can set global metadata in the first block of the file. This metadata will be available in all the blocks.
+You can set global metadata in the first block of the file. This metadata will be available in all the blocks. This apllies to all the properties except `meta.id` and `meta.description`, `meta.ignore` and `meta.only`.
 
 For example:
 
