@@ -29,7 +29,7 @@ export async function cli() {
       help: false,
     },
     collect: ["watch", "envFile", "watch-no-clear"],
-    boolean: ["help", "failFast", "noColor", "upgrade", "noAnimation"],
+    boolean: ["help", "failFast", "noColor", "upgrade", "noAnimation", "readme"],
     string: ["display", "envFile"],
 
     alias: {
@@ -39,6 +39,7 @@ export async function cli() {
       f: "failFast",
       d: "display",
       e: "envFile",
+      r: "readme",
       envFile: "env-file",
       noColor: "no-color",
       watchNoClear: "watch-no-clear",
