@@ -12,7 +12,8 @@ const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
 const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
 
 Deno.test(
-  "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
+  "[fetchBlock] with expectedResponse and actualResponse",
+  // { only: true },
   async () => {
     const block = new Block({
       meta: {},
@@ -31,12 +32,14 @@ Deno.test(
 );
 
 Deno.test(
-  "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
+  "[fetchBlock] with expectedResponse and actualResponse",
+  // { only: true },
   async () => {
     const block = new Block({
       meta: {},
       text: `
-GET ${HOST_HTTPBIN}/status/400
+GET ${HOST}?status=400
+x-quiet: true
 
 HTTP/1.1 400 Forbidden
 `,
@@ -50,12 +53,14 @@ HTTP/1.1 400 Forbidden
 );
 
 Deno.test(
-  "[fetchBlock] with expectedResponse and actualResponse", // { only: true },
+  "[fetchBlock] with expectedResponse and actualResponse",
+  { only: true },
   async () => {
     const block = new Block({
       meta: {},
       text: `
-GET ${HOST_HTTPBIN}/status/400
+GET ${HOST}?status=400
+x-quiet:true
 
 HTTP/1.1 400 Forbidden
 `,
