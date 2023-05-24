@@ -54,7 +54,7 @@ HTTP/1.1 400 Forbidden
 
 Deno.test(
   "[fetchBlock] with expectedResponse and actualResponse",
-  { only: true },
+  // { only: true },
   async () => {
     const block = new Block({
       meta: {},
