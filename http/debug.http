@@ -1,9 +1,4 @@
-
-POST https://faker.deno.dev/pong
-quiet: true
-content-type: application/json
-
-
-{
-  "ping": "pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text pong long long very long text "
-}
+---
+id: fail command
+command: echo "fail command" && exit 133
+---

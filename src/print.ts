@@ -445,7 +445,7 @@ export function createBlockSpinner(
 
       const text = `${fmt.white(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
-      const symbol = fmt.yellow("·");
+      const symbol = fmt.yellow("-");
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
@@ -499,6 +499,7 @@ export function createBlockSpinner(
         text,
       });
     },
+
     update,
   };
 }

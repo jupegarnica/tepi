@@ -281,7 +281,10 @@ async function runBlock(
     }
 
     if (block.meta.command) {
+      spinner.clear();
       await executeCommand(block);
+      spinner.start();
+
     }
 
     if (!block.request) {

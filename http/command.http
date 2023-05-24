@@ -1,28 +1,39 @@
 ---
 host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+
 ---
 
 ###
 ---
 id: run command with request
-command: echo "with request"
+command: echo "with request" && sleep 2 && echo "2s"
 ---
-GET /
+GET /?delay=1000
 x-quiet: true
 
 ###
+
 ---
-id: run command with no request
-command: echo "with NO request" && sleep 1 && echo "1s" && sleep 1 && echo "2s"
+id: run command without request
+command: echo "without request"
+---
+###
+---
+id: fail command
+command: echo "fail command" && exit 133
+---
+###
+
+---
+id: log to stderr
+command: sh toStderr.sh
+ignore: true
 ---
 
 ###
-
-
 ---
-id: run command with timeout
-timeout: 1000
-command: echo "with timeout && sleep 2"
+id: run command without stdout
+timeout: 2000
+command: sleep 5
+ignore: true
 ---
-
-###
