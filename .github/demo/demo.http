@@ -1,0 +1,21 @@
+GET http://httpbin.org/status/200
+
+HTTP/1.1 200 OK
+###
+---
+id: fetch delayed response
+---
+GET https://faker.deno.dev/git/commitMessage?delay=2000
+
+HTTP/1.1 200 OK
+Content-type: application/json
+
+{
+  "data": "Quia et quia voluptatem.",
+  "docs": "https://fakerjs.dev/api/git.html#commitMessage"
+}
+###
+---
+ignore: true
+---
+GET /ignored
