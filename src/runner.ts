@@ -23,6 +23,7 @@ import {
   parseResponseFromText,
 } from "./parser.ts";
 import * as assertions from "https://deno.land/std@0.178.0/testing/asserts.ts";
+import { executeCommand } from "./command.ts";
 
 export async function runner(
   filePaths: string[],
@@ -106,24 +107,24 @@ export async function runner(
     }
   }
 
-   // look for all blocks needed
-   const allIdsNeeded = new Set<string>();
-   for (const file of files) {
-     for (const block of file.blocks) {
-       if (block.meta.needs) {
-         allIdsNeeded.add(block.meta.needs);
-       }
-     }
-   }
-   const allBlockNeeded = new Map<string, Block>();
-   for (const file of files) {
-     for (const block of file.blocks) {
-       if (allIdsNeeded.has(block.meta.id)) {
-         allBlockNeeded.set(block.meta.id, block);
-         block.meta.ignore = false;
-       }
-     }
-   }
+  // look for all blocks needed
+  const allIdsNeeded = new Set<string>();
+  for (const file of files) {
+    for (const block of file.blocks) {
+      if (block.meta.needs) {
+        allIdsNeeded.add(block.meta.needs);
+      }
+    }
+  }
+  const allBlockNeeded = new Map<string, Block>();
+  for (const file of files) {
+    for (const block of file.blocks) {
+      if (allIdsNeeded.has(block.meta.id)) {
+        allBlockNeeded.set(block.meta.id, block);
+        block.meta.ignore = false;
+      }
+    }
+  }
 
   for (const file of files) {
     const relativePath = file.relativePath || "";
@@ -231,13 +232,6 @@ async function runBlock(
         );
       }
       globalData._blocksAlreadyReferenced.add(blockNeeded);
-      // // is needed but ignore in first run? remove it from blockdone
-      // TODO: NOT NEEDED FOR NOW?
-      // if (blockNeeded.meta._isDoneBlock && blockNeeded.meta.ignore) {
-      //   blocksDone.delete(blockNeeded);
-      //   blockNeeded.meta._isDoneBlock = false;
-      //   blockNeeded.meta.ignore = false; // override ignore if needed
-      // }
 
       await runBlock(
         blockNeeded,
@@ -246,18 +240,18 @@ async function runBlock(
         blocksDone,
         allBlockNeeded,
       );
+
       if (blocksDone.has(block)) {
         return blocksDone;
       }
     }
 
-    spinner.start();
 
     block.meta = {
       ...globalData.meta,
       ...block.meta,
     };
-
+    spinner.start();
     try {
       block.request = await parseRequestFromText(block, {
         ...globalData._blocksDone,
@@ -284,6 +278,10 @@ async function runBlock(
       addToDone(blocksDone, block);
       spinner.ignore();
       return blocksDone;
+    }
+
+    if (block.meta.command) {
+      await executeCommand(block);
     }
 
     if (!block.request) {

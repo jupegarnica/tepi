@@ -3,11 +3,10 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 import { contentTypeToLanguage, highlight } from "./highlight.ts";
-import { wait } from "https://deno.land/x/wait@0.1.12/mod.ts";
 import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
+import { REFRESH_INTERVAL, getSpinner, log } from "./logger.ts";
 
 type FmtMethod = keyof typeof fmt;
-const REFRESH_INTERVAL = 130;
 
 export const DISPLAYS = [
   "none",     // 0
@@ -21,11 +20,11 @@ export const DISPLAYS = [
 
 
 // const DISPLAY_INDEX_NONE = getDisplayIndexNamed("none");
-const DISPLAY_INDEX_MINIMAL = getDisplayIndexNamed("minimal");
-const DISPLAY_INDEX_DEFAULT = getDisplayIndexNamed("default");
-const DISPLAY_INDEX_TRUNCATE = getDisplayIndexNamed("truncate");
-const DISPLAY_INDEX_FULL = getDisplayIndexNamed("full");
-const DISPLAY_INDEX_VERBOSE = getDisplayIndexNamed("verbose");
+export const DISPLAY_INDEX_MINIMAL = getDisplayIndexNamed("minimal");
+export const DISPLAY_INDEX_DEFAULT = getDisplayIndexNamed("default");
+export const DISPLAY_INDEX_TRUNCATE = getDisplayIndexNamed("truncate");
+export const DISPLAY_INDEX_FULL = getDisplayIndexNamed("full");
+export const DISPLAY_INDEX_VERBOSE = getDisplayIndexNamed("verbose");
 
 function consoleSize(): { rows: number; columns: number } {
   try {
@@ -44,9 +43,8 @@ function printTitle(title: string, fmtMethod: FmtMethod = "gray") {
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   padLength = padLength < 0 ? 0 : padLength;
   const separator = fmt.gray("-");
-  const output = `${separator.repeat(5)} ${titleStr} ${
-    separator.repeat(padLength)
-  }`;
+  const output = `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)
+    }`;
   console.info(output);
 }
 
@@ -85,9 +83,8 @@ export async function printBlock(block: Block): Promise<void> {
     block.meta._relativeFilePath &&
     (request || actualResponse || expectedResponse || error)
   ) {
-    const path = `\n${fmt.dim("Data from:")} ${
-      fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)
-    }`;
+    const path = `\n${fmt.dim("Data from:")} ${fmt.cyan(`${block.meta._relativeFilePath}:${block.meta._startLine}`)
+      }`;
     console.info(path);
   }
   if (meta && displayIndex >= DISPLAY_INDEX_TRUNCATE) {
@@ -184,15 +181,13 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
         message = `${fmt.red("✖")}  ${finalMsg} ${messagePath}`;
       } else {
         // default
-        message = `${fmt.red("✖")} ${fmt.red(description + " => ")} ${
-          fmt.bold(error.name)
-        }\n${fmt.white(error.message)} \n${messagePath}`;
+        message = `${fmt.red("✖")} ${fmt.red(description + " => ")} ${fmt.bold(error.name)
+          }\n${fmt.white(error.message)} \n${messagePath}`;
       }
     } else {
       // already displayed
-      message = `${fmt.red(description + " => ")} ${
-        fmt.bold(error.name).padEnd(maximumLength)
-      } ${messagePath}`;
+      message = `${fmt.red(description + " => ")} ${fmt.bold(error.name).padEnd(maximumLength)
+        } ${messagePath}`;
     }
     console.error(message);
     firstError = false;
@@ -233,10 +228,10 @@ export function responseToText(response: Response): string {
   const statusColor = response.status >= 200 && response.status < 300
     ? fmt.green
     : response.status >= 300 && response.status < 400
-    ? fmt.yellow
-    : response.status >= 400 && response.status < 500
-    ? fmt.red
-    : fmt.bgRed;
+      ? fmt.yellow
+      : response.status >= 400 && response.status < 500
+        ? fmt.red
+        : fmt.bgRed;
 
   const status = statusColor(String(response.status));
   const statusText = response.statusText;
@@ -278,9 +273,8 @@ export function headersToText(headers: Headers, displayIndex: number): string {
     maxLengthKey = Math.max(maxLengthKey, truncate(key, truncateAt).length);
   }
   for (const [key, value] of headers.entries()) {
-    result += `${
-      fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))
-    } ${fmt.dim(truncate(value, truncateAt))}\n`;
+    result += `${fmt.gray(`${truncate(key, truncateAt)}:`.padEnd(maxLengthKey + 1))
+      } ${fmt.dim(truncate(value, truncateAt))}\n`;
   }
 
   return result;
@@ -348,15 +342,6 @@ async function imageToText(body: ArrayBuffer): Promise<string> {
 
 const noop = (..._: unknown[]): unknown => _;
 
-const log = (text: string, prefix?: string) =>
-  wait({
-    prefix,
-    text,
-    color: "yellow",
-    spinner: "dots4",
-    interval: REFRESH_INTERVAL,
-    // discardStdin: true,
-  }).start();
 
 export const logPath = (
   text: string,
@@ -407,27 +392,20 @@ export function createBlockSpinner(
     ? fmt.dim(` needed -> ${fromFilePath}`)
     : "";
   const startTime = Date.now();
-  const text = `${block.description} ${"   "} ${
-    fmt.gray("0ms")
-  }${differentFile}`;
+  const text = `${block.description} ${"   "} ${fmt.gray("0ms")
+    }${differentFile}`;
 
-  const spinner = wait({
-    prefix: "",
-    text,
-    spinner: "dots4",
-    color: "yellow",
-    interval: REFRESH_INTERVAL,
-    discardStdin: true,
-  });
+  const spinner = getSpinner(text);
+
+  block.meta._spinner = spinner;
 
   const update = () => {
     if (globalMeta._noAnimation) {
       return;
     }
     const _elapsedTime = Date.now() - startTime;
-    const text = `${fmt.white(block.description)} ${"   "} ${
-      fmt.gray(`${(_elapsedTime)}ms`)
-    }${differentFile}`;
+    const text = `${fmt.white(block.description)} ${"   "} ${fmt.gray(`${(_elapsedTime)}ms`)
+      }${differentFile}`;
     if (text !== spinner.text) {
       spinner.text = text;
     }
@@ -448,9 +426,8 @@ export function createBlockSpinner(
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status || "");
       const statusText = status ? (" " + status) : (" ERR");
-      const text = `${fmt.white(block.description)} ${fmt.bold(statusText)} ${
-        fmt.gray(`${ms(_elapsedTime)}`)
-      }${differentFile}`;
+      const text = `${fmt.white(block.description)} ${fmt.bold(statusText)} ${fmt.gray(`${ms(_elapsedTime)}`)
+        }${differentFile}`;
       const symbol = fmt.brightRed("✖");
       clearInterval(id);
 
@@ -466,9 +443,8 @@ export function createBlockSpinner(
     ignore: () => {
       const _elapsedTime = Date.now() - startTime;
 
-      const text = `${fmt.white(block.description)} ${"   "} ${
-        fmt.gray(`${ms(_elapsedTime)}`)
-      }${differentFile}`;
+      const text = `${fmt.white(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
+        }${differentFile}`;
       const symbol = fmt.yellow("·");
       clearInterval(id);
 
@@ -485,9 +461,8 @@ export function createBlockSpinner(
       const _elapsedTime = Date.now() - startTime;
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status);
-      const text = `${fmt.white(block.description)} ${fmt.bold(status)} ${
-        fmt.gray(`${ms(_elapsedTime)}`)
-      }${differentFile}`;
+      const text = `${fmt.white(block.description)} ${fmt.bold(status)} ${fmt.gray(`${ms(_elapsedTime)}`)
+        }${differentFile}`;
       const symbol = fmt.brightGreen("✔");
       clearInterval(id);
 
@@ -510,9 +485,8 @@ export function createBlockSpinner(
     },
     empty: () => {
       const _elapsedTime = Date.now() - startTime;
-      const text = `${fmt.dim(block.description)} ${"   "} ${
-        fmt.gray(`${ms(_elapsedTime)}`)
-      }${differentFile}`;
+      const text = `${fmt.dim(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
+        }${differentFile}`;
       const symbol = fmt.dim("·");
       clearInterval(id);
       if (globalMeta._noAnimation) {
