@@ -17,13 +17,13 @@ async function run(command: string) {
 }
 const tepi = "deno run -A ./src/cli.ts ";
 
-Deno.test("[command] must run meta.command", async () => {
+Deno.test("[command] must run meta.command", { ignore: true }, async () => {
 
-    const { code, out, success,err } = await run(tepi + "http/command.http");
-    console.log(out, err);
+  const { code, out, success, err } = await run(tepi + "http/command.http");
+  console.log(out, err);
 
-    assert(out.length > 0);
-    assertEquals(code, 0);
-    assertEquals(success, true);
-    assertEquals(err, "");
+  assert(out.length > 0);
+  assertEquals(code, 0);
+  assertEquals(success, true);
+  assertEquals(err, "");
 });

@@ -1,15 +1,15 @@
 name: vhs
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - .github/workflows/vhs.yml
-      - vhs/**
-      # - src/**
-  workflow_run:
-    workflows: ["test"]
-    branches: ['main']
-    types: [completed]
+  # push:
+  #   paths:
+  #     - .github/workflows/vhs.yml
+  #     - vhs/**
+  #     # - src/**
+  # workflow_run:
+  #   workflows: ["test"]
+  #   branches: ['main']
+  #   types: [completed]
 # on:
 #   push:
 #     paths:

@@ -99,6 +99,7 @@ export async function parseRequestFromText(
     integrity: "",
     keepalive: false,
     signal: undefined,
+    headers: new Headers(),
   };
 
   for (const key in meta) {
@@ -144,7 +145,8 @@ export async function parseRequestFromText(
   }
   requestInit.headers = headers;
 
-  let host = requestInit.headers.get("host") || meta.host || "";
+  const headersInit = requestInit.headers as Headers;
+  let host = headersInit.get("host") || meta.host || "";
   host = String(host).trim();
   const hasProtocol = url.match(/^https?:\/\//);
   if (host && !hasProtocol) {
