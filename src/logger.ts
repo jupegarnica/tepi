@@ -1,6 +1,22 @@
 // TODO: fetch from deno.land/x
-import { wait } from "https://raw.githubusercontent.com/denosaurs/wait/main/mod.ts"
+// import { wait } from "https://raw.githubusercontent.com/denosaurs/wait/main/mod.ts"
 import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
+
+
+// mock wait
+// TODO REMOVE
+export function wait(options: any): any {
+    const self = {
+        start: () => {
+            console.log(options.text);
+            return self;
+        },
+        stopAndPersist: (options: any) => {
+            console.log(options.text);
+        }
+    }
+    return self
+}
 
 export const REFRESH_INTERVAL = 110;
 

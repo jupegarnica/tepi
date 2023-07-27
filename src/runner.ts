@@ -24,6 +24,7 @@ import {
 } from "./parser.ts";
 import * as assertions from "https://deno.land/std@0.178.0/testing/asserts.ts";
 import { executeCommand } from "./command.ts";
+import { dispatch } from "./store.ts";
 
 export async function runner(
   filePaths: string[],
@@ -47,6 +48,7 @@ export async function runner(
   const mustBeImported = new Set<string>();
 
   const files: File[] = await filePathsToFiles(filePaths);
+
 
   const globalData: GlobalData = {
     meta: {
@@ -85,9 +87,9 @@ export async function runner(
       blocksDone,
       allPathFilesImported,
     );
+
   } catch (error) {
-    console.error(`Error while parsing metadata:`);
-    console.error(error.message);
+    dispatch({ type: "SHOW_MESSAGE", payload: `Error while parsing metadata: ${error.message}` });
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
 
@@ -107,6 +109,7 @@ export async function runner(
     }
   }
 
+
   // look for all blocks needed
   const allIdsNeeded = new Set<string>();
   for (const file of files) {
@@ -124,13 +127,14 @@ export async function runner(
         block.meta.ignore = false;
       }
     }
+
   }
+
+  dispatch({ type: "SET_FILES", payload: files });
+
 
   for (const file of files) {
     const relativePath = file.relativePath || "";
-    const path = fmt.gray(`running ${relativePath} `);
-    const displayIndex = getDisplayIndex(defaultMeta);
-    const pathSpinner = logPath(path, displayIndex, defaultMeta._noAnimation);
     let _isFirstBlock = true;
     for (const block of file.blocks) {
       block.meta._relativeFilePath = relativePath;
@@ -138,8 +142,10 @@ export async function runner(
       if (_isFirstBlock) {
         _isFirstBlock = false;
       }
+      // dispatch({ type: "SET_FILES", payload: files });
 
       await runBlock(block, globalData, relativePath, blocksDone, allBlockNeeded);
+
       if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
       }
@@ -151,11 +157,11 @@ export async function runner(
       }
 
       if (failFast && failedBlocks) {
-        if (getDisplayIndex(defaultMeta) !== 0) {
-          printErrorsSummary(blocksDone);
-        }
+        // if (getDisplayIndex(defaultMeta) !== 0) {
+        //   printErrorsSummary(blocksDone);
+        // }
+        // console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
         const status = block.actualResponse?.status || 1;
-        console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
         return {
           files,
           exitCode: status,
@@ -164,8 +170,6 @@ export async function runner(
         };
       }
     }
-    pathSpinner?.stop();
-    pathSpinner?.clear();
   }
 
   const totalBlockRun = successfulBlocks + failedBlocks;
@@ -197,6 +201,8 @@ export async function runner(
   return { files, exitCode, onlyMode, blocksDone };
 }
 
+
+
 function addToDone(blocksDone: Set<Block>, block: Block) {
   if (blocksDone.has(block)) {
     throw new Error("Block already done: " + block.description);
@@ -218,7 +224,6 @@ async function runBlock(
   if (blocksDone.has(block)) {
     return blocksDone;
   }
-  const spinner = createBlockSpinner(block, currentFilePath, globalData.meta);
   try {
     if (block.meta.needs && !block.meta.ignore) {
       const blockNeeded = allBlockNeeded.get(block.meta.needs)
@@ -251,13 +256,16 @@ async function runBlock(
       ...globalData.meta,
       ...block.meta,
     };
-    spinner.start();
+
     try {
       block.request = await parseRequestFromText(block, {
         ...globalData._blocksDone,
         ...block,
         ...assertions,
       });
+      dispatch({ type: "UPDATE_BLOCK", payload: block });
+
+
     } catch (error) {
       if (block.meta.ignore) {
         // should not fail if ignored
@@ -267,7 +275,6 @@ async function runBlock(
       }
     }
 
-    spinner.update();
 
     if (block.meta._isFirstBlock && !block.request) {
       globalData.meta = { ...globalData.meta, ...block.meta };
@@ -276,22 +283,19 @@ async function runBlock(
     if (block.meta.ignore) {
       block.meta._isIgnoredBlock = true;
       addToDone(blocksDone, block);
-      spinner.ignore();
+      // spinner.ignore();
       return blocksDone;
     }
 
     if (block.meta.command) {
-      spinner.clear();
       await executeCommand(block);
-      spinner.start();
-
     }
 
     if (!block.request) {
       if (block.meta._isFirstBlock) {
-        spinner.clear();
+        // spinner.clear();
       } else {
-        spinner.empty();
+        // spinner.empty();
       }
       block.meta._isEmptyBlock = true;
       addToDone(blocksDone, block);
@@ -301,8 +305,14 @@ async function runBlock(
     if (block.error) {
       throw block.error;
     }
-
-    await fetchBlock(block);
+    try {
+      block.meta._isFetching = true;
+      dispatch({ type: "UPDATE_BLOCK", payload: block });
+      await fetchBlock(block);
+    } finally {
+      block.meta._isFetching = false;
+      dispatch({ type: "UPDATE_BLOCK", payload: block });
+    }
 
     try {
       block.expectedResponse = await parseResponseFromText(
@@ -316,6 +326,7 @@ async function runBlock(
           response: block.response,
         },
       );
+      dispatch({ type: "UPDATE_BLOCK", payload: block });
     } catch (error) {
       error.message = `Error while parsing response: ${error.message}`;
       throw error;
@@ -326,17 +337,14 @@ async function runBlock(
     }
 
     block.meta._isSuccessfulBlock = true;
-    spinner.pass();
     addToDone(blocksDone, block);
     return blocksDone;
   } catch (error) {
     block.error = error;
     block.meta._isFailedBlock = true;
-    spinner.fail();
     addToDone(blocksDone, block);
     return blocksDone;
   } finally {
-    await printBlock(block);
     await consumeBodies(block);
 
     if (block.meta.id) {
@@ -344,6 +352,7 @@ async function runBlock(
       block.body = await block.actualResponse?.getBody();
       globalData._blocksDone[name] = block;
     }
+    dispatch({ type: "UPDATE_BLOCK", payload: block });
   }
 }
 
@@ -373,6 +382,7 @@ async function processMetadata(
           ...globalData.meta,
           ...block.meta,
           ...meta,
+          _id: `${file.relativePath}:${block.meta._startLine}`
         };
         if (block.meta.only) {
           onlyMode.add(

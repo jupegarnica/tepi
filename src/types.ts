@@ -62,6 +62,7 @@ export type Meta = {
   _isFailedBlock?: boolean;
   _isIgnoredBlock?: boolean;
   _errorDisplayed?: boolean;
+  _isFetching?: boolean;
 
   // deno-lint-ignore no-explicit-any
   [key: string]: any;
@@ -91,6 +92,16 @@ export class Block {
   // get body(): unknown {
   //   return this.#getBodySync();
   // }
+  // get id(): string {
+  //   if (this.meta.id) {
+  //     return String(this.meta.id);
+  //   }
+  //   if (this.request) {
+  //     return `${this.request.method} ${this.request.url}`;
+  //   }
+  //   return `${this.meta._relativeFilePath}:${this.meta._startLine}`;
+  // }
+
   get description(): string {
     if (this.meta.description) {
       return String(this.meta.description);
@@ -101,7 +112,7 @@ export class Block {
     if (this.request) {
       return `${this.request.method} ${this.request.url}`;
     }
-    return `${this.meta._relativeFilePath}:${this.meta._startLine}`;
+    return this.meta._id;
   }
   get response() {
     return this.actualResponse;
