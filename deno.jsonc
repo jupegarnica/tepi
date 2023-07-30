@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "TEPI_NOT_EXIT=1 deno run -A --watch ./src/cli.ts",
+    "dev": "TEPI_NOT_EXIT=1 deno run -A --watch ./src/cli.ts http/debug.http",
     "debug": "TEPI_NOT_EXIT=1 deno run --inspect-brk -A ./src/cli.ts ",
     // test
     "test": "NO_LOG=1 deno test -A",

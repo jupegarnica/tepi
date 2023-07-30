@@ -34,9 +34,9 @@ function App() {
     const col2Length = state.blocks.reduce((max: number, block: Block) => Math.max(max, block.meta._id?.length), 0);
     const gridConfig: Grid = {
         col1: 3,
-        col2: col2Length,
-        col3: 20,
-        col4: 3,
+        col2: 3,
+        col3: col2Length,
+        col4: 20,
         col5: 3,
     }
     const blocks = state.blocks.filter((block: Block) => block.request)
@@ -96,29 +96,67 @@ function BlockComponent({ block, grid }: { block: Block, key: string, grid: Grid
     const iconColor = isFocused ? 'pink' : 'gray';
     // state: cross, check or loading
     const blockState = block.meta._isSuccessfulBlock ? '✓' : block.meta._isFailedBlock ? '✗' : '...';
+    const blockStateColor = block.meta._isSuccessfulBlock ? 'green' : block.meta._isFailedBlock ? 'red' : 'gray';
 
     return (
         <Box flexDirection="column" >
             <Box gap={1} >
                 <Cell width={grid.col1} text={icon} color={iconColor} />
-                <Cell width={grid.col2} text={id} dimColor />
-                <Cell width={grid.col3} text={block.description} dimColor={dim} bold color="blackBright" />
-                <Cell width={grid.col4} text={blockState} dimColor={dim} color="yellow" />
-
-
-
-
+                <Cell width={grid.col2} text={blockState} dimColor={dim} color={blockStateColor} />
+                <Cell width={grid.col3} text={id} dimColor />
+                <Cell width={grid.col4} text={block.description} dimColor={dim} bold color="blackBright" />
 
 
             </Box>
-            <Box display={opened ? 'flex' : 'none'} >
-                {block.request && (<Text dimColor={dim} color="blue"  >{block.request.method} {block.request.url}</Text>)}
-                {block.response && (<Text dimColor={dim} color="blue"  >{block.response.status} {block.response.statusText}</Text>)}
+            <Box display={opened ? 'flex' : 'none'} flexDirection="column">
+                {block.request && (<RequestComponent label="Request" request={block.request} />)}
+                {block.response && (<ResponseComponent label="Expected Response" response={block.response} />)}
+                {block.actualResponse && (<ResponseComponent label="Actual Response" response={block.actualResponse} />)}
             </Box>
         </Box>
 
     )
 }
+
+
+
+function RequestComponent({ request, label = '' }: { request: Request, label?: string }) {
+    return (
+        <Box>
+            <Box width={2}></Box>
+            <Box>
+                <Box width={2}></Box>
+
+                <Text dimColor color="white" underline>{label}</Text>
+                <Box width={2}></Box>
+
+                <Box flexDirection="column" >
+                    <Text color="black">{request.method} {request.url}</Text>
+                </Box>
+            </Box>
+        </Box>
+    )
+}
+
+function ResponseComponent({ response, label = '' }: { response: Response, label?: string }) {
+    return (
+        <Box>
+            <Box width={2}></Box>
+            <Box>
+                <Box width={2}></Box>
+
+                <Text dimColor color="white">{label}</Text>
+                <Box width={2}></Box>
+
+                <Box flexDirection="column" >
+                    <Text color="black">{response.status} {response.statusText}</Text>
+
+                </Box>
+            </Box>
+        </Box>
+    )
+}
+
 export async function renderUI() {
 
     const instance = render(<App />, {
