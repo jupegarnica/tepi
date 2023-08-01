@@ -17,7 +17,7 @@
     // release
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
     "version": "deno run -A https://deno.land/x/version/index.ts",
-    "version:set": "deno task version patch && echo export const VERSION=\"\"$(cat VERSION)\"\" > src/version.ts",
+    "version:set": "deno task version patch && echo \"export const VERSION=$(cat VERSION)\" > src/version.ts",
     "readme": "cat docs/started.md > README.md && cat docs/usage.md >> README.md && cat docs/syntax.md >> README.md  && deno task readme:copy && git add README.md vscode-extension/README.md && git commit -m 'docs: update README.md' || true",
     "readme:copy": "cp README.md vscode-extension/README.md",
     "release": "deno task vhs && deno task readme && deno task version:set && git push --tags origin main && deno task publish-image",
