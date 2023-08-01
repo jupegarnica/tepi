@@ -1,1 +1,1 @@
-export const VERSION=$VERSION
+export const VERSION=1.0.61
