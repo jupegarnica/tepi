@@ -61,7 +61,7 @@ deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/
 * `--allow-read`  Needed to read files from the file system.
 * `--allow-net`   Needed to make HTTP requests.
 * `--allow-env`   (optional) Needed to load and read environment variables. Required if you use the --env-file option.
-* `--allow-run`   (optional) Needed to run the upgrade command. Required if you use the --upgrade option.
+* `--allow-run`   (optional) Required if you use the --upgrade option.
 
 ## Usage:
 
@@ -244,7 +244,7 @@ This metadata is available in the interpolation scope as `meta` and in the `meta
 
 ### Global metadata:
 
-You can set global metadata in the first block of the file. This metadata will be available in all the blocks.
+You can set global metadata in the first block of the file. This metadata will be available in all the blocks. This apllies to all the properties except `meta.id` and `meta.description`, `meta.ignore` and `meta.only`.
 
 For example:
 
