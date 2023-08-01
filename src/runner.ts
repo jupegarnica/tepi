@@ -219,13 +219,14 @@ async function runBlock(
     return blocksDone;
   }
   const spinner = createBlockSpinner(block, currentFilePath, globalData.meta);
+
   try {
     if (block.meta.needs && !block.meta.ignore) {
       const blockNeeded = allBlockNeeded.get(block.meta.needs)
       if (!blockNeeded) {
         throw new Error(`Block needed not found: ${block.meta.needs}`);
       }
-      if (globalData._blocksAlreadyReferenced.has(blockNeeded)) {
+      if (!blockNeeded.meta._isDoneBlock && globalData._blocksAlreadyReferenced.has(blockNeeded)) {
         // Evict infinity loop
         throw new Error(
           `Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`,

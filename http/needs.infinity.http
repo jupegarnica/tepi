@@ -1,0 +1,28 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+###
+---
+id:  block1
+---
+GET /pong?status=201
+x-quiet: true
+
+###
+
+---
+id:  block2
+needs: block1
+---
+GET /pong?status=202
+
+###
+---
+id:  block3
+needs: block1
+
+---
+POST /pong?status=203
+x-quiet: true
+
+RESPONSE 3!
