@@ -1,6 +1,5 @@
 name: Lint Commit Messages
-on:
-  workflow_dispatch:
+on: [push]
 
 jobs:
   commitlint:
