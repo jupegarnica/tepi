@@ -81,9 +81,8 @@ export async function cli() {
   /////////////
   if (args.version) {
     // fetch VERSION file
-    const version = await fetch("https://tepi.deno.dev/VERSION")
-      .then((r) => r.text())
-    console.info(version);
+    const { VERSION } = await import("./version.ts")
+    console.log(VERSION);
     exit(0);
     return;
   }
