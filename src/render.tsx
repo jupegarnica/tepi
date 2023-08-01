@@ -1,7 +1,23 @@
 import { render, Text, Box, useInput, useFocus, useFocusManager } from 'npm:ink';
 import React from 'npm:react';
 import { type State, store, Message, dispatch } from "./store.ts";
-import { Block } from './types.ts';
+import type { Block, _Request, _Response } from './types.ts';
+
+
+export async function renderUI() {
+
+    const instance = render(<App />, {
+        exitOnCtrlC: true,
+        patchConsole: false,
+        // debug: true,
+        // stdin: Deno.stdin,
+        // stdout: Deno.stdout,
+        // stderr: Deno.stderr,
+    });
+    await instance.waitUntilExit();
+    // console.log('exiting');
+
+}
 
 type Grid = {
     col1: number,
@@ -79,7 +95,7 @@ function Cell({ text, width, ...props }: { text: string, width: number, [keys: s
 
 function BlockComponent({ block, grid }: { block: Block, key: string, grid: Grid }) {
     const { isFocused } = useFocus();
-    const [opened, setOpened] = React.useState(false);
+    const [opened, setOpened] = React.useState(true);
     useInput((input, key) => {
         if (!isFocused) { return; }
         if (key.return || key.rightArrow || key.leftArrow || input === ' ') {
@@ -112,33 +128,69 @@ function BlockComponent({ block, grid }: { block: Block, key: string, grid: Grid
                 {block.request && (<RequestComponent label="Request" request={block.request} />)}
                 {block.response && (<ResponseComponent label="Expected Response" response={block.response} />)}
                 {block.actualResponse && (<ResponseComponent label="Actual Response" response={block.actualResponse} />)}
+                {block.error && (<ErrorComponent label="Error" error={block.error} />)}
             </Box>
         </Box>
 
     )
 }
 
+function BodyComponent({ body }: { body: unknown }) {
+    let bodyString = '';
+    if (typeof body === 'object') {
+        bodyString = JSON.stringify(body, null, 2);
+    } else {
+        bodyString = body as string;
+    }
 
+    return (
+        <Text color="black">{bodyString}</Text>
+    )
+}
 
-function RequestComponent({ request, label = '' }: { request: Request, label?: string }) {
+function ErrorComponent({ error, label = '' }: { error: Error, label?: string }) {
+
     return (
         <Box>
             <Box width={2}></Box>
             <Box>
                 <Box width={2}></Box>
 
-                <Text dimColor color="white" underline>{label}</Text>
+                <Text dimColor color="white">{label}</Text>
+                <Box width={2}></Box>
+
+                <Box flexDirection="column" >
+                    <Text color="black">{error.message}</Text>
+                </Box>
+            </Box>
+        </Box>
+    )
+
+}
+
+
+function RequestComponent({ request, label = '' }: { request: _Request, label?: string }) {
+    return (
+        <Box>
+            <Box width={2}></Box>
+            <Box>
+                <Box width={2}></Box>
+
+                <Text dimColor color="white">{label}</Text>
                 <Box width={2}></Box>
 
                 <Box flexDirection="column" >
                     <Text color="black">{request.method} {request.url}</Text>
+                    <BodyComponent body={request.bodyExtracted} />
                 </Box>
             </Box>
         </Box>
     )
 }
 
-function ResponseComponent({ response, label = '' }: { response: Response, label?: string }) {
+
+
+function ResponseComponent({ response, label = '' }: { response: _Response, label?: string }) {
     return (
         <Box>
             <Box width={2}></Box>
@@ -150,24 +202,9 @@ function ResponseComponent({ response, label = '' }: { response: Response, label
 
                 <Box flexDirection="column" >
                     <Text color="black">{response.status} {response.statusText}</Text>
-
+                    <BodyComponent body={response.bodyExtracted} />
                 </Box>
             </Box>
         </Box>
     )
-}
-
-export async function renderUI() {
-
-    const instance = render(<App />, {
-        exitOnCtrlC: true,
-        patchConsole: false,
-        // debug: true,
-        // stdin: Deno.stdin,
-        // stdout: Deno.stdout,
-        // stderr: Deno.stderr,
-    });
-    await instance.waitUntilExit();
-    // console.log('exiting');
-
 }

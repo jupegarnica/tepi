@@ -17,3 +17,25 @@ GET https://faker.deno.dev?delay=1000
 x-quiet: true
 
 HTTP/1.1 200 OK
+
+###
+
+---
+id: long body
+---
+
+GET https://faker.deno.dev?body={"name":"John Doe","age":30,"cars":["Ford","BMW","Fiat"]}
+x-quiet: true
+
+HTTP/1.1 200 OK
+content-type: application/json
+
+{
+  "name": "John Doe",
+  "age": 30,
+  "cars": [ { name: "John Doe", age: 30, cars: [ "Ford", "BMW", "Fiat" ] }
+    "Ford",
+    "BMW",
+    "Fiat"
+  ]
+}
