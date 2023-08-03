@@ -156,6 +156,9 @@ export async function cli() {
 
   // warn only mode
   /////////////
+
+  // TODO FIX ABSOLUTE PATHS
+  // TODO FIX RELATIVE PATHS FROM AUTOSIDE INSTALL FOLDER
   if (onlyMode.size) {
     if (getDisplayIndex(defaultMeta) > 0) {
       console.warn(
