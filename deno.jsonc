@@ -9,7 +9,7 @@
     "test-docker": "docker compose up  --exit-code-from test --no-log-prefix --abort-on-container-exit test ",
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
     // dev
-    "install": "deno install -fA --name tepi ./src/cli.ts",
+    "install": "deno install -fA --unstable --name tepi ./src/cli.ts",
     "install:x": "deno install --reload  -Af -n tepi https://tepi.deno.dev/src/cli.ts",
     "help": " deno run -A --watch ./src/cli.ts --help",
     // chore

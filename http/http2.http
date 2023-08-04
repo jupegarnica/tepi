@@ -1,5 +1,6 @@
 
 # TODO: are there a way of knowing the http protocol used?
-POST https://http2.deno.dev/ HTTP/2
+# POST https://http2.deno.dev/ HTTP/2
+POST http://localhost:8000
 
 body

@@ -29,7 +29,11 @@ export async function fetchBlock(
   }
 
   try {
-    const response = await fetch(request, { signal });
+    const useHTTP2only = true;
+    const client = Deno.createHttpClient({ http1: !useHTTP2only, http2: useHTTP2only });
+    const response = await fetch(request, { signal, client });
+    console.log("response", response, response.type);
+
     const actualResponse = _Response.fromResponse(response, request.bodyRaw);
     block.actualResponse = actualResponse;
   } catch (error) {
