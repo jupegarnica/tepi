@@ -26,6 +26,7 @@ import * as assertions from "https://deno.land/std@0.178.0/testing/asserts.ts";
 import { executeCommand } from "./command.ts";
 
 export async function runner(
+  filePaths: string[],
   defaultMeta: Meta,
   failFast = false,
 ): Promise<
