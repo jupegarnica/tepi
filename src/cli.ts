@@ -72,7 +72,7 @@ export async function cli() {
   if (args.version) {
     // fetch VERSION file
     const { VERSION } = await import("./version.ts")
-    console.log(VERSION);
+    console.info(VERSION);
     exit(0);
     return;
   }
@@ -157,18 +157,16 @@ export async function cli() {
   // warn only mode
   /////////////
 
-  // TODO FIX ABSOLUTE PATHS
-  // TODO FIX RELATIVE PATHS FROM AUTOSIDE INSTALL FOLDER
   if (onlyMode.size) {
     if (getDisplayIndex(defaultMeta) > 0) {
-      console.warn(
+      console.info(
         fmt.yellow(
           `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${onlyMode.size === 1 ? "test" : "tests"
           } are in "only" mode.`,
         ),
       );
       if (!exitCode) {
-        console.error(
+        console.info(
           fmt.red(
             `\nExited with code 1 because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
             }`,

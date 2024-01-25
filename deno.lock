@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:chalk": "npm:chalk@5.2.0",
       "npm:chalk@5.2.0": "npm:chalk@5.2.0",
       "npm:cli-highlight": "npm:cli-highlight@2.1.11",
@@ -17,6 +18,10 @@
     "npm": {
       "@colors/colors@1.5.0": {
         "integrity": "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==",
+        "dependencies": {}
+      },
+      "@types/node@18.16.19": {
+        "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
         "dependencies": {}
       },
       "ansi-escapes@5.0.0": {

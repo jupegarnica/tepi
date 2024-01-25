@@ -158,7 +158,7 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
     let message = "";
 
     if (!meta._errorDisplayed) {
-      firstError || console.error(fmt.dim("------------------"));
+      firstError || console.info(fmt.dim("------------------"));
       if (getDisplayIndex(meta) === 1) {
         // minimal
         const descriptionMaybeTruncated =
@@ -202,21 +202,21 @@ export function printError(block: Block): void {
 
   printTitle("⬇   Error    ⬇");
 
-  block.description && console.error(fmt.brightRed(block.description));
-  console.error(
+  block.description && console.info(fmt.brightRed(block.description));
+  console.info(
     fmt.dim("At:\n"),
     fmt.cyan(`${path}:${1 + (block.meta._startLine || 0)}`),
   );
-  console.error(
+  console.info(
     fmt.dim("Message:\n"),
     fmt.bold(error?.name) + ":",
     fmt.white(error?.message),
   );
-  // error?.stack && console.error(fmt.dim('Trace:\n'), fmt.dim(error?.stack));
+  // error?.stack && console.info(fmt.dim('Trace:\n'), fmt.dim(error?.stack));
   error?.cause &&
-    console.error(fmt.dim("Cause:\n"), fmt.dim(String(error?.cause)));
+    console.info(fmt.dim("Cause:\n"), fmt.dim(String(error?.cause)));
   block.meta._errorDisplayed = true;
-  console.error();
+  console.info();
 }
 
 export function requestToText(request: Request): string {

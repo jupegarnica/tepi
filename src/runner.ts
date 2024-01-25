@@ -23,7 +23,6 @@ import {
   parseResponseFromText,
 } from "./parser.ts";
 import * as assertions from "https://deno.land/std@0.178.0/testing/asserts.ts";
-import { executeCommand } from "./command.ts";
 
 export async function runner(
   filePaths: string[],
@@ -281,12 +280,7 @@ async function runBlock(
       return blocksDone;
     }
 
-    if (block.meta.command) {
-      spinner.clear();
-      await executeCommand(block);
-      spinner.start();
 
-    }
 
     if (!block.request) {
       if (block.meta._isFirstBlock) {
