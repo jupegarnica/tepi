@@ -1,5 +1,6 @@
-// TODO: fetch from deno.land/x
-import { wait } from "https://raw.githubusercontent.com/denosaurs/wait/main/mod.ts"
+
+// import { wait } from "https://deno.land/x/wait@0.1.13/mod.ts";
+import ora from 'npm:ora@5.4.1';
 import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
 
 export const REFRESH_INTERVAL = 110;
@@ -7,8 +8,8 @@ export const REFRESH_INTERVAL = 110;
 export function getSpinner(text: string) {
 
 
-    return wait({
-        prefix: "",
+    return ora({
+        // prefix: "",
         text,
         spinner: "dots4",
         color: "blue",
@@ -21,7 +22,7 @@ export function getSpinner(text: string) {
 
 export function getCmdSpinner(text: string) {
 
-    const spinner = wait({
+    const spinner = ora({
 
         text: fmt.blue("$") + " " + text,
         spinner: "clock",
@@ -38,13 +39,13 @@ export function getCmdSpinner(text: string) {
             spinner.stopAndPersist({
                 symbol: '    ' + fmt.green("$"),
 
-                 text,
+                text,
             })
         },
         fail: (text: string) => {
             spinner.stopAndPersist({
                 symbol: '    ' + fmt.red("$"),
-                 text,
+                text,
 
             })
         }

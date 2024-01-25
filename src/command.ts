@@ -1,5 +1,5 @@
 import { Block } from "./types.ts";
-import $ from "https://deno.land/x/dax@0.31.1/mod.ts";
+import $ from "https://deno.land/x/dax@0.36.0/mod.ts";
 import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
 import { DISPLAY_INDEX_MINIMAL, getDisplayIndex } from "./print.ts";
 import { getCmdSpinner } from "./logger.ts";

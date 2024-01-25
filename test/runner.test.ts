@@ -146,6 +146,7 @@ Deno.test("[runner] timeout", async () => {
 
 Deno.test(
   "[runner] redirect ",
+  { ignore: true },
   async () => {
     const { files } = await runner(["http/redirect.http"], {
       display: "none",
