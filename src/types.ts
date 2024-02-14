@@ -106,6 +106,9 @@ export class Block {
   get response() {
     return this.actualResponse;
   }
+  get blockLink() {
+    return `${this.meta._relativeFilePath?.replace(/^(\.\/)/, '')}:${this.meta._startLine?.toString().padEnd(5,' ')}`;
+  }
 }
 
 export type File = {

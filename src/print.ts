@@ -375,7 +375,7 @@ export function createBlockSpinner(
     displayIndex = getDisplayIndex(globalMeta);
   }
 
-  if (displayIndex < DISPLAY_INDEX_DEFAULT) {
+  if (displayIndex <= DISPLAY_INDEX_MINIMAL) {
     return {
       pass: noop,
       ignore: noop,
@@ -426,7 +426,7 @@ export function createBlockSpinner(
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status || "");
       const statusText = status ? (" " + status) : (" ERR");
-      const text = `${fmt.white(block.description)} ${fmt.bold(statusText)} ${fmt.gray(`${ms(_elapsedTime)}`)
+      const text = `${fmt.dim(block.blockLink)} ${fmt.white(block.description)} ${fmt.bold(statusText)} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
       const symbol = fmt.brightRed("✖");
       clearInterval(id);
@@ -441,9 +441,14 @@ export function createBlockSpinner(
       });
     },
     ignore: () => {
+      if (displayIndex < DISPLAY_INDEX_FULL) {
+        spinner.stop();
+        spinner.clear();
+        return;
+      }
       const _elapsedTime = Date.now() - startTime;
 
-      const text = `${fmt.white(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
+      const text = `${fmt.dim(block.blockLink)} ${fmt.white(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
       const symbol = fmt.yellow("-");
       clearInterval(id);
@@ -461,7 +466,7 @@ export function createBlockSpinner(
       const _elapsedTime = Date.now() - startTime;
       block.meta._elapsedTime = _elapsedTime;
       const status = String(block.actualResponse?.status);
-      const text = `${fmt.white(block.description)} ${fmt.bold(status)} ${fmt.gray(`${ms(_elapsedTime)}`)
+      const text = `${fmt.dim(block.blockLink)} ${fmt.white(block.description)} ${fmt.bold(status)} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
       const symbol = fmt.brightGreen("✔");
       clearInterval(id);
@@ -484,8 +489,13 @@ export function createBlockSpinner(
       spinner.clear();
     },
     empty: () => {
+      if (displayIndex < DISPLAY_INDEX_VERBOSE) {
+        spinner.stop();
+        spinner.clear();
+        return;
+      }
       const _elapsedTime = Date.now() - startTime;
-      const text = `${fmt.dim(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
+      const text = `${fmt.dim(block.blockLink)} ${fmt.dim(block.description)} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)
         }${differentFile}`;
       const symbol = fmt.dim("·");
       clearInterval(id);
