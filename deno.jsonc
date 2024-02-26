@@ -2,7 +2,7 @@
   "name":"tepi",
   "version": "1.0.68",
   "exports": {
-    "./": "./src/cli.ts"
+    ".": "./src/cli.ts"
   },
   "tasks": {
     "dev": "TEPI_NOT_EXIT=1 deno run -A --watch ./src/cli.ts",
