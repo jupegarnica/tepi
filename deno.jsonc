@@ -1,4 +1,5 @@
 {
+  "name":"tepi",
   "version": "1.0.68",
   "exports": {
     "./": "./src/cli.ts"
