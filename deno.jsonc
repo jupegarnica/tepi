@@ -1,5 +1,5 @@
 {
-  "name":"tepi",
+  "name":"@garn/tepi",
   "version": "1.0.68",
   "exports": {
     ".": "./src/cli.ts"
