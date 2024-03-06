@@ -404,7 +404,7 @@ export function createBlockSpinner(
       return;
     }
     const _elapsedTime = Date.now() - startTime;
-    const text = `${fmt.white(block.description)} ${"   "} ${fmt.gray(`${(_elapsedTime)}ms`)
+    const text = ` ${fmt.dim(block.blockLink)} ${fmt.white(block.description)} ${"   "} ${fmt.gray(`${(_elapsedTime)}ms`)
       }${differentFile}`;
     if (text !== spinner.text) {
       spinner.text = text;
