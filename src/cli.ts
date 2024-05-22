@@ -1,9 +1,9 @@
-import { type Args, parse } from "https://deno.land/std@0.178.0/flags/mod.ts";
+import { type Args, parseArgs  } from "jsr:@std/cli@0.224.2";
 import type { Meta } from "./types.ts";
-import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
-import { relative } from "https://deno.land/std@0.178.0/path/posix.ts";
+import * as fmt from "jsr:@std/fmt/colors";
+import { relative } from "jsr:@std/path@0.225.1";
 import { globsToFilePaths } from "./files.ts";
-import { load } from "https://deno.land/std@0.178.0/dotenv/mod.ts";
+import { load } from "jsr:@std/dotenv";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
 import { help, readme } from "./help.ts";
@@ -47,7 +47,7 @@ export async function cli() {
       failFast: "fail-fast",
     },
   };
-  const args: Args = parse(Deno.args, options);
+  const args: Args = parseArgs(Deno.args, options);
 
   // --no-color
   /////////////

@@ -7,20 +7,16 @@
   "tasks": {
     "dev": "TEPI_NOT_EXIT=1 deno run -A --watch ./src/cli.ts",
     "debug": "TEPI_NOT_EXIT=1 deno run --inspect-brk -A ./src/cli.ts ",
-    // test
     "test": "NO_LOG=1 deno test -A",
     "test-debug": "deno test -A --filter='code 0'",
     "test-watch": "FORCE_COLOR=1 deno test -A --watch test",
     "test-docker": "docker compose up  --exit-code-from test --no-log-prefix --abort-on-container-exit test ",
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
-    // dev
     "install": "deno install -fA --name tepi ./src/cli.ts",
     "compile": "deno compile --output=dist/tepi -A src/cli.ts",
     "install:x": "deno install --reload  -Af -n tepi https://tepi.deno.dev/src/cli.ts",
     "help": " deno run -A --watch ./src/cli.ts --help",
-    // chore
-    "udd": "deno run -A --reload https://deno.land/x/udd/main.ts --test='deno task test --fail-fast'  'src/**/*.ts' 'test/**/*.ts'",
-    // release
+    "udd": "deno run -A https://deno.land/x/nudd/cli.ts && deno task test --fail-fast",
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",
     "version": "deno run -A https://deno.land/x/version/index.ts",
     "version:set": "deno task version patch && echo \"export const VERSION='$(cat VERSION)'\" > src/version.ts && git add src/version.ts && git commit -m 'chore: version $(cat VERSION)'",

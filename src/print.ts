@@ -1,4 +1,4 @@
-import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
+import * as fmt from "jsr:@std/fmt/colors";
 import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
