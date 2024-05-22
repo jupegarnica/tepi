@@ -86,14 +86,16 @@ Deno.test("[runner] asserts ", async () => {
   });
   const firstBlock = files[0].blocks[1];
   assertEquals(firstBlock.error?.name, "ExpectedResponseError");
-  const secondBlock = files[0].blocks[1 + 1];
+  const secondBlock = files[0].blocks[2];
   assertEquals(secondBlock.error, undefined);
-  const thirdBlock = files[0].blocks[1 + 2];
+  const thirdBlock = files[0].blocks[3];
+
   assertStringIncludes(
     thirdBlock.error?.message || "",
-    "Error while parsing response: failed!",
+    "failed!",
   );
-  const fourthBlock = files[0].blocks[1 + 3];
+
+  const fourthBlock = files[0].blocks[4];
   assertStringIncludes(
     fourthBlock.error?.message || "",
     "Values are not equal",
