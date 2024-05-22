@@ -2,7 +2,7 @@ import { _Response, Block } from "./types.ts";
 import {
   assertEquals,
   assertObjectMatch,
-} from  "https://deno.land/std@0.213.0/assert/mod.ts";
+} from  "jsr:@std/assert@0.225.2";
 
 export class ExpectedResponseError extends Error {
   constructor(message: string) {

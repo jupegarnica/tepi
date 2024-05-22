@@ -1,8 +1,7 @@
 
-// import { wait } from "https://deno.land/x/wait@0.1.13/mod.ts";
 import ora from 'npm:ora@5.4.1';
 import { stdout } from 'node:process';
-import * as fmt from "https://deno.land/std@0.178.0/fmt/colors.ts";
+import * as fmt from "jsr:@std/fmt/colors";
 
 export const REFRESH_INTERVAL = 110;
 

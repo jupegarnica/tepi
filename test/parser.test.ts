@@ -1,10 +1,9 @@
 import {
   assertEquals,
   assertRejects,
-} from "https://deno.land/std@0.178.0/testing/asserts.ts";
+} from "jsr:@std/assert";
 import { parseBlockText } from "../src/parser.ts";
-import { stub } from "https://deno.land/std@0.178.0/testing/mock.ts";
-import { YAMLError } from "https://deno.land/std@0.178.0/encoding/_yaml/error.ts";
+import { stub } from "jsr:@std/testing/mock";
 import { Block } from "../src/types.ts";
 
 Deno.env.get("NO_LOG") && stub(console, "info");
@@ -407,6 +406,6 @@ GET faker.deno.dev
   };
   await assertRejects(
     async () => await parseBlockText(new Block(block)),
-    YAMLError,
+    Error,
   );
 });

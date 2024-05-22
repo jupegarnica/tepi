@@ -1,4 +1,4 @@
-import { assertRejects } from "https://deno.land/std@0.178.0/testing/asserts.ts";
+import { assertRejects } from "jsr:@std/assert";
 import { assertResponse } from "../src/assertResponse.ts";
 import { _Response, Block } from "../src/types.ts";
 

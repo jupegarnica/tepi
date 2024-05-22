@@ -3,7 +3,7 @@ import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.t
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 import { contentTypeToLanguage, highlight } from "./highlight.ts";
-import { ms } from "https://deno.land/x/ms@v0.1.0/ms.ts";
+import ms  from "npm:ms@2.1.3";
 import { REFRESH_INTERVAL, getSpinner, log } from "./logger.ts";
 
 type FmtMethod = keyof typeof fmt;

@@ -1,7 +1,7 @@
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@0.178.0/testing/asserts.ts";
+} from "jsr:@std/assert";
 import { installCommand, runRemoteCommand } from "../src/help.ts";
 
 function textDecode(buffer: Uint8Array) {

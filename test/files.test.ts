@@ -2,11 +2,11 @@ import { filePathsToFiles } from "../src/files.ts";
 import { Block } from "../src/types.ts";
 
 import { fileTextToBlocks } from "../src/files.ts";
-import { stub } from "https://deno.land/std@0.178.0/testing/mock.ts";
+import { stub } from "jsr:@std/testing/mock";
 
-import { assertEquals } from "https://deno.land/std@0.178.0/testing/asserts.ts";
+import { assertEquals } from "jsr:@std/assert";
 import { globsToFilePaths } from "../src/files.ts";
-// import { stub } from "https://deno.land/std@0.178.0/testing/mock.ts";
+// import { stub } from "jsr:@std/testing/mock";
 
 Deno.env.get("NO_LOG") && stub(console, "info");
 
