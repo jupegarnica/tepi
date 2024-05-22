@@ -2,7 +2,7 @@ import { filePathsToFiles } from "./files.ts";
 import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
-import * as fmt from "jsr:@std/fmt/colors";
+import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 import {
   dirname,
   isAbsolute,
@@ -22,7 +22,7 @@ import {
   parseRequestFromText,
   parseResponseFromText,
 } from "./parser.ts";
-import * as assertions from "jsr:@std/assert";
+import * as assertions from "jsr:@std/assert@0.225.2";
 
 export async function runner(
   filePaths: string[],

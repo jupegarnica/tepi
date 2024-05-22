@@ -1,4 +1,4 @@
-import { extension } from "jsr:@std/media-types/extension";
+import { extension } from "jsr:@std/media-types@0.224.1/extension";
 
 let supportsLang = (_: string) => true;
 let hl = (code: string, { language: _ }: { language: string }) => code;

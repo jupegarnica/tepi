@@ -1,7 +1,7 @@
 import { Block, Meta } from "./types.ts";
 import { _Request, _Response, httpMethods } from "./types.ts";
 import * as eta from "npm:eta@1.14.2";
-import { extract } from "jsr:@std/front-matter/yaml";
+import { extract } from "jsr:@std/front-matter@0.224.0/yaml";
 
 
 

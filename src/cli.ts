@@ -1,9 +1,9 @@
 import { type Args, parseArgs  } from "jsr:@std/cli@0.224.2";
 import type { Meta } from "./types.ts";
-import * as fmt from "jsr:@std/fmt/colors";
+import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 import { relative } from "jsr:@std/path@0.225.1";
 import { globsToFilePaths } from "./files.ts";
-import { load } from "jsr:@std/dotenv";
+import { load } from "jsr:@std/dotenv@0.224.0";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./print.ts";
 import { help, readme } from "./help.ts";

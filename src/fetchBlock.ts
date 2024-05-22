@@ -5,7 +5,7 @@ import {
   mimesToText,
 } from "./types.ts";
 
-import { delay } from "jsr:@std/async/delay";
+import { delay } from "jsr:@std/async@0.224.0/delay";
 
 import { type _Request, _Response, type Block } from "./types.ts";
 

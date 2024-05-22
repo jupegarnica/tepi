@@ -2,9 +2,9 @@ import {
   assert,
   assertEquals,
   assertStringIncludes,
-} from "jsr:@std/assert";
+} from "jsr:@std/assert@0.225.2";
 
-import { stub } from "jsr:@std/testing/mock";
+import { stub } from "jsr:@std/testing@0.224.0/mock";
 import { runner } from "../src/runner.ts";
 
 const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";

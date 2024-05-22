@@ -1,4 +1,4 @@
-import * as fmt from "jsr:@std/fmt/colors";
+import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 import { getImageStrings } from "jsr:@garn/terminal-images@3.1.0";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";

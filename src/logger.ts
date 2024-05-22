@@ -1,7 +1,7 @@
 
 import ora from 'npm:ora@5.4.1';
 import { stdout } from 'node:process';
-import * as fmt from "jsr:@std/fmt/colors";
+import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 
 export const REFRESH_INTERVAL = 110;
 

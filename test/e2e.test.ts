@@ -1,7 +1,7 @@
 import {
   assert,
   assertEquals,
-} from "jsr:@std/assert";
+} from "jsr:@std/assert@0.225.2";
 import { installCommand, runRemoteCommand } from "../src/help.ts";
 
 function textDecode(buffer: Uint8Array) {

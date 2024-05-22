@@ -1,4 +1,4 @@
-import { assertRejects } from "jsr:@std/assert";
+import { assertRejects } from "jsr:@std/assert@0.225.2";
 import { assertResponse } from "../src/assertResponse.ts";
 import { _Response, Block } from "../src/types.ts";
 

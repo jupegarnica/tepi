@@ -73,7 +73,7 @@ export function fileTextToBlocks(
   return blocks;
 }
 
-import { expandGlob } from "jsr:@std/fs/expand-glob";
+import { expandGlob } from "jsr:@std/fs@0.224.0/expand-glob";
 
 export const checkGlobHasLineSpec = (glob: string) =>
   new RegExp(":[0-9]+").test(glob);

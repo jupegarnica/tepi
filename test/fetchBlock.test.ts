@@ -1,9 +1,9 @@
 import {
   assertEquals,
   assertRejects,
-} from "jsr:@std/assert";
+} from "jsr:@std/assert@0.225.2";
 import { consumeBodies, fetchBlock } from "../src/fetchBlock.ts";
-import { stub } from "jsr:@std/testing/mock";
+import { stub } from "jsr:@std/testing@0.224.0/mock";
 import { parseBlockText } from "../src/parser.ts";
 import { Block } from "../src/types.ts";
 Deno.env.get("NO_LOG") && stub(console, "info");
