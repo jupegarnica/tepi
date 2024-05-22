@@ -1,5 +1,5 @@
 import * as fmt from "jsr:@std/fmt/colors";
-import { getImageStrings } from "https://deno.land/x/terminal_images@3.0.0/mod.ts";
+import { getImageStrings } from "jsr:@garn/terminal-images@3.1.0";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 import { contentTypeToLanguage, highlight } from "./highlight.ts";
