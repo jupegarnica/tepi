@@ -8,7 +8,7 @@ import {
   isAbsolute,
   relative,
   resolve,
-} from "jsr:@std/path/posix";
+} from "jsr:@std/path@0.225.1/posix";
 import {
   createBlockSpinner,
   getDisplayIndex,
