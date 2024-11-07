@@ -23,7 +23,7 @@
     "version:set": "deno task version patch && echo \"export const VERSION='$(cat VERSION)'\" > src/version.ts && git add src/version.ts && git commit -m 'chore: version $(cat VERSION)'",
     "readme": "cat docs/started.md > README.md && cat docs/usage.md >> README.md && cat docs/syntax.md >> README.md  && deno task readme:copy && git add README.md vscode-extension/README.md && git commit -m 'docs: update README.md' || true",
     "readme:copy": "cp README.md vscode-extension/README.md",
-    "release": "deno task vhs && deno task readme && deno task version:set && git push --tags origin main && deno task publish-image %% deno publish",
+    "release": "deno task vhs && deno task readme && deno task version:set && git push --tags origin main && deno task publish-image && deno publish",
     "publish-image": "export IMAGE_NAME=jupegarnica/tepi && export IMAGE_TAG=$(deno task version get) && docker build -t $IMAGE_NAME:$IMAGE_TAG . && docker push $IMAGE_NAME:$IMAGE_TAG && docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest && docker push $IMAGE_NAME:latest",
     "vhs": "bash -c 'cd vhs && vhs < demo.tape && git add ./demo.gif && git commit -m vhs' "
   }
