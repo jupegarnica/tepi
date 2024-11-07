@@ -158,7 +158,7 @@ export async function parseRequestFromText(
   try {
     url = new URL(url).toString();
   } catch (error) {
-    // @ts-ignore - it works
+    // @ts-ignore - it works    brew install docker-compose
     throw new error.constructor(`Invalid URL: ${url} -> ${error.message}`);
   }
 
