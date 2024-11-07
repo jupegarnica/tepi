@@ -20,7 +20,7 @@ Set BorderRadius 10
 
 Require deno
 Require tepi
-Require batcat
+Require bat
 
 Hide
 # Type "deno cache --unstable ../../src/cli.ts"
