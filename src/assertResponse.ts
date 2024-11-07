@@ -24,14 +24,14 @@ export async function assertResponse(block: Omit<Block, "meta">) {
     try {
       assertEquals(expectedResponse.status, actualResponse.status);
     } catch (error) {
-      throw new ExpectedResponseError(`Status code mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Status code mismatch\n${(error as Error).message}`);
     }
   }
   if (expectedResponse.statusText) {
     try {
       assertEquals(expectedResponse.statusText, actualResponse.statusText);
     } catch (error) {
-      throw new ExpectedResponseError(`Status text mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Status text mismatch\n${(error as Error).message}`);
     }
   }
 
@@ -50,7 +50,7 @@ export async function assertResponse(block: Omit<Block, "meta">) {
         await expectedResponse.getBody() as Record<string, unknown>,
       );
     } catch (error) {
-      throw new ExpectedResponseError(`Body mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Body mismatch\n${(error as Error).message}`);
     }
   }
   if (expectedResponse.headers) {
@@ -59,7 +59,7 @@ export async function assertResponse(block: Omit<Block, "meta">) {
         assertEquals(actualResponse.headers.get(key), value);
       }
     } catch (error) {
-      throw new ExpectedResponseError(`Header mismatch\n${error.message}`);
+      throw new ExpectedResponseError(`Header mismatch\n${(error as Error).message}`);
     }
   }
 }

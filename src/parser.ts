@@ -164,6 +164,7 @@ export async function parseRequestFromText(
   try {
     url = new URL(url).toString();
   } catch (error) {
+    // @ts-expect-error
     throw new error.constructor(`Invalid URL: ${url} -> ${error.message}`);
   }
 

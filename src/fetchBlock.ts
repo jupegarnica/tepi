@@ -9,9 +9,7 @@ import { delay } from "jsr:@std/async@0.224.0/delay";
 
 import { type _Request, _Response, type Block } from "./types.ts";
 
-export async function fetchBlock(
-  block: Block,
-): Promise<Block> {
+export async function fetchBlock(block: Block): Promise<Block> {
   const { request } = block;
   if (!request) {
     throw new Error("block.request is undefined");
@@ -32,10 +30,12 @@ export async function fetchBlock(
     const response = await fetch(request, { signal });
     const actualResponse = _Response.fromResponse(response, request.bodyRaw);
     block.actualResponse = actualResponse;
-  } catch (error) {
+  } catch (_error) {
+    const error = _error as Error;
     if (error.name === "AbortError") {
+      // @ts-expect-error
       throw new error.constructor(
-        `Timeout of ${block.meta.timeout}ms exceeded`,
+        `Timeout of ${block.meta.timeout}ms exceeded`
       );
     }
 
@@ -47,7 +47,7 @@ export async function fetchBlock(
 }
 
 export async function extractBody(
-  re: _Response | _Request,
+  re: _Response | _Request
 ): Promise<_Response | _Request> {
   const contentType = re.headers.get("content-type") || "";
   const includes = (ct: string) => contentType.includes(ct);
@@ -58,8 +58,8 @@ export async function extractBody(
     }
     if (typeof re.bodyRaw === "string") {
       const requestExtracted = mimesToJSON.some((ct) =>
-          contentType.includes(ct)
-        )
+        contentType.includes(ct)
+      )
         ? JSON.parse(re.bodyRaw as string)
         : re.bodyRaw;
       re.bodyExtracted = requestExtracted;

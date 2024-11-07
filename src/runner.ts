@@ -86,7 +86,7 @@ export async function runner(
     );
   } catch (error) {
     console.error(`Error while parsing metadata:`);
-    console.error(error.message);
+    console.error((error as Error).message);
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
 
@@ -262,7 +262,7 @@ async function runBlock(
       if (block.meta.ignore) {
         // should not fail if ignored
       } else {
-        error.message = `Error while parsing request: ${error.message}`;
+        (error as Error).message = `Error while parsing request: ${(error as Error).message}`;
         throw error;
       }
     }
@@ -312,7 +312,7 @@ async function runBlock(
         },
       );
     } catch (error) {
-      error.message = `Error while parsing response: ${error.message}`;
+      (error as Error).message = `Error while parsing response: ${(error as Error).message}`;
       throw error;
     }
 
@@ -325,7 +325,7 @@ async function runBlock(
     addToDone(blocksDone, block);
     return blocksDone;
   } catch (error) {
-    block.error = error;
+    block.error = error as Error;
     block.meta._isFailedBlock = true;
     spinner.fail();
     addToDone(blocksDone, block);
@@ -381,8 +381,9 @@ async function processMetadata(
             mustBeImported.add(resolve(dirname(file.path), block.meta.import));
           }
         }
-      } catch (error) {
-        error.message = `Error parsing metadata: ${error.message}`;
+      } catch (_error) {
+        const error = _error as Error;
+        (error as Error).message = `Error parsing metadata: ${(error as Error).message}`;
         block.error = error;
         block.meta._isFailedBlock = true;
       }
