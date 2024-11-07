@@ -217,21 +217,29 @@ async function watchAndRun(
   logWatchingPaths(filePaths, filePathsToJustWatch);
 
   for await (const event of watcher) {
-    if (event.kind === "access") {
+    if (event.kind === "access" || event.kind === "modify") {
       noClear || console.clear();
-      await runner(filePaths, defaultMeta);
-      // logWatchingPaths(filePaths, filePathsToJustWatch);
       if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
         // run all
         noClear || console.clear();
-        await runner(filePaths, defaultMeta);
+        debounceRunner(filePaths, defaultMeta);
         logWatchingPaths(filePaths, filePathsToJustWatch);
       } else {
         // run just this file
         noClear || console.clear();
-        await runner(event.paths, defaultMeta);
+
+        debounceRunner(event.paths, defaultMeta);
         logWatchingPaths(filePaths, filePathsToJustWatch);
       }
     }
   }
+}
+const debounceRunner = debounce(runner, 100);
+
+function debounce(func: Function, wait: number) {
+  let timeout: number | null;
+  return function (...args: any) {
+    clearTimeout(timeout as number);
+    timeout = setTimeout(() => func(...args), wait);
+  };
 }
