@@ -33,7 +33,7 @@ export async function fetchBlock(block: Block): Promise<Block> {
   } catch (_error) {
     const error = _error as Error;
     if (error.name === "AbortError") {
-      // @ts-expect-error
+      // @ts-ignore - it works
       throw new error.constructor(
         `Timeout of ${block.meta.timeout}ms exceeded`
       );

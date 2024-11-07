@@ -3,21 +3,15 @@ import { _Request, _Response, httpMethods } from "./types.ts";
 import * as eta from "npm:eta@1.14.2";
 import { extract } from "jsr:@std/front-matter@0.224.0/yaml";
 
-
-
 async function renderTemplate(template: string, data: Record<string, unknown>) {
-  const result = await eta.render(
-    template,
-    data,
-    {
-      async: true,
-      useWith: true,
-      rmWhitespace: false,
-      autoTrim: false,
-      // TODO: add custom tags??
-      // tags: ["{{", "}}"]
-    },
-  );
+  const result = await eta.render(template, data, {
+    async: true,
+    useWith: true,
+    rmWhitespace: false,
+    autoTrim: false,
+    // TODO: add custom tags??
+    // tags: ["{{", "}}"]
+  });
   return result;
 }
 
@@ -40,12 +34,12 @@ export async function parseBlockText(block: Block): Promise<Block> {
 const findFrontMatterTextRegex = /^---\s*([\s\S]*?)\s*---\s*/gm;
 export async function parseMetaFromText(
   textRaw = "",
-  dataToInterpolate = {},
+  dataToInterpolate = {}
 ): Promise<Meta> {
   const meta: Meta = {};
   const frontMatterTextRaw = textRaw.match(findFrontMatterTextRegex)?.[0] || "";
-  const text = await renderTemplate(frontMatterTextRaw, dataToInterpolate) ||
-    "";
+  const text =
+    (await renderTemplate(frontMatterTextRaw, dataToInterpolate)) || "";
   const frontMatterText = text.match(findFrontMatterTextRegex)?.[0] || "";
 
   if (frontMatterText) {
@@ -61,7 +55,7 @@ function splitLines(text: string): string[] {
 
 export async function parseRequestFromText(
   block: Block,
-  dataToInterpolate = {},
+  dataToInterpolate = {}
 ): Promise<_Request | undefined> {
   const textRaw = block.text.replace(findFrontMatterTextRegex, "");
 
@@ -71,16 +65,16 @@ export async function parseRequestFromText(
   const requestStartLine = 0;
   let requestEndLine = linesRaw.findIndex(
     isResponseStartLine,
-    requestStartLine,
+    requestStartLine
   );
 
   if (requestEndLine === -1) requestEndLine = linesRaw.length;
 
-  const requestText = linesRaw.slice(requestStartLine, requestEndLine).join(
-    "\n",
-  );
+  const requestText = linesRaw
+    .slice(requestStartLine, requestEndLine)
+    .join("\n");
 
-  const text = await renderTemplate(requestText, dataToInterpolate) || "";
+  const text = (await renderTemplate(requestText, dataToInterpolate)) || "";
 
   const requestStartLineIndex = linesRaw.findIndex(isRequestStartLine);
   if (requestStartLineIndex === -1) {
@@ -141,7 +135,7 @@ export async function parseRequestFromText(
       requestInit.body = (requestInit.body || "") + "\n" + line;
     }
   }
-  requestInit.body = (requestInit.body as string || "").trim();
+  requestInit.body = ((requestInit.body as string) || "").trim();
   if (requestInit.body === "") {
     requestInit.body = null;
   }
@@ -164,7 +158,7 @@ export async function parseRequestFromText(
   try {
     url = new URL(url).toString();
   } catch (error) {
-    // @ts-expect-error
+    // @ts-ignore - it works
     throw new error.constructor(`Invalid URL: ${url} -> ${error.message}`);
   }
 
@@ -175,7 +169,7 @@ export async function parseRequestFromText(
 
 export async function parseResponseFromText(
   textRaw = "",
-  dataToInterpolate = {},
+  dataToInterpolate = {}
 ): Promise<_Response | undefined> {
   const linesRaw: string[] = splitLines(textRaw);
   const responseInit: ResponseInit = {};
@@ -186,7 +180,7 @@ export async function parseResponseFromText(
   if (statusLine === -1) return;
 
   const responseText = linesRaw.slice(statusLine).join("\n");
-  const text = await renderTemplate(responseText, dataToInterpolate) || "";
+  const text = (await renderTemplate(responseText, dataToInterpolate)) || "";
   const lines = splitLines(text);
 
   let lookingFor = "status";
