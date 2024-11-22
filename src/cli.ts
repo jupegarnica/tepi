@@ -155,8 +155,6 @@ export async function cli() {
 
   const filePathsToRun = await globsToFilePaths(globs);
 
-  console.log({ filePathsToRun });
-
   // runner
   /////////////
   let { exitCode, onlyMode } = await runner(
