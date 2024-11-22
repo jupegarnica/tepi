@@ -1,4 +1,4 @@
-FROM denoland/deno:alpine-1.40.0
+FROM denoland/deno:alpine-2.1.1
 WORKDIR /app
 COPY ./src ./src
 COPY ./deno.json ./deno.json
