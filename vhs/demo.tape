@@ -25,7 +25,7 @@ Require bat
 Hide
 # Type "deno cache --unstable ../../src/cli.ts"
 # Enter
-# Type "deno install --unstable -Af -n tepi ../../src/cli.ts"
+# Type "deno install --global --unstable -Af -n tepi ../../src/cli.ts"
 # Type "deno cache -A npm:cli-highlight" Enter
 # Type "alias cat='deno run -A npm:cli-highlight --language http --theme theme.json'" Enter
 Type "alias cat='batcat --style=snip'" Enter

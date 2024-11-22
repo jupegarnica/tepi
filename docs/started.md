@@ -47,7 +47,7 @@ Test your HTTP APIs with standard http syntax
 
 
 ```bash
-deno install --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
+deno install --global --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
 ```
 
 Or run remotely with:

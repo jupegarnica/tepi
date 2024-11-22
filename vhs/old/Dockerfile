@@ -33,7 +33,7 @@ COPY --from=tsl0922/ttyd:alpine /usr/bin/ttyd /usr/bin/ttyd
 
 # INSTALL TEPI
 RUN deno cache --unstable https://tepi.deno.dev/src/cli.ts
-RUN deno install --unstable -rAf -n tepi https://tepi.deno.dev/src/cli.ts
+RUN deno install --global --unstable -rAf -n tepi https://tepi.deno.dev/src/cli.ts
 
 # INSTALL BAT
 RUN apk add bat curl

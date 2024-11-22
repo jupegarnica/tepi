@@ -12,8 +12,6 @@
     "editorGroup.border": "#a98bf1",
     "sash.hoverBorder": "#a98bf1",
     "statusBar.background": "#875dec",
-    "statusBar.debuggingBackground": "#c2ec5d",
-    "statusBar.debuggingForeground": "#15202b",
     "statusBar.foreground": "#e7e7e7",
     "statusBarItem.hoverBackground": "#a98bf1",
     "statusBarItem.remoteBackground": "#875dec",

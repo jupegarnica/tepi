@@ -13,7 +13,7 @@ Require deno
 Hide
 Type "deno cache --unstable ../../src/cli.ts"
 Enter
-Type "deno install --unstable -Af -n tepi ../../src/cli.ts"
+Type "deno install --global --unstable -Af -n tepi ../../src/cli.ts"
 Type "deno cache -A npm:cli-highlight" Enter
 Type "alias cat='deno run -A npm:cli-highlight'" Enter
 Sleep 15s

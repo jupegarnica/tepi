@@ -1,4 +1,4 @@
-import { type Args, parseArgs  } from "jsr:@std/cli@0.224.2";
+import { type Args, parseArgs } from "jsr:@std/cli@0.224.2";
 import type { Meta } from "./types.ts";
 import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 import { relative } from "jsr:@std/path@0.225.1";
@@ -14,7 +14,7 @@ function exit(code: number) {
 }
 
 Deno.addSignalListener("SIGINT", () => {
-  console.info(fmt.yellow('\nForcefully exiting with code 143 (SIGINT)'));
+  console.info(fmt.yellow("\nForcefully exiting with code 143 (SIGINT)"));
   exit(143);
 });
 
@@ -29,7 +29,14 @@ export async function cli() {
       help: false,
     },
     collect: ["watch", "envFile", "watch-no-clear"],
-    boolean: ["help", "failFast", "noColor", "upgrade", "noAnimation", "readme"],
+    boolean: [
+      "help",
+      "failFast",
+      "noColor",
+      "upgrade",
+      "noAnimation",
+      "readme",
+    ],
     string: ["display", "envFile"],
 
     alias: {
@@ -58,9 +65,9 @@ export async function cli() {
   /////////////
   if (args.upgrade) {
     const { code } = await new Deno.Command(Deno.execPath(), {
-      args:
-        "install --unstable -A --reload -f -n tepi https://tepi.deno.dev/src/cli.ts?upgrade=true"
-          .split(" "),
+      args: "install --unstable -A --reload -f -n tepi https://tepi.deno.dev/src/cli.ts?upgrade=true".split(
+        " "
+      ),
       stdout: "inherit",
       stderr: "inherit",
     }).output();
@@ -71,7 +78,7 @@ export async function cli() {
   /////////////
   if (args.version) {
     // fetch VERSION file
-    const { VERSION } = await import("./version.ts")
+    const { VERSION } = await import("./version.ts");
     console.info(VERSION);
     exit(0);
     return;
@@ -103,9 +110,10 @@ export async function cli() {
   if (getDisplayIndex(defaultMeta) === Infinity) {
     console.error(
       fmt.brightRed(
-        `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map((t) => fmt.bold(t)).join(", ")
-        }`,
-      ),
+        `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map(
+          (t) => fmt.bold(t)
+        ).join(", ")}`
+      )
     );
     exit(1);
   }
@@ -134,24 +142,27 @@ export async function cli() {
   if (keysLoaded.size && getDisplayIndex(defaultMeta) > 0) {
     console.info(
       fmt.gray(
-        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(envFiles).join(", ")
-        }`,
-      ),
+        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(
+          envFiles
+        ).join(", ")}`
+      )
     );
   }
 
   // resolves globs to file paths and skips globs that have line specs
   /////////////
-  const globs: string[] = args._.length ? args._ as string[] : ["**/*.http"];
+  const globs: string[] = args._.length ? (args._ as string[]) : ["**/*.http"];
 
   const filePathsToRun = await globsToFilePaths(globs);
+
+  console.log({ filePathsToRun });
 
   // runner
   /////////////
   let { exitCode, onlyMode } = await runner(
     filePathsToRun,
     defaultMeta,
-    args.failFast,
+    args.failFast
   );
 
   // warn only mode
@@ -161,16 +172,18 @@ export async function cli() {
     if (getDisplayIndex(defaultMeta) > 0) {
       console.info(
         fmt.yellow(
-          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${onlyMode.size === 1 ? "test" : "tests"
-          } are in "only" mode.`,
-        ),
+          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${
+            onlyMode.size === 1 ? "test" : "tests"
+          } are in "only" mode.`
+        )
       );
       if (!exitCode) {
         console.info(
           fmt.red(
-            `\nExited with code 1 because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")
-            }`,
-          ),
+            `\nExited with code 1 because the ${fmt.bold(
+              '"only"'
+            )} option was used at ${[...onlyMode].join(", ")}`
+          )
         );
       }
     }
@@ -182,13 +195,15 @@ export async function cli() {
   if (args.watch || args["watch-no-clear"]) {
     const watch = args.watch || args["watch-no-clear"];
     const filePathsToJustWatch = await globsToFilePaths(
-      watch.filter((i: boolean | string) => typeof i === "string"),
+      watch.filter((i: boolean | string) => typeof i === "string")
     );
     const noClear = !!args["watch-no-clear"];
-    watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta, noClear)
-      .catch(
-        console.error,
-      );
+    watchAndRun(
+      filePathsToRun,
+      filePathsToJustWatch,
+      defaultMeta,
+      noClear
+    ).catch(console.error);
   } else {
     exit(exitCode);
   }
@@ -196,12 +211,13 @@ export async function cli() {
 
 function logWatchingPaths(filePaths: string[], filePathsToJustWatch: string[]) {
   console.info(fmt.dim("\nWatching and running tests from:"));
-  filePaths.map((_filePath) => relative(Deno.cwd(), _filePath)).forEach((
-    _filePath,
-  ) => console.info(fmt.cyan(`  ${_filePath}`)));
+  filePaths
+    .map((_filePath) => relative(Deno.cwd(), _filePath))
+    .forEach((_filePath) => console.info(fmt.cyan(`  ${_filePath}`)));
   if (filePathsToJustWatch.length) {
     console.info(fmt.dim("\nRerun when changes from:"));
-    filePathsToJustWatch.map((_filePath) => relative(Deno.cwd(), _filePath))
+    filePathsToJustWatch
+      .map((_filePath) => relative(Deno.cwd(), _filePath))
       .forEach((_filePath) => console.info(fmt.cyan(`  ${_filePath}`)));
   }
 }
@@ -210,7 +226,7 @@ async function watchAndRun(
   filePaths: string[],
   filePathsToJustWatch: string[],
   defaultMeta: Meta,
-  noClear: boolean,
+  noClear: boolean
 ) {
   const allFilePaths = filePaths.concat(filePathsToJustWatch);
   const watcher = Deno.watchFs(allFilePaths);
