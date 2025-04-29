@@ -16,7 +16,7 @@ import {
   printBlock,
   printErrorsSummary,
 } from "./print.ts";
-import ms  from "npm:ms@2.1.3";
+import ms from "npm:ms@2.1.3";
 import {
   parseMetaFromText,
   parseRequestFromText,
@@ -27,15 +27,13 @@ import * as assertions from "jsr:@std/assert@0.225.2";
 export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
-  failFast = false,
-): Promise<
-  {
-    files: File[];
-    exitCode: number;
-    onlyMode: Set<string>;
-    blocksDone: Set<Block>;
-  }
-> {
+  failFast = false
+): Promise<{
+  files: File[];
+  exitCode: number;
+  onlyMode: Set<string>;
+  blocksDone: Set<Block>;
+}> {
   let successfulBlocks = 0;
   let failedBlocks = 0;
   let ignoredBlocks = 0;
@@ -65,7 +63,7 @@ export async function runner(
       get description() {
         // do not save description in global meta
         return undefined;
-      }
+      },
     },
     _files: files,
     _blocksDone: {},
@@ -82,17 +80,13 @@ export async function runner(
       onlyMode,
       mustBeImported,
       blocksDone,
-      allPathFilesImported,
+      allPathFilesImported
     );
   } catch (error) {
     console.error(`Error while parsing metadata:`);
     console.error((error as Error).message);
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
-
-
-
-
 
   if (onlyMode.size) {
     for (const file of files) {
@@ -138,7 +132,13 @@ export async function runner(
         _isFirstBlock = false;
       }
 
-      await runBlock(block, globalData, relativePath, blocksDone, allBlockNeeded);
+      await runBlock(
+        block,
+        globalData,
+        relativePath,
+        blocksDone,
+        allBlockNeeded
+      );
       if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
       }
@@ -168,18 +168,14 @@ export async function runner(
   }
 
   const totalBlockRun = successfulBlocks + failedBlocks;
-  const exitCode = failedBlocks > 0
-    ? failedBlocks
-    : totalBlockRun === 0
-      ? 1
-      : 0;
+  const exitCode =
+    failedBlocks > 0 ? failedBlocks : totalBlockRun === 0 ? 1 : 0;
 
   if (getDisplayIndex(defaultMeta) !== 0) {
     printErrorsSummary(blocksDone);
 
-    const statusText = exitCode > 0
-      ? fmt.bgRed(" FAIL ")
-      : fmt.bgBrightGreen(" PASS ");
+    const statusText =
+      exitCode > 0 ? fmt.bgRed(" FAIL ") : fmt.bgBrightGreen(" PASS ");
 
     const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
     const elapsedGlobalTime = Date.now() - startGlobalTime;
@@ -187,9 +183,11 @@ export async function runner(
     console.info();
     console.info(
       fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(String(successfulBlocks))
-      } passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(String(ignoredBlocks))
-      } ignored ${prettyGlobalTime}`,
+      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(
+        String(successfulBlocks)
+      )} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(
+        String(ignoredBlocks)
+      )} ignored ${prettyGlobalTime}`
     );
   }
   globalData._blocksDone = {}; // clean up blocks referenced
@@ -212,7 +210,7 @@ async function runBlock(
   globalData: GlobalData,
   currentFilePath: string,
   blocksDone: Set<Block>,
-  allBlockNeeded: Map<string, Block>,
+  allBlockNeeded: Map<string, Block>
 ): Promise<Set<Block>> {
   if (blocksDone.has(block)) {
     return blocksDone;
@@ -221,14 +219,17 @@ async function runBlock(
 
   try {
     if (block.meta.needs && !block.meta.ignore) {
-      const blockNeeded = allBlockNeeded.get(block.meta.needs)
+      const blockNeeded = allBlockNeeded.get(block.meta.needs);
       if (!blockNeeded) {
         throw new Error(`Block needed not found: ${block.meta.needs}`);
       }
-      if (!blockNeeded.meta._isDoneBlock && globalData._blocksAlreadyReferenced.has(blockNeeded)) {
+      if (
+        !blockNeeded.meta._isDoneBlock &&
+        globalData._blocksAlreadyReferenced.has(blockNeeded)
+      ) {
         // Evict infinity loop
         throw new Error(
-          `Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`,
+          `Infinite loop looking for needed blocks -> ${block.description} needs ${block.meta.needs}`
         );
       }
       globalData._blocksAlreadyReferenced.add(blockNeeded);
@@ -238,14 +239,13 @@ async function runBlock(
         globalData,
         currentFilePath,
         blocksDone,
-        allBlockNeeded,
+        allBlockNeeded
       );
 
       if (blocksDone.has(block)) {
         return blocksDone;
       }
     }
-
 
     block.meta = {
       ...globalData.meta,
@@ -262,7 +262,9 @@ async function runBlock(
       if (block.meta.ignore) {
         // should not fail if ignored
       } else {
-        (error as Error).message = `Error while parsing request: ${(error as Error).message}`;
+        (error as Error).message = `Error while parsing request: ${
+          (error as Error).message
+        }`;
         throw error;
       }
     }
@@ -279,8 +281,6 @@ async function runBlock(
       spinner.ignore();
       return blocksDone;
     }
-
-
 
     if (!block.request) {
       if (block.meta._isFirstBlock) {
@@ -300,17 +300,14 @@ async function runBlock(
     await fetchBlock(block);
 
     try {
-      block.expectedResponse = await parseResponseFromText(
-        block.text,
-        {
-          ...globalData._blocksDone,
-          ...block,
-          ...assertions,
-          body: await block.actualResponse?.getBody(),
-          // body: block.body,
-          response: block.response,
-        },
-      );
+      block.expectedResponse = await parseResponseFromText(block.text, {
+        ...globalData._blocksDone,
+        ...block,
+        ...assertions,
+        body: await block.actualResponse?.getBody(),
+        // body: block.body,
+        response: block.response,
+      });
     } catch (error) {
       (error as Error).message = `Error while parsing response: ${(error as Error).message}`;
       throw error;
@@ -348,7 +345,7 @@ async function processMetadata(
   onlyMode: Set<string>,
   mustBeImported: Set<string>,
   blocksDone: Set<Block>,
-  allPathFilesImported: Set<string>,
+  allPathFilesImported: Set<string>
 ) {
   for (const file of files) {
     if (allPathFilesImported.has(file.path)) {
@@ -371,7 +368,7 @@ async function processMetadata(
         };
         if (block.meta.only) {
           onlyMode.add(
-            `${block.meta._relativeFilePath}:${block.meta._startLine}`,
+            `${block.meta._relativeFilePath}:${block.meta._startLine}`
           );
         }
         if (block.meta.import) {
@@ -383,7 +380,9 @@ async function processMetadata(
         }
       } catch (_error) {
         const error = _error as Error;
-        (error as Error).message = `Error parsing metadata: ${(error as Error).message}`;
+        (error as Error).message = `Error parsing metadata: ${
+          (error as Error).message
+        }`;
         block.error = error;
         block.meta._isFailedBlock = true;
       }
@@ -395,7 +394,7 @@ async function processMetadata(
   if (mustBeImported.size > 0) {
     const allAbsolutePaths = files.map((f) => f.path);
     const needsImport = Array.from(mustBeImported).filter(
-      (path) => !allAbsolutePaths.includes(path),
+      (path) => !allAbsolutePaths.includes(path)
     );
 
     const newFiles = await filePathsToFiles(needsImport);
@@ -406,9 +405,9 @@ async function processMetadata(
       onlyMode,
       _mustBeImported,
       blocksDone,
-      allPathFilesImported,
+      allPathFilesImported
     );
     files.unshift(...newFiles);
-    files.sort((file) => mustBeImported.has(file.path) ? -1 : 1);
+    files.sort((file) => (mustBeImported.has(file.path) ? -1 : 1));
   }
 }
