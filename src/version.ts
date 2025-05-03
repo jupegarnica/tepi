@@ -1,1 +1,3 @@
-export const VERSION='1.0.76'
+import data from '../deno.json' with { type: 'json' };
+
+export const VERSION = data.version;
