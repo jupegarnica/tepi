@@ -1,6 +1,6 @@
 {
   "name": "@garn/tepi",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "lock": false,
   "exports": {
     ".": "./src/cli.ts"
