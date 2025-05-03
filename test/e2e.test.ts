@@ -96,3 +96,13 @@ Deno.test("[e2e] help commands must work: runRemoteCommand", {
   //   assertEquals(code, 17);
   assertEquals(success, false);
 });
+
+
+Deno.test("[e2e] allow empty status code", {
+ only: true,
+}, async () => {
+  const { out, success, code } = await run(tepi + "http/emptyStatusCode.http");
+  assert(out.length > 0);
+  assertEquals(code, 0);
+  assertEquals(success, true);
+});

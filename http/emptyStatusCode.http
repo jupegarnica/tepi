@@ -1,0 +1,35 @@
+---
+host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+---
+
+###
+---
+id: assert status range
+---
+GET /?status=203
+quiet: true
+
+HTTP/1.1
+<% assert(response.status >= 200 && response.status < 400) %>
+
+passed
+
+
+###
+---
+id: emptyStatusCode
+---
+GET  /?status=200
+quiet: true
+
+HTTP/1.1
+<% assert(response.status === 200) %>
+
+###
+---
+id: emptyStatusCode inline
+---
+GET  /?status=200
+quiet: true
+
+HTTP/1.1 <% assert(response.status === 200) %>
