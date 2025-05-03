@@ -37,6 +37,7 @@ For example:
 ```
 GET  http://localhost:3000/users
 
+HTTP/1.1
 <% assert(response.status === 200) %>
 
 ```
