@@ -1,8 +1,5 @@
 import { _Response, Block } from "./types.ts";
-import {
-  assertEquals,
-  assertObjectMatch,
-} from  "jsr:@std/assert@0.225.2";
+import { assertEquals, assertObjectMatch } from "jsr:@std/assert@0.225.2";
 
 export class ExpectedResponseError extends Error {
   constructor(message: string) {
@@ -24,14 +21,18 @@ export async function assertResponse(block: Omit<Block, "meta">) {
     try {
       assertEquals(expectedResponse.status, actualResponse.status);
     } catch (error) {
-      throw new ExpectedResponseError(`Status code mismatch\n${(error as Error).message}`);
+      throw new ExpectedResponseError(
+        `Status code mismatch\n${(error as Error).message}`
+      );
     }
   }
   if (expectedResponse.statusText) {
     try {
       assertEquals(expectedResponse.statusText, actualResponse.statusText);
     } catch (error) {
-      throw new ExpectedResponseError(`Status text mismatch\n${(error as Error).message}`);
+      throw new ExpectedResponseError(
+        `Status text mismatch\n${(error as Error).message}`
+      );
     }
   }
 
@@ -39,27 +40,32 @@ export async function assertResponse(block: Omit<Block, "meta">) {
     let assertBody: typeof assertEquals | typeof assertObjectMatch =
       assertEquals;
     if (
-      typeof await expectedResponse.getBody() === "object" &&
-      typeof await actualResponse.getBody() === "object"
+      typeof (await expectedResponse.getBody()) === "object" &&
+      typeof (await actualResponse.getBody()) === "object"
     ) {
       assertBody = assertObjectMatch;
     }
     try {
       assertBody(
-        await actualResponse.getBody() as Record<string, unknown>,
-        await expectedResponse.getBody() as Record<string, unknown>,
+        (await actualResponse.getBody()) as Record<string, unknown>,
+        (await expectedResponse.getBody()) as Record<string, unknown>
       );
     } catch (error) {
-      throw new ExpectedResponseError(`Body mismatch\n${(error as Error).message}`);
+      throw new ExpectedResponseError(
+        `Body mismatch\n${(error as Error).message}`
+      );
     }
   }
   if (expectedResponse.headers) {
     try {
       for (const [key, value] of expectedResponse.headers.entries()) {
-        assertEquals(actualResponse.headers.get(key), value);
+        const actualValue = actualResponse.headers.get(key)?.replace("; ", ";");
+        assertEquals(actualValue, value);
       }
     } catch (error) {
-      throw new ExpectedResponseError(`Header mismatch\n${(error as Error).message}`);
+      throw new ExpectedResponseError(
+        `Header mismatch\n${(error as Error).message}`
+      );
     }
   }
 }

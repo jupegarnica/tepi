@@ -42,10 +42,12 @@ Deno.test("[runner] interpolation", async () => {
   });
   const firstBlock = files[0].blocks[1];
 
+
   assertEquals(
     firstBlock.expectedResponse?.headers.get("content-type"),
     "text/plain;charset=UTF-8",
   );
+
   assertEquals(await firstBlock.actualResponse?.getBody(), "Hola Garn!");
   const secondBlock = files[0].blocks[1 + 1];
   assertEquals(secondBlock.request?.headers.get("read-from-id"), "Garn");
