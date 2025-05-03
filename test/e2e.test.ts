@@ -1,7 +1,4 @@
-import {
-  assert,
-  assertEquals,
-} from "jsr:@std/assert@0.225.2";
+import { assert, assertEquals } from "jsr:@std/assert@0.225.2";
 import { installCommand, runRemoteCommand } from "../src/help.ts";
 
 function textDecode(buffer: Uint8Array) {
@@ -10,7 +7,9 @@ function textDecode(buffer: Uint8Array) {
 
 async function run(command: string) {
   const [cmd, ...args] = command.split(/\s+/);
-  const { code, stdout, stderr, success } = await new Deno.Command(cmd, { args }).output();
+  const { code, stdout, stderr, success } = await new Deno.Command(cmd, {
+    args,
+  }).output();
   const out = textDecode(stdout);
   const err = textDecode(stderr);
 
@@ -19,8 +18,7 @@ async function run(command: string) {
 const tepi = "deno run -A ./src/cli.ts ";
 
 Deno.test("[e2e] must return code 0 when all tests pass", async () => {
-  const { code, out, success,err } = await run(tepi + "http/pass.http");
-
+  const { code, out, success, err } = await run(tepi + "http/pass.http");
 
   assert(out.length > 0);
   assertEquals(code, 0);
@@ -47,11 +45,11 @@ Deno.test(
     assertEquals(out, "");
     assertEquals(success, false);
     assertEquals(code >= 10, true);
-  },
+  }
 );
 Deno.test("[e2e] display none", async () => {
   const { code, err, out, success } = await run(
-    tepi + "--display none http/parser.http",
+    tepi + "--display none http/parser.http"
   );
   assertEquals(code, 3);
   assertEquals(success, false);
@@ -60,9 +58,7 @@ Deno.test("[e2e] display none", async () => {
 });
 
 Deno.test("[e2e] run help", async () => {
-  const { code, err, out, success } = await run(
-    tepi + "--help",
-  );
+  const { code, err, out, success } = await run(tepi + "--help");
   assertEquals(err, "");
   assertEquals(out.length > 0, true);
   assertEquals(code, 0);
@@ -71,14 +67,18 @@ Deno.test("[e2e] run help", async () => {
 
 const mustInstall = !!Deno.env.get("IGNORE_TEST") || Math.random() < 0.95;
 
-Deno.test("[e2e] help commands must work: installCommand", {
-  ignore: mustInstall,
-}, async () => {
-  const { code, out, success } = await run(installCommand);
-  assertEquals(code, 0);
-  assertEquals(success, true);
-  assert(out.length > 0);
-});
+Deno.test(
+  "[e2e] help commands must work: installCommand",
+  {
+    ignore: mustInstall,
+  },
+  async () => {
+    const { code, out, success } = await run(installCommand);
+    assertEquals(code, 0);
+    assertEquals(success, true);
+    assert(out.length > 0);
+  }
+);
 
 Deno.test("[e2e] keep install local", { ignore: mustInstall }, async () => {
   const { code, out, success } = await run("deno task install");
@@ -87,20 +87,21 @@ Deno.test("[e2e] keep install local", { ignore: mustInstall }, async () => {
   assertEquals(success, true);
 });
 
-Deno.test("[e2e] help commands must work: runRemoteCommand", {
-  // only: true,
-  ignore: !!Deno.env.get("IGNORE_TEST") || Math.random() < 0.95,
-}, async () => {
-  const { out, success } = await run(runRemoteCommand);
-  assert(out.length > 0);
-  //   assertEquals(code, 17);
-  assertEquals(success, false);
-});
+Deno.test(
+  "[e2e] help commands must work: runRemoteCommand",
+  {
+    // only: true,
+    ignore: !!Deno.env.get("IGNORE_TEST") || Math.random() < 0.95,
+  },
+  async () => {
+    const { out, success } = await run(runRemoteCommand);
+    assert(out.length > 0);
+    //   assertEquals(code, 17);
+    assertEquals(success, false);
+  }
+);
 
-
-Deno.test("[e2e] allow empty status code", {
- only: true,
-}, async () => {
+Deno.test("[e2e] allow empty status code", {}, async () => {
   const { out, success, code } = await run(tepi + "http/emptyStatusCode.http");
   assert(out.length > 0);
   assertEquals(code, 0);
