@@ -431,12 +431,12 @@ Deno.test(
       display: "none",
     });
     const blockInOrder = [...blocksDone];
-    assertEquals(blockInOrder[1].description, "404");
+    assertEquals(blockInOrder[1].description, "401");
     assertEquals(blockInOrder[1].meta.only, false);
     assertEquals(blockInOrder[1].meta.ignore, false);
     assertEquals(blockInOrder[1].meta._isSuccessfulBlock, true);
 
-    assertEquals(blockInOrder[2].description, "needs404");
+    assertEquals(blockInOrder[2].description, "needs401");
     assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
     assertEquals(blockInOrder[2].meta.only, true);
     assertEquals(blockInOrder[2].meta.ignore, undefined);
@@ -456,11 +456,11 @@ Deno.test(
       display: "none",
     });
     const blockInOrder = [...blocksDone];
-    assertEquals(blockInOrder[1].description, "needs404");
+    assertEquals(blockInOrder[1].description, "needs401");
     assertEquals(blockInOrder[1].meta._isIgnoredBlock, true);
     assertEquals(blockInOrder[1].meta.only, false);
 
-    assertEquals(blockInOrder[2].description, "404");
+    assertEquals(blockInOrder[2].description, "401");
     assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
     assertEquals(blockInOrder[2].meta._isIgnoredBlock, undefined);
     assertEquals(blockInOrder[2].meta.only, false);
