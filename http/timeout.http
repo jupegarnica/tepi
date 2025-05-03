@@ -4,6 +4,7 @@ host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
 ###
 ---
 timeout: 50
+id: must fail by timeout
 ---
 GET /pong?delay=100
 x-quiet: true
@@ -27,7 +28,7 @@ delay: 10
 GET /pong?delay=200
 x-quiet: true
 
-
+HTTP/1.1 200 OK
 ###
 ---
 id: delay + timeout

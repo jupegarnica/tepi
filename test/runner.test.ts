@@ -378,7 +378,7 @@ Deno.test(
 );
 
 Deno.test(
-  "[runner] logger",
+  "[runner] timeout",
   async () => {
     const { exitCode } = await runner([
       Deno.cwd() + "/http/timeout.http",
