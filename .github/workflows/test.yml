@@ -27,4 +27,4 @@ jobs:
       - run: deno task test-docker
 
       - name: Publish package
-        run: npx jsr publish
+        run: deno publish
