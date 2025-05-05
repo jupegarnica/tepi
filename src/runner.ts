@@ -309,12 +309,24 @@ async function runBlock(
         response: block.response,
       });
     } catch (error) {
+      // Early throw for the general case
       if (
-        block.text.includes("HTTP/1.1") &&
-        !block.text.match(/HTTP\/1\.1 \d{3}/)
+        !(
+          block.text.includes("HTTP/1.1") &&
+          !block.text.match(/HTTP\/1\.1 \d{3}/)
+        )
       ) {
-        // Allow HTTP/1.1 without a status code
+        (error as Error).message = `Error while parsing response: ${
+          (error as Error).message
+        }`;
+        throw error;
+      }
+
+      // Special case: HTTP/1.1 without status code
+      if (error instanceof RangeError) {
         block.expectedResponse = undefined;
+        // Allow HTTP/1.1 without a status code
+        // No throw here
       } else {
         (error as Error).message = `Error while parsing response: ${
           (error as Error).message
