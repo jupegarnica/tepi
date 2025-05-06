@@ -162,7 +162,7 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
             ? `${description.slice(0, maximumLength - 20)}...`
             : description;
 
-        const messageText = fmt.stripColor(
+        const messageText = fmt.stripAnsiCode(
           `${descriptionMaybeTruncated} => ${(error as Error).name}: ${
             (error as Error).message
           }`
