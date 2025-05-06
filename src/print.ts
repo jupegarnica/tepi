@@ -151,7 +151,6 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
     const maximumLength = consoleSize().columns / 2;
     const path = `${meta._relativeFilePath}:${1 + (meta._startLine || 0)}`;
     const messagePath = `${fmt.dim("at:")} ${fmt.cyan(path)}`;
-    // const messageText = `${fmt.red("✖")} ${fmt.white((error as Error).message)}`;
     let message = "";
 
     if (!meta._errorDisplayed) {
@@ -177,10 +176,10 @@ export function printErrorsSummary(_blocks: Set<Block>): void {
         const messagePadded = truncatedMessage.padEnd(maximumLength);
 
         const finalMsg = messagePadded.replace(/.+=>/, fmt.red("$&"));
-        message = `${fmt.red("✖")}  ${finalMsg} ${messagePath}`;
+        message = `${fmt.red("✘")}  ${finalMsg} ${messagePath}`;
       } else {
         // default
-        message = `${fmt.red("✖")} ${fmt.red(description + " => ")} ${fmt.bold(
+        message = `${fmt.red("✘")} ${fmt.red(description + " => ")} ${fmt.bold(
           (error as Error).name
         )}\n${fmt.white((error as Error).message)} \n${messagePath}`;
       }
@@ -434,7 +433,7 @@ export function createBlockSpinner(
       )} ${fmt.bold(statusText)} ${fmt.gray(
         `${ms(_elapsedTime)}`
       )}${differentFile}`;
-      const symbol = fmt.brightRed("✖");
+      const symbol = fmt.red("✘");
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
@@ -478,7 +477,7 @@ export function createBlockSpinner(
       )} ${fmt.bold(status)} ${fmt.gray(
         `${ms(_elapsedTime)}`
       )}${differentFile}`;
-      const symbol = fmt.brightGreen("✔");
+      const symbol = fmt.green("✓");
       clearInterval(id);
 
       if (globalMeta._noAnimation) {
