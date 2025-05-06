@@ -43,3 +43,13 @@ quiet: true
 
 HTTP/1.1
 <% assert(response.status === 400) %>
+
+
+###
+---
+id: emptyStatusCode should fail inline
+---
+GET  /?status=200
+quiet: true
+
+HTTP/1.1 <% assert(response.status === 400) %>

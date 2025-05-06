@@ -104,6 +104,6 @@ Deno.test(
 Deno.test("[e2e] allow empty status code", {}, async () => {
   const { out, success, code } = await run(tepi + "http/emptyStatusCode.http");
   assert(out.length > 0);
-  assertEquals(code, 0);
-  assertEquals(success, true);
+  assertEquals(code, 2);
+  assertEquals(success, false);
 });
