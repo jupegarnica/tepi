@@ -16,7 +16,8 @@ import {
   printBlock,
   printErrorsSummary,
 } from "./print.ts";
-import ms from "npm:ms@2.1.3";
+// import { format as ms } from "jsr:@wilcosp/ms-relative@0.1.4"
+import { ms } from "./print.ts";
 import {
   parseMetaFromText,
   parseRequestFromText,
@@ -310,7 +311,10 @@ async function runBlock(
       });
     } catch (error) {
       // Early throw for the general case
-      if (block.text.match(/HTTP\/1\.1 \d{3}/) || block.text.match(/HTTP\/2 \d{3}/)) {
+      if (
+        block.text.match(/HTTP\/1\.1 \d{3}/) ||
+        block.text.match(/HTTP\/2 \d{3}/)
+      ) {
         (error as Error).message = `Error while parsing response: ${
           (error as Error).message
         }`;

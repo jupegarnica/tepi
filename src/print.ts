@@ -3,8 +3,15 @@ import { getImageStrings } from "jsr:@garn/terminal-images@3.1.0";
 import { mimesToArrayBuffer, mimesToBlob, mimesToText } from "./types.ts";
 import { _Request, _Response, Block, Meta } from "./types.ts";
 import { contentTypeToLanguage, highlight } from "./highlight.ts";
-import ms from "npm:ms@2.1.3";
+import { format } from "jsr:@wilcosp/ms-relative@0.1.4";
 import { REFRESH_INTERVAL, getSpinner, log } from "./logger.ts";
+
+export function ms(milliseconds: number): string {
+  if (milliseconds < 1000) {
+    return `${milliseconds}ms`;
+  }
+  return format(milliseconds, { style: "long", locale: "en-US" });
+}
 
 type FmtMethod = keyof typeof fmt;
 
@@ -407,7 +414,7 @@ export function createBlockSpinner(
     const _elapsedTime = Date.now() - startTime;
     const text = ` ${fmt.dim(block.blockLink)} ${fmt.white(
       block.description
-    )} ${"   "} ${fmt.gray(`${_elapsedTime}ms`)}${differentFile}`;
+    )} ${"   "} ${fmt.gray(`${ms(_elapsedTime)}`)}${differentFile}`;
     if (text !== spinner.text) {
       spinner.text = text;
     }
