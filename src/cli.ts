@@ -5,15 +5,22 @@ import { relative } from "jsr:@std/path@0.225.1";
 import { globsToFilePaths } from "./files.ts";
 import { load } from "jsr:@std/dotenv@0.224.0";
 import { runner } from "./runner.ts";
-import { DISPLAYS, getDisplayIndex } from "./print.ts";
+import { DISPLAYS, getDisplayIndex } from "./ui/formatters.ts";
 import { help, readme } from "./help.ts";
+import { render } from "ink";
+import React from "react";
+import { createStore } from "./ui/store.ts";
+import { App } from "./ui/App.tsx";
 
 const mustExit = !Deno.env.get("TEPI_NOT_EXIT");
 function exit(code: number) {
   mustExit && Deno.exit(code);
 }
 
+let _activeStore: ReturnType<typeof createStore> | undefined;
+
 Deno.addSignalListener("SIGINT", () => {
+  _activeStore?.getState().addMessage("error", fmt.yellow("\nForcefully exiting with code 143 (SIGINT)"));
   console.info(fmt.yellow("\nForcefully exiting with code 143 (SIGINT)"));
   exit(143);
 });
@@ -23,6 +30,9 @@ if (import.meta.main) {
 }
 
 export async function cli() {
+  const store = createStore();
+  _activeStore = store;
+
   const options = {
     default: {
       display: "default",
@@ -56,10 +66,13 @@ export async function cli() {
   };
   const args: Args = parseArgs(Deno.args, options);
 
+  store.getState().setDisplayMode(args.display as string || "default");
+
   // --no-color
   /////////////
   if (args.noColor) {
     fmt.setColorEnabled(false);
+    store.getState().setNoColor(true);
   }
   // --upgrade
   /////////////
@@ -107,7 +120,7 @@ export async function cli() {
     timeout: 0,
     display: args.display as string,
   };
-  if (getDisplayIndex(defaultMeta) === Infinity) {
+  if (getDisplayIndex(defaultMeta.display as string) === Infinity) {
     console.error(
       fmt.brightRed(
         `Invalid display mode ${args.display}\n Must be one of: ${DISPLAYS.map(
@@ -122,6 +135,7 @@ export async function cli() {
   /////////////
   if (args.noAnimation) {
     defaultMeta._noAnimation = true;
+    store.getState().setNoAnimation(true);
   }
 
   // --env-file
@@ -139,14 +153,10 @@ export async function cli() {
       envFiles.add(path);
     }
   }
-  if (keysLoaded.size && getDisplayIndex(defaultMeta) > 0) {
-    console.info(
-      fmt.gray(
-        `Loaded ${keysLoaded.size} environment variables from: ${Array.from(
-          envFiles
-        ).join(", ")}`
-      )
-    );
+  if (keysLoaded.size && getDisplayIndex(defaultMeta.display as string) > 0) {
+    const msg = `Loaded ${keysLoaded.size} environment variables from: ${Array.from(envFiles).join(", ")}`;
+    console.info(fmt.gray(msg));
+    store.getState().addMessage("info", msg);
   }
 
   // resolves globs to file paths and skips globs that have line specs
@@ -155,34 +165,36 @@ export async function cli() {
 
   const filePathsToRun = await globsToFilePaths(globs);
 
+  // ink render
+  /////////////
+  let inkInstance: ReturnType<typeof render> | undefined;
+  if (getDisplayIndex(defaultMeta.display as string) > 0) {
+    inkInstance = render(React.createElement(App, { store }));
+  }
+
   // runner
   /////////////
   let { exitCode, onlyMode } = await runner(
     filePathsToRun,
     defaultMeta,
-    args.failFast
+    args.failFast,
+    store
   );
 
   // warn only mode
   /////////////
 
   if (onlyMode.size) {
-    if (getDisplayIndex(defaultMeta) > 0) {
-      console.info(
-        fmt.yellow(
-          `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${
-            onlyMode.size === 1 ? "test" : "tests"
-          } are in "only" mode.`
-        )
-      );
+    if (getDisplayIndex(defaultMeta.display as string) > 0) {
+      const onlyMsg = `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${
+        onlyMode.size === 1 ? "test" : "tests"
+      } are in "only" mode.`;
+      console.info(fmt.yellow(onlyMsg));
+      store.getState().addMessage("warn", onlyMsg);
       if (!exitCode) {
-        console.info(
-          fmt.red(
-            `\nExited with code 1 because the ${fmt.bold(
-              '"only"'
-            )} option was used at ${[...onlyMode].join(", ")}`
-          )
-        );
+        const exitMsg = `\nExited with code 1 because the ${fmt.bold('"only"')} option was used at ${[...onlyMode].join(", ")}`;
+        console.info(fmt.red(exitMsg));
+        store.getState().addMessage("error", exitMsg);
       }
     }
     exitCode ||= 1;
@@ -196,27 +208,25 @@ export async function cli() {
       watch.filter((i: boolean | string) => typeof i === "string")
     );
     const noClear = !!args["watch-no-clear"];
+    const relativeRunPaths = filePathsToRun.map((p) => relative(Deno.cwd(), p));
+    const relativeTriggerPaths = filePathsToJustWatch.map((p) => relative(Deno.cwd(), p));
+    store.getState().setWatchMode(relativeRunPaths, relativeTriggerPaths);
     watchAndRun(
       filePathsToRun,
       filePathsToJustWatch,
       defaultMeta,
-      noClear
+      noClear,
+      store,
+      inkInstance
     ).catch(console.error);
   } else {
+    if (inkInstance) {
+      // Give React one event-loop turn to render the final "done" state,
+      // then unmount ink cleanly before exiting.
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      inkInstance.unmount();
+    }
     exit(exitCode);
-  }
-}
-
-function logWatchingPaths(filePaths: string[], filePathsToJustWatch: string[]) {
-  console.info(fmt.dim("\nWatching and running tests from:"));
-  filePaths
-    .map((_filePath) => relative(Deno.cwd(), _filePath))
-    .forEach((_filePath) => console.info(fmt.cyan(`  ${_filePath}`)));
-  if (filePathsToJustWatch.length) {
-    console.info(fmt.dim("\nRerun when changes from:"));
-    filePathsToJustWatch
-      .map((_filePath) => relative(Deno.cwd(), _filePath))
-      .forEach((_filePath) => console.info(fmt.cyan(`  ${_filePath}`)));
   }
 }
 
@@ -224,31 +234,30 @@ async function watchAndRun(
   filePaths: string[],
   filePathsToJustWatch: string[],
   defaultMeta: Meta,
-  noClear: boolean
+  noClear: boolean,
+  store: ReturnType<typeof createStore>,
+  inkInstance: ReturnType<typeof render> | undefined
 ) {
   const allFilePaths = filePaths.concat(filePathsToJustWatch);
   const watcher = Deno.watchFs(allFilePaths);
-  logWatchingPaths(filePaths, filePathsToJustWatch);
 
   for await (const event of watcher) {
     if (event.kind === "access" || event.kind === "modify") {
-      noClear || console.clear();
-      if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
-        // run all
-        noClear || console.clear();
-        debounceRunner(filePaths, defaultMeta);
-        logWatchingPaths(filePaths, filePathsToJustWatch);
-      } else {
-        // run just this file
-        noClear || console.clear();
+      if (!noClear) {
+        console.clear();
+      }
+      // Reset store state for re-run (preserves watch config)
+      store.getState().reset();
 
-        debounceRunner(event.paths, defaultMeta);
-        logWatchingPaths(filePaths, filePathsToJustWatch);
+      if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
+        debounceRunner(filePaths, defaultMeta, false, store);
+      } else {
+        debounceRunner(event.paths, defaultMeta, false, store);
       }
     }
   }
 }
-const debounceRunner = debounce(runner, 100);
+const debounceRunner = debounce(runner, 100) as typeof runner;
 
 function debounce(func: Function, wait: number) {
   let timeout: number | null;

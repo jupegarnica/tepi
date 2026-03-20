@@ -5,7 +5,7 @@ let hl = (code: string, { language: _ }: { language: string }) => code;
 
 try {
   const { highlight, supportsLanguage } = await import(
-    "npm:cli-highlight@2.1.11"
+    "cli-highlight@2.1.11"
   );
   hl = highlight;
   supportsLang = supportsLanguage;

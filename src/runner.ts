@@ -2,7 +2,6 @@ import { filePathsToFiles } from "./files.ts";
 import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 import {
   dirname,
   isAbsolute,
@@ -10,25 +9,19 @@ import {
   resolve,
 } from "jsr:@std/path@0.225.1/posix";
 import {
-  createBlockSpinner,
-  getDisplayIndex,
-  logPath,
-  printBlock,
-  printErrorsSummary,
-} from "./print.ts";
-// import { format as ms } from "jsr:@wilcosp/ms-relative@0.1.4"
-import { ms } from "./print.ts";
-import {
   parseMetaFromText,
   parseRequestFromText,
   parseResponseFromText,
 } from "./parser.ts";
 import * as assertions from "jsr:@std/assert@0.225.2";
+import type { StoreApi } from "./ui/store.ts";
+import { serializeMeta, serializeRequest, serializeResponse } from "./ui/serialize.ts";
 
 export async function runner(
   filePaths: string[],
   defaultMeta: Meta,
-  failFast = false
+  failFast = false,
+  store?: StoreApi
 ): Promise<{
   files: File[];
   exitCode: number;
@@ -39,7 +32,6 @@ export async function runner(
   let failedBlocks = 0;
   let ignoredBlocks = 0;
   const blocksDone = new Set<Block>();
-  const startGlobalTime = Date.now();
 
   const onlyMode = new Set<string>();
   const mustBeImported = new Set<string>();
@@ -71,6 +63,8 @@ export async function runner(
     _blocksAlreadyReferenced: new Set<Block>(),
   };
 
+  store?.getState().setPhase("parsing");
+
   // parse all metadata first
 
   const allPathFilesImported = new Set<string>();
@@ -86,8 +80,11 @@ export async function runner(
   } catch (error) {
     console.error(`Error while parsing metadata:`);
     console.error((error as Error).message);
+    store?.getState().addMessage("error", `Error while parsing metadata: ${(error as Error).message}`);
     return { files, exitCode: 1, onlyMode, blocksDone };
   }
+
+  store?.getState().setPhase("running");
 
   if (onlyMode.size) {
     for (const file of files) {
@@ -122,9 +119,8 @@ export async function runner(
 
   for (const file of files) {
     const relativePath = file.relativePath || "";
-    const path = fmt.gray(`running ${relativePath} `);
-    const displayIndex = getDisplayIndex(defaultMeta);
-    const pathSpinner = logPath(path, displayIndex, defaultMeta._noAnimation);
+    store?.getState().addFile(file.path, relativePath);
+    store?.getState().setFileStatus(relativePath, "running");
     let _isFirstBlock = true;
     for (const block of file.blocks) {
       block.meta._relativeFilePath = relativePath;
@@ -138,24 +134,26 @@ export async function runner(
         globalData,
         relativePath,
         blocksDone,
-        allBlockNeeded
+        allBlockNeeded,
+        store
       );
       if (block.meta._isIgnoredBlock) {
         ignoredBlocks++;
+        store?.getState().incrementIgnore();
       }
       if (block.meta._isFailedBlock) {
         failedBlocks++;
+        store?.getState().incrementFail();
       }
       if (block.meta._isSuccessfulBlock) {
         successfulBlocks++;
+        store?.getState().incrementSuccess();
       }
 
       if (failFast && failedBlocks) {
-        if (getDisplayIndex(defaultMeta) !== 0) {
-          printErrorsSummary(blocksDone);
-        }
         const status = block.actualResponse?.status || 1;
-        console.error(fmt.red(`\nFAIL FAST: exiting with status ${status}`));
+        store?.getState().addMessage("error", `\nFAIL FAST: exiting with status ${status}`);
+        store?.getState().setResult(status, [...onlyMode]);
         return {
           files,
           exitCode: status,
@@ -164,33 +162,14 @@ export async function runner(
         };
       }
     }
-    pathSpinner?.stop();
-    pathSpinner?.clear();
+    store?.getState().setFileStatus(relativePath, "done");
   }
 
   const totalBlockRun = successfulBlocks + failedBlocks;
   const exitCode =
     failedBlocks > 0 ? failedBlocks : totalBlockRun === 0 ? 1 : 0;
 
-  if (getDisplayIndex(defaultMeta) !== 0) {
-    printErrorsSummary(blocksDone);
-
-    const statusText =
-      exitCode > 0 ? fmt.bgRed(" FAIL ") : fmt.bgBrightGreen(" PASS ");
-
-    const totalBlocks = successfulBlocks + failedBlocks + ignoredBlocks;
-    const elapsedGlobalTime = Date.now() - startGlobalTime;
-    const prettyGlobalTime = fmt.dim(`(${ms(elapsedGlobalTime)})`);
-    console.info();
-    console.info(
-      fmt.bold(`${statusText}`),
-      `${fmt.white(String(totalBlocks))} tests, ${fmt.green(
-        String(successfulBlocks)
-      )} passed, ${fmt.red(String(failedBlocks))} failed, ${fmt.yellow(
-        String(ignoredBlocks)
-      )} ignored ${prettyGlobalTime}`
-    );
-  }
+  store?.getState().setResult(exitCode, [...onlyMode]);
   globalData._blocksDone = {}; // clean up blocks referenced
   return { files, exitCode, onlyMode, blocksDone };
 }
@@ -211,12 +190,27 @@ async function runBlock(
   globalData: GlobalData,
   currentFilePath: string,
   blocksDone: Set<Block>,
-  allBlockNeeded: Map<string, Block>
+  allBlockNeeded: Map<string, Block>,
+  store?: StoreApi
 ): Promise<Set<Block>> {
   if (blocksDone.has(block)) {
     return blocksDone;
   }
-  const spinner = createBlockSpinner(block, currentFilePath, globalData.meta);
+  const blockId = block.blockLink || `${block.meta._relativeFilePath}:${block.meta._startLine}`;
+  const isDifferentFile = block.meta._relativeFilePath !== currentFilePath;
+  store?.getState().addBlock(blockId, {
+    description: block.description,
+    blockLink: block.blockLink,
+    filePath: block.meta._relativeFilePath || currentFilePath,
+    status: "pending",
+    startTime: Date.now(),
+    isFirstBlock: !!block.meta._isFirstBlock,
+    displayMode: block.meta.display,
+    neededFrom: isDifferentFile ? block.meta._relativeFilePath : undefined,
+    meta: serializeMeta(block.meta),
+  });
+  store?.getState().addFileBlockId(currentFilePath, blockId);
+  const spinner = { start: () => {}, update: () => {}, pass: () => {}, fail: () => {}, ignore: () => {}, empty: () => {}, clear: () => {} };
 
   try {
     if (block.meta.needs && !block.meta.ignore) {
@@ -240,7 +234,8 @@ async function runBlock(
         globalData,
         currentFilePath,
         blocksDone,
-        allBlockNeeded
+        allBlockNeeded,
+        store
       );
 
       if (blocksDone.has(block)) {
@@ -253,6 +248,7 @@ async function runBlock(
       ...block.meta,
     };
     spinner.start();
+    store?.getState().updateBlock(blockId, { status: "running", startTime: Date.now() });
     try {
       block.request = await parseRequestFromText(block, {
         ...globalData._blocksDone,
@@ -280,6 +276,7 @@ async function runBlock(
       block.meta._isIgnoredBlock = true;
       addToDone(blocksDone, block);
       spinner.ignore();
+      store?.getState().updateBlock(blockId, { status: "ignored", elapsedTime: Date.now() - (store.getState().blocks[blockId]?.startTime ?? Date.now()) });
       return blocksDone;
     }
 
@@ -291,6 +288,7 @@ async function runBlock(
       }
       block.meta._isEmptyBlock = true;
       addToDone(blocksDone, block);
+      store?.getState().updateBlock(blockId, { status: "empty" });
       return blocksDone;
     }
 
@@ -340,16 +338,41 @@ async function runBlock(
 
     block.meta._isSuccessfulBlock = true;
     spinner.pass();
+    store?.getState().updateBlock(blockId, {
+      status: "passed",
+      elapsedTime: Date.now() - (store.getState().blocks[blockId]?.startTime ?? Date.now()),
+      httpStatus: block.actualResponse?.status,
+    });
     addToDone(blocksDone, block);
     return blocksDone;
   } catch (error) {
     block.error = error as Error;
     block.meta._isFailedBlock = true;
     spinner.fail();
+    const err = error as Error;
+    store?.getState().updateBlock(blockId, {
+      status: "failed",
+      elapsedTime: Date.now() - (store.getState().blocks[blockId]?.startTime ?? Date.now()),
+      httpStatus: block.actualResponse?.status,
+      error: { name: err.name, message: err.message, cause: err.cause ? String(err.cause) : undefined },
+    });
     addToDone(blocksDone, block);
     return blocksDone;
   } finally {
-    await printBlock(block);
+    // Serialize request/response into store after bodies are available
+    if (store && block.request) {
+      store.getState().updateBlock(blockId, { request: serializeRequest(block.request) });
+    }
+    if (store && block.actualResponse) {
+      serializeResponse(block.actualResponse).then((res) => {
+        store.getState().updateBlock(blockId, { actualResponse: res });
+      }).catch(() => {});
+    }
+    if (store && block.expectedResponse) {
+      serializeResponse(block.expectedResponse).then((res) => {
+        store.getState().updateBlock(blockId, { expectedResponse: res });
+      }).catch(() => {});
+    }
     await consumeBodies(block);
 
     if (block.meta.id) {
