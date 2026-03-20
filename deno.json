@@ -1,0 +1,11 @@
+{
+  "name": "@garn/tepi",
+  "version": "2.0.0",
+  "exports": {
+    ".": "./mod.ts"
+  },
+  "tasks": {
+    "start": "deno run -A mod.ts",
+    "test": "deno test -A"
+  }
+}

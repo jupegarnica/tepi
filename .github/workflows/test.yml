@@ -27,7 +27,12 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      - name: Publish package
+      - name: Publish to npm
+        if: startsWith(github.ref, 'refs/tags/v')
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to JSR
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npx jsr publish
