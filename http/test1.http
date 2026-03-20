@@ -1,5 +1,5 @@
 ---
-host: <%= Deno.env.get('HOST_HTTPBIN') || 'https://httpbin.org' %>
+host: <%= process.env['HOST_HTTPBIN'] || 'https://httpbin.org' %>
 ---
 ###
 

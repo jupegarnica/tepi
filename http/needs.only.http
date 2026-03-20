@@ -1,5 +1,5 @@
 ---
-host: <%= Deno.env.get("HOST") || "https://faker.deno.dev "%>
+host: <%= process.env["HOST"] || "https://faker.deno.dev "%>
 ---
 ###
 ---
@@ -22,7 +22,7 @@ HTTP/1.1 204 No Content
 
 ###
 ---
-only: <%= !!Deno.env.get('TEST_ONLY') %>
+only: <%= !!process.env['TEST_ONLY'] %>
 needs: no ignored
 ---
 

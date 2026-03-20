@@ -1,7 +1,5 @@
 {
-  "deno.enable": true,
-  "deno.unstable": true,
-  "workbench.colorCustomizations": {
+"workbench.colorCustomizations": {
     "activityBar.activeBackground": "#a98bf1",
     "activityBar.background": "#a98bf1",
     "activityBar.foreground": "#15202b",

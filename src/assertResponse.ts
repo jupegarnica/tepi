@@ -1,5 +1,5 @@
 import { _Response, Block } from "./types.ts";
-import { assertEquals, assertObjectMatch } from "jsr:@std/assert@0.225.2";
+import { assertEquals, assertObjectMatch } from "@std/assert";
 
 export class ExpectedResponseError extends Error {
   constructor(message: string) {

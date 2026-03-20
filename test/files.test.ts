@@ -2,19 +2,23 @@ import { filePathsToFiles } from "../src/files.ts";
 import { Block } from "../src/types.ts";
 
 import { fileTextToBlocks } from "../src/files.ts";
-import { stub } from "jsr:@std/testing@0.224.0/mock";
+import { test, vi, beforeAll } from "vitest";
 
-import { assertEquals } from "jsr:@std/assert@0.225.2";
+import { assertEquals } from "@std/assert";
 import { globsToFilePaths } from "../src/files.ts";
 
-Deno.env.get("NO_LOG") && stub(console, "info");
+beforeAll(() => {
+  if (process.env.NO_LOG) {
+    vi.spyOn(console, "info").mockImplementation(() => {});
+  }
+});
 
-Deno.test("[filePathsToFiles] must not have request", async () => {
+test("[filePathsToFiles] must not have request", async () => {
   const files = await filePathsToFiles([`./http/test1.http`]);
   assertEquals(files?.[0].blocks?.[0]?.request, undefined);
 });
 
-Deno.test("[filePathsToFiles] must have a basic block", async () => {
+test("[filePathsToFiles] must have a basic block", async () => {
   const files = await filePathsToFiles([`./http/test1.http`]);
   assertEquals(
     files?.[0].blocks?.[1],
@@ -30,34 +34,34 @@ Deno.test("[filePathsToFiles] must have a basic block", async () => {
   );
 });
 
-Deno.test("[globsToFilePaths] find one file", async () => {
+test("[globsToFilePaths] find one file", async () => {
   const files = await globsToFilePaths([`http/test1.http`]);
   assertEquals(files.length, 1);
 });
 
-Deno.test("[globsToFilePaths] find more file", async () => {
+test("[globsToFilePaths] find more file", async () => {
   const files = await globsToFilePaths([`**/test1.http`, `*/test2.http`]);
   assertEquals(files.length, 2);
 });
 
-Deno.test("[globsToFilePaths] find more file with a glob pattern", async () => {
+test("[globsToFilePaths] find more file with a glob pattern", async () => {
   const files = await globsToFilePaths([`../*/http/test*.http`]);
   assertEquals(files.length, 2);
 });
 
-Deno.test("[globsToFilePaths] find more file with a glob pattern", async () => {
+test("[globsToFilePaths] find more file with a glob pattern", async () => {
   const files = await globsToFilePaths([`**/test*.http`]);
   assertEquals(files.length, 2);
 });
 
-Deno.test("[globsToFilePaths] not found", async () => {
+test("[globsToFilePaths] not found", async () => {
   const files = await globsToFilePaths([`notFound.http`]);
   assertEquals(files.length, 0);
 });
 
 // const http = String.raw
-Deno.test(
-  "[fileTextToBlocks]", // { only: true },
+test(
+  "[fileTextToBlocks]",
   () => {
     const blocks = fileTextToBlocks(
       `
@@ -75,7 +79,7 @@ GET http://faker.deno.dev
   },
 );
 
-Deno.test("[fileTextToBlocks]", () => {
+test("[fileTextToBlocks]", () => {
   const blocks = fileTextToBlocks(`###`, "test.http");
   assertEquals(blocks.length, 1);
   assertEquals(blocks[0].meta._startLine, 0);

@@ -1,7 +1,7 @@
 import { Block, Meta } from "./types.ts";
 import { _Request, _Response, httpMethods } from "./types.ts";
 import * as eta from "eta";
-import { extract } from "jsr:@std/front-matter@0.224.0/yaml";
+import { extract } from "@std/front-matter/yaml";
 
 async function renderTemplate(template: string, data: Record<string, unknown>) {
   const result = await eta.render(template, data, {
@@ -90,7 +90,6 @@ export async function parseRequestFromText(
     credentials: "same-origin",
     cache: "default",
     redirect: "follow",
-    referrer: "client",
     referrerPolicy: "no-referrer-when-downgrade",
     integrity: "",
     keepalive: false,

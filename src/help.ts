@@ -1,24 +1,23 @@
-import * as Marked from 'npm:marked@4.2.12';
-import * as Renderer from 'npm:marked-terminal@5.1.1';
-import chalk from 'npm:chalk@5.2.0';
-import { dirname, fromFileUrl, normalize } from "jsr:@std/path@0.225.1";
+import * as Marked from 'marked';
+import * as Renderer from 'marked-terminal';
+import chalk from 'chalk';
+import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
 
 export const installCommand =
-  "deno install --global --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts";
+  "npm install -g @garn/tepi";
 
 export const runRemoteCommand =
-  "deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts";
+  "npx @garn/tepi";
 
 
-function getFileTextFromRemoteOrLocal(url: string): Promise<string> {
-  url = normalize(url);
-  if (url.startsWith("file://")) {
-    return Deno.readTextFile(fromFileUrl(url));
+async function getFileTextFromRemoteOrLocal(url: URL): Promise<string> {
+  if (url.protocol === "file:") {
+    return readFile(fileURLToPath(url), "utf-8");
   } else {
     return fetch(url).then((res) => res.text());
   }
 }
-const baseURL = dirname(import.meta.url);
 
 const marked = Marked.marked;
 const TerminalRenderer = Renderer.default;
@@ -71,11 +70,11 @@ marked.setOptions({
 });
 
 export async function help(): Promise<void> {
-  const usageMDText = await getFileTextFromRemoteOrLocal(`${baseURL}/../docs/usage.md`);
+  const usageMDText = await getFileTextFromRemoteOrLocal(new URL("../docs/usage.md", import.meta.url));
   console.info(marked(usageMDText));
 }
 
 export async function readme(): Promise<void> {
-  const readmeMDText = await fetch(`${baseURL}/../README.md`).then((res) => res.text());
+  const readmeMDText = await getFileTextFromRemoteOrLocal(new URL("../README.md", import.meta.url));
   console.info(marked(readmeMDText));
 }

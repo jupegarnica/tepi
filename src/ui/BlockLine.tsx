@@ -3,7 +3,7 @@ import { Text } from "ink";
 import Spinner from "ink-spinner";
 import type { BlockState } from "./store.ts";
 import { ms } from "./formatters.ts";
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
+import * as fmt from "@std/fmt/colors";
 
 type Props = {
   block: BlockState;

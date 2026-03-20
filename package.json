@@ -1,0 +1,52 @@
+{
+  "name": "@garn/tepi",
+  "version": "1.2.0",
+  "type": "module",
+  "bin": {
+    "tepi": "./bin/tepi.mjs"
+  },
+  "exports": {
+    ".": "./src/cli.ts"
+  },
+  "scripts": {
+    "dev": "TEPI_NOT_EXIT=1 tsx --watch ./src/cli.ts",
+    "debug": "TEPI_NOT_EXIT=1 node --inspect-brk --import tsx/esm ./src/cli.ts",
+    "test": "NO_LOG=1 vitest run",
+    "test:watch": "FORCE_COLOR=1 vitest watch",
+    "start": "tsx ./src/cli.ts",
+    "build": "tsc",
+    "help": "tsx ./src/cli.ts --help",
+    "install:local": "npm link"
+  },
+  "dependencies": {
+    "@std/assert": "npm:@jsr/std__assert@^1.0.19",
+    "@std/async": "npm:@jsr/std__async@^1.2.0",
+    "@std/cli": "npm:@jsr/std__cli@^1.0.28",
+    "@std/dotenv": "npm:@jsr/std__dotenv@^0.225.6",
+    "@std/fmt": "npm:@jsr/std__fmt@^1.0.9",
+    "@std/front-matter": "npm:@jsr/std__front-matter@^1.0.9",
+    "@std/fs": "npm:@jsr/std__fs@^1.0.23",
+    "@std/media-types": "npm:@jsr/std__media-types@^1.1.0",
+    "@std/path": "npm:@jsr/std__path@^1.1.4",
+    "@std/testing": "npm:@jsr/std__testing@^1.0.17",
+    "@wilcosp/ms-relative": "npm:@jsr/wilcosp__ms-relative@^0.1.4",
+    "chalk": "^5.2.0",
+    "chokidar": "^4.0.0",
+    "cli-highlight": "^2.1.11",
+    "eta": "^1.14.2",
+    "fast-glob": "^3.3.3",
+    "ink": "^6.8.0",
+    "ink-spinner": "^5.0.0",
+    "marked": "^4.2.12",
+    "marked-terminal": "^5.1.1",
+    "react": "^19.2.4",
+    "zustand": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
