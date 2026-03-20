@@ -1,5 +1,5 @@
-import React from "npm:react";
-import { Text } from "npm:ink";
+import React from "react";
+import { Text } from "ink";
 import type { BlockState } from "./store.ts";
 import {
   DISPLAY_INDEX_MINIMAL,

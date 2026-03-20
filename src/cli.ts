@@ -7,8 +7,8 @@ import { load } from "jsr:@std/dotenv@0.224.0";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./ui/formatters.ts";
 import { help, readme } from "./help.ts";
-import { render } from "npm:ink";
-import React from "npm:react";
+import { render } from "ink";
+import React from "react";
 import { createStore } from "./ui/store.ts";
 import { App } from "./ui/App.tsx";
 

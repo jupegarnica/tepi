@@ -7,6 +7,7 @@
     "jsxImportSource": "npm:react@19"
   },
   "imports": {
+    "eta": "npm:eta@1.14.2",
     "react": "npm:react@^19.2.4",
     "ink": "npm:ink@^6.8.0",
     "ink-spinner": "npm:ink-spinner@5",
@@ -24,9 +25,9 @@
     "test-watch": "FORCE_COLOR=1 deno test -A --watch test",
     "test-docker": "docker compose up  --exit-code-from test --no-log-prefix --abort-on-container-exit test ",
     "local": "HOST=http://localhost HOST_HTTPBIN=http://localhost:81 deno task test-watch",
-    "install": "deno install --global -fA --name tepi ./src/cli.ts",
+    "install": "deno install --config deno.json --global -fA --name tepi ./src/cli.ts",
     "compile": "deno compile --output=dist/tepi -A src/cli.ts",
-    "install:x": "deno install --global --reload  -Af -n tepi https://tepi.deno.dev/src/cli.ts",
+    "install:x": "deno install --config deno.json --global --reload  -Af -n tepi https://tepi.deno.dev/src/cli.ts",
     "help": " deno run -A --watch ./src/cli.ts --help",
     "udd": "deno run -A https://deno.land/x/nudd/cli.ts && deno task test --fail-fast",
     "dnt": "deno run -A https://deno.land/x/dnt_prompt/main.ts",

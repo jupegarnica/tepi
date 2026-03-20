@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "npm:react";
-import { Box, Static } from "npm:ink";
+import React, { useEffect, useState } from "react";
+import { Box, Static } from "ink";
 import type { BlockState, FileState, StoreApi, TepiStore } from "./store.ts";
 import { FileRunner } from "./FileRunner.tsx";
 import { ErrorsSummary } from "./ErrorsSummary.tsx";

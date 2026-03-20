@@ -1,4 +1,4 @@
-import { createStore as _createStore } from "npm:zustand/vanilla";
+import { createStore as _createStore } from "zustand/vanilla";
 
 export type BlockStatus =
   | "pending"

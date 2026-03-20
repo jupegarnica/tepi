@@ -1,5 +1,5 @@
-import React from "npm:react";
-import { Text } from "npm:ink";
+import React from "react";
+import { Text } from "ink";
 import type { Message } from "./store.ts";
 import * as fmt from "jsr:@std/fmt@0.225.1/colors";
 

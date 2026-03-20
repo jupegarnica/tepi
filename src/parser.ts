@@ -1,6 +1,6 @@
 import { Block, Meta } from "./types.ts";
 import { _Request, _Response, httpMethods } from "./types.ts";
-import * as eta from "npm:eta@1.14.2";
+import * as eta from "eta";
 import { extract } from "jsr:@std/front-matter@0.224.0/yaml";
 
 async function renderTemplate(template: string, data: Record<string, unknown>) {
