@@ -45,18 +45,31 @@ Test your HTTP APIs with standard http syntax
 
 ## Install:
 
+### From npm
 
 ```bash
-deno install --global --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
+npm install -g @garn/tepi
 ```
 
-Or run remotely with:
+### From JSR
 
 ```bash
-deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
+npx jsr add -g @garn/tepi
 ```
 
-### Permissions:
+### From deno.land/x
+
+```bash
+deno install --global -A -n tepi https://deno.land/x/tepi/mod.ts
+```
+
+### Run without installing (npx)
+
+```bash
+npx @garn/tepi [OPTIONS] [FILES|GLOBS...]
+```
+
+### Permissions (Deno only):
 
 * `--allow-read`  Needed to read files from the file system.
 * `--allow-net`   Needed to make HTTP requests.
