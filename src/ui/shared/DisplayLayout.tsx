@@ -27,6 +27,7 @@ export type CommonDisplayProps = {
   ignoreCount: number;
   startTime: number;
   endTime?: number;
+  actualThreadsUsed: number;
   exitCode?: number;
   isWatchMode: boolean;
   watchPaths: string[];
@@ -75,6 +76,7 @@ export function DisplayLayout({
   ignoreCount,
   startTime,
   endTime,
+  actualThreadsUsed,
   exitCode,
   isWatchMode,
   watchPaths,
@@ -120,6 +122,7 @@ export function DisplayLayout({
             ignoreCount={ignoreCount}
             startTime={startTime}
             endTime={endTime}
+            actualThreadsUsed={actualThreadsUsed}
             exitCode={exitCode}
           />
         </>

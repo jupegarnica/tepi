@@ -44,6 +44,7 @@ export type VitestFormatState = {
   phase: string;
   startTime: number;
   endTime?: number;
+  actualThreadsUsed?: number;
 };
 
 export type VitestFileStatEntry = {
@@ -76,8 +77,14 @@ export type VitestFormatResult = {
     testsIgnored: number;
     testsTotal: number;
     duration: number;
+      actualThreadsUsed: number;
   };
 };
+
+export function formatDurationSummary(duration: number, actualThreadsUsed: number): string {
+  const label = actualThreadsUsed === 1 ? "thread" : "threads";
+  return `${ms(duration)} (with ${actualThreadsUsed} ${label})`;
+}
 
 export function formatVitestOutput(state: VitestFormatState): VitestFormatResult {
   const orderedFiles = state.fileOrder
@@ -125,6 +132,7 @@ export function formatVitestOutput(state: VitestFormatState): VitestFormatResult
       testsIgnored: fileStats.reduce((s, f) => s + f.stats.ignored, 0),
       testsTotal: fileStats.reduce((s, f) => s + f.stats.total, 0),
       duration,
+      actualThreadsUsed: state.actualThreadsUsed ?? 0,
     },
   };
 }
@@ -239,6 +247,7 @@ export function VitestSummary({
   blocks,
   startTime,
   endTime,
+  actualThreadsUsed,
   exitCode,
 }: {
   fileOrder: string[];
@@ -246,6 +255,7 @@ export function VitestSummary({
   blocks: Record<string, BlockState>;
   startTime: number;
   endTime?: number;
+  actualThreadsUsed: number;
   exitCode?: number;
 }) {
   if (exitCode === undefined) return null;
@@ -278,7 +288,7 @@ export function VitestSummary({
     <Box flexDirection="column" marginTop={1}>
       <Text>{" " + fmt.bold("Test Files") + "  " + filesLine}</Text>
       <Text>{" " + fmt.bold("Tests      ") + "  " + testsLine}</Text>
-      <Text>{" " + fmt.bold("Duration   ") + "  " + (colors ? fmt.dim(ms(elapsed)) : ms(elapsed))}</Text>
+      <Text>{" " + fmt.bold("Duration   ") + "  " + (colors ? fmt.dim(formatDurationSummary(elapsed, actualThreadsUsed)) : formatDurationSummary(elapsed, actualThreadsUsed))}</Text>
     </Box>
   );
 }
@@ -292,6 +302,7 @@ export function DisplayDefault(props: CommonDisplayProps) {
     messages,
     startTime,
     endTime,
+    actualThreadsUsed,
     exitCode,
     isWatchMode,
     watchPaths,
@@ -353,6 +364,7 @@ export function DisplayDefault(props: CommonDisplayProps) {
             blocks={blocks}
             startTime={startTime}
             endTime={endTime}
+            actualThreadsUsed={actualThreadsUsed}
             exitCode={exitCode}
           />
         </>

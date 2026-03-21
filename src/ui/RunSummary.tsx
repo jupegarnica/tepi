@@ -9,8 +9,14 @@ type Props = {
   ignoreCount: number;
   startTime: number;
   endTime?: number;
+  actualThreadsUsed: number;
   exitCode?: number;
 };
+
+function formatThreadsUsed(actualThreadsUsed: number): string {
+  const label = actualThreadsUsed === 1 ? "thread" : "threads";
+  return `with ${actualThreadsUsed} ${label}`;
+}
 
 export function RunSummary({
   successCount,
@@ -18,6 +24,7 @@ export function RunSummary({
   ignoreCount,
   startTime,
   endTime,
+  actualThreadsUsed,
   exitCode,
 }: Props) {
   if (exitCode === undefined) return null;
@@ -26,7 +33,7 @@ export function RunSummary({
   const elapsed = endTime ? endTime - startTime : 0;
   const statusText =
     exitCode > 0 ? fmt.bgRed(" FAIL ") : fmt.bgBrightGreen(" PASS ");
-  const prettyTime = fmt.dim(`(${ms(elapsed)})`);
+  const prettyTime = fmt.dim(`(${ms(elapsed)}, ${formatThreadsUsed(actualThreadsUsed)})`);
 
   const summary =
     `${fmt.white(String(totalBlocks))} tests, ` +

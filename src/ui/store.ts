@@ -75,6 +75,8 @@ export type TepiState = {
   noColor: boolean;
   startTime: number;
   endTime?: number;
+  runningBlockCount: number;
+  maxRunningBlockCount: number;
 
   // Counters
   successCount: number;
@@ -141,6 +143,8 @@ const initialState: TepiState = {
   noColor: false,
   startTime: Date.now(),
   endTime: undefined,
+  runningBlockCount: 0,
+  maxRunningBlockCount: 0,
 
   successCount: 0,
   failCount: 0,
@@ -264,10 +268,23 @@ export function createStore() {
       set((state) => {
         const existing = state.blocks[id];
         if (!existing) return state;
+        const next = { ...existing, ...patch };
+        const wasRunning = existing.status === "running";
+        const isRunning = next.status === "running";
+        let runningBlockCount = state.runningBlockCount;
+
+        if (!wasRunning && isRunning) {
+          runningBlockCount += 1;
+        } else if (wasRunning && !isRunning) {
+          runningBlockCount = Math.max(0, runningBlockCount - 1);
+        }
+
         return {
+          runningBlockCount,
+          maxRunningBlockCount: Math.max(state.maxRunningBlockCount, runningBlockCount),
           blocks: {
             ...state.blocks,
-            [id]: { ...existing, ...patch },
+            [id]: next,
           },
         };
       }),

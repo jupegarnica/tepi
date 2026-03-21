@@ -39,6 +39,7 @@ export function App({ store }: Props) {
   const ignoreCount = useStore(store, (s) => s.ignoreCount);
   const startTime = useStore(store, (s) => s.startTime);
   const endTime = useStore(store, (s) => s.endTime);
+  const actualThreadsUsed = useStore(store, (s) => s.maxRunningBlockCount);
   const exitCode = useStore(store, (s) => s.exitCode);
   const isWatchMode = useStore(store, (s) => s.isWatchMode);
   const watchPaths = useStore(store, (s) => s.watchPaths);
@@ -55,6 +56,7 @@ export function App({ store }: Props) {
     ignoreCount,
     startTime,
     endTime,
+    actualThreadsUsed,
     exitCode,
     isWatchMode,
     watchPaths,

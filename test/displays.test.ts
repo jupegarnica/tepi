@@ -1,9 +1,12 @@
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
-import { test } from "vitest";
+import { test, vi } from "vitest";
 import { runner } from "../src/runner.ts";
 import { createStore } from "../src/ui/store.ts";
 import { formatTapOutput } from "../src/ui/displays/DisplayTap.tsx";
-import { formatVitestOutput } from "../src/ui/displays/DisplayDefault.tsx";
+import {
+  formatDurationSummary,
+  formatVitestOutput,
+} from "../src/ui/displays/DisplayDefault.tsx";
 import { formatDotsProgress } from "../src/ui/displays/DisplayDots.tsx";
 import type { VitestFormatState } from "../src/ui/displays/DisplayDefault.tsx";
 import { formatFailureDetailsText } from "../src/ui/failureDetails.ts";
@@ -19,6 +22,7 @@ async function vitestOutput(filePaths: string[]) {
     phase: state.phase,
     startTime: state.startTime,
     endTime: state.endTime,
+    actualThreadsUsed: state.maxRunningBlockCount,
   } satisfies VitestFormatState);
 }
 
@@ -372,6 +376,45 @@ test("[vitest] summary counts are consistent", async () => {
   const result = await vitestOutput(["http/pass.http"]);
   const { testsPassed, testsFailed, testsIgnored, testsTotal } = result.summary;
   assertEquals(testsPassed + testsFailed + testsIgnored, testsTotal);
+});
+
+test("[vitest] duration summary includes actual threads used", () => {
+  assertEquals(formatDurationSummary(6_000, 5), "6 seconds (with 5 threads)");
+  assertEquals(formatDurationSummary(1_000, 1), "1 second (with 1 thread)");
+});
+
+test("[vitest] threaded runs report peak observed concurrency", async () => {
+  const store = createStore();
+
+  vi.stubGlobal("fetch", vi.fn(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    return new Response("ok", {
+      status: 200,
+      headers: { "content-type": "text/plain" },
+    });
+  }));
+
+  try {
+    await runner([process.cwd() + "/http/threads.http"], {
+      display: "none",
+      threads: 2,
+    }, false, store);
+
+    const state = store.getState();
+    const result = formatVitestOutput({
+      fileOrder: state.fileOrder,
+      files: state.files,
+      blocks: state.blocks,
+      phase: state.phase,
+      startTime: state.startTime,
+      endTime: state.endTime,
+      actualThreadsUsed: state.maxRunningBlockCount,
+    });
+
+    assertEquals(result.summary.actualThreadsUsed, 2);
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });
 
 test("[vitest] isFirstBlock entries excluded from counts", async () => {

@@ -8,6 +8,7 @@ import { WatchStatus } from "../WatchStatus.tsx";
 import { formatFailureDetailsText } from "../failureDetails.ts";
 import { ms } from "../formatters.ts";
 import {
+  formatDurationSummary,
   formatVitestOutput,
   type VitestFailureEntry,
   type VitestFormatResult,
@@ -146,7 +147,7 @@ function DotsSummary({ summary }: { summary: VitestFormatResult["summary"] }) {
     <Box flexDirection="column" marginTop={1}>
       <Text>{" " + fmt.bold("Test Files") + "  " + filesLine}</Text>
       <Text>{" " + fmt.bold("Tests      ") + "  " + testsLine}</Text>
-      <Text>{" " + fmt.bold("Duration   ") + "  " + (colors ? fmt.dim(ms(summary.duration)) : ms(summary.duration))}</Text>
+      <Text>{" " + fmt.bold("Duration   ") + "  " + (colors ? fmt.dim(formatDurationSummary(summary.duration, summary.actualThreadsUsed)) : formatDurationSummary(summary.duration, summary.actualThreadsUsed))}</Text>
     </Box>
   );
 }
@@ -160,6 +161,7 @@ export function DisplayDots(props: CommonDisplayProps) {
     messages,
     startTime,
     endTime,
+    actualThreadsUsed,
     isWatchMode,
     watchPaths,
     watchTriggerPaths,
@@ -173,6 +175,7 @@ export function DisplayDots(props: CommonDisplayProps) {
     phase,
     startTime,
     endTime,
+    actualThreadsUsed,
   });
 
   const done = completedBlocks({ fileOrder, files, blocks });

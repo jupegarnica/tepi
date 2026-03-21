@@ -202,6 +202,7 @@ export function DisplayInteractive(props: InteractiveProps) {
     messages,
     startTime,
     endTime,
+    actualThreadsUsed,
     exitCode,
     isWatchMode,
     watchPaths,
@@ -466,6 +467,7 @@ export function DisplayInteractive(props: InteractiveProps) {
             blocks={blocks}
             startTime={startTime}
             endTime={endTime}
+            actualThreadsUsed={actualThreadsUsed}
             exitCode={exitCode}
           />
           <Text dimColor>{"  ↑↓ navigate  → open/focus child  ← close/back to parent  Enter/Space toggle  q/Esc exit"}</Text>
