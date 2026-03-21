@@ -48,7 +48,7 @@ Test your HTTP APIs with standard http syntax
 ### From npm
 
 ```bash
-npm install -g @garn/tepi
+npm install -g @garndev/tepi
 ```
 
 ### From JSR
@@ -66,7 +66,7 @@ deno install --global -A -n tepi https://deno.land/x/tepi/mod.ts
 ### Run without installing (npx)
 
 ```bash
-npx @garn/tepi [OPTIONS] [FILES|GLOBS...]
+npx @garndev/tepi [OPTIONS] [FILES|GLOBS...]
 ```
 
 ### Permissions (Deno only):

@@ -18,9 +18,8 @@ import chokidar from "chokidar";
 
 const execFile = promisify(_execFile);
 
-const mustExit = !process.env.TEPI_NOT_EXIT;
 function exit(code: number) {
-  mustExit && process.exit(code);
+  !process.env.TEPI_NOT_EXIT && process.exit(code);
 }
 
 let _activeStore: ReturnType<typeof createStore> | undefined;

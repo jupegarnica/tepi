@@ -12,8 +12,8 @@ local:
 compile:
 	deno compile --output=dist/tepi -A src/cli.ts
 
-install-x:
-	npm install -g @garn/tepi
+install:
+	npm install -g @garndev/tepi
 
 udd:
 	npx npm-check-updates -u && npm test
@@ -25,7 +25,7 @@ version:
 	deno run --allow-all jsr:@krlwlfrt/version
 
 version-get:
-	@$(MAKE) --silent version | jq '.["@garn/tepi"]' | sed 's/"//g'
+	@$(MAKE) --silent version | jq '.["@garndev/tepi"]' | sed 's/"//g'
 
 readme:
 	cat docs/started.md > README.md

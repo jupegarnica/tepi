@@ -1,9 +1,9 @@
 {
-  "name": "@garn/tepi",
+  "name": "@garndev/tepi",
   "version": "2.0.0",
   "type": "module",
   "bin": {
-    "tepi": "./bin/tepi.mjs"
+    "tepi": "bin/tepi.mjs"
   },
   "exports": {
     ".": "./src/cli.ts"
