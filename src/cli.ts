@@ -180,7 +180,6 @@ export async function cli() {
     const vars = await load({
       export: true,
       envPath: path,
-      allowEmptyValues: true,
     });
     for (const key in vars) {
       keysLoaded.add(key);
