@@ -1,6 +1,7 @@
 {
   "name": "@garndev/tepi",
   "version": "2.0.1",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "tepi": "bin/tepi.mjs"

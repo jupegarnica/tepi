@@ -4,6 +4,7 @@
   "exports": {
     ".": "./mod.ts"
   },
+  "license": "MIT",
   "tasks": {
     "start": "deno run -A mod.ts"
   }
