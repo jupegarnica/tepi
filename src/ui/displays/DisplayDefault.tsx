@@ -10,7 +10,7 @@ import { BlockLine } from "../BlockLine.tsx";
 import { ms } from "../formatters.ts";
 import { formatFailureDetailsText } from "../failureDetails.ts";
 
-type FileStats = {
+export type FileStats = {
   passed: number;
   failed: number;
   ignored: number;
@@ -19,7 +19,7 @@ type FileStats = {
   hasFailures: boolean;
 };
 
-function computeFileStats(
+export function computeFileStats(
   file: FileState,
   blocks: Record<string, BlockState>,
 ): FileStats {
@@ -129,7 +129,7 @@ export function formatVitestOutput(state: VitestFormatState): VitestFormatResult
   };
 }
 
-function FileLine({
+export function FileLine({
   file,
   blocks,
   noAnimation,
@@ -181,7 +181,7 @@ function FileLine({
   );
 }
 
-function VitestFailures({
+export function VitestFailures({
   fileOrder,
   files,
   blocks,
@@ -233,7 +233,7 @@ function VitestFailures({
   );
 }
 
-function VitestSummary({
+export function VitestSummary({
   fileOrder,
   files,
   blocks,

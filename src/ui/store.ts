@@ -98,6 +98,9 @@ export type TepiState = {
   isWatchMode: boolean;
   watchPaths: string[];
   watchTriggerPaths: string[];
+
+  // Interactive mode exit signaling
+  _exitResolver?: () => void;
 };
 
 export type TepiActions = {
@@ -124,6 +127,9 @@ export type TepiActions = {
     paths: string[],
     triggerPaths: string[],
   ) => void;
+
+  setExitResolver: (resolver: () => void) => void;
+  requestExit: () => void;
 };
 
 export type TepiStore = TepiState & TepiActions;
@@ -282,6 +288,9 @@ export function createStore() {
         watchPaths: paths,
         watchTriggerPaths: triggerPaths,
       }),
+
+    setExitResolver: (resolver) => set({ _exitResolver: resolver }),
+    requestExit: () => get()._exitResolver?.(),
   }));
 }
 

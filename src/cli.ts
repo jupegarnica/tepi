@@ -157,6 +157,14 @@ export async function cli() {
     exit(1);
   }
 
+  // --no-animation + interactive incompatibility
+  /////////////
+  if (args.noAnimation && args.display === "interactive") {
+    console.error(fmt.brightRed(`--no-animation is not compatible with --display interactive`));
+    exit(1);
+    return;
+  }
+
   // --no-animation
   /////////////
   if (args.noAnimation) {
@@ -247,6 +255,13 @@ export async function cli() {
     ).catch(console.error);
   } else {
     if (inkInstance) {
+      if (args.display === "interactive") {
+        // Keep the process alive so the user can browse results interactively.
+        // Resolves when the user presses q or Escape in DisplayInteractive.
+        await new Promise<void>((resolve) => {
+          store.getState().setExitResolver(resolve);
+        });
+      }
       // Give React one event-loop turn to render the final "done" state,
       // then unmount ink cleanly before exiting.
       await new Promise((resolve) => setTimeout(resolve, 50));

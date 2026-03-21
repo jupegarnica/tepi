@@ -9,6 +9,7 @@ import { DisplayTruncate } from "./displays/DisplayTruncate.tsx";
 import { DisplayFull } from "./displays/DisplayFull.tsx";
 import { DisplayVerbose } from "./displays/DisplayVerbose.tsx";
 import { DisplayTap } from "./displays/DisplayTap.tsx";
+import { DisplayInteractive } from "./displays/DisplayInteractive.tsx";
 
 type Props = {
   store: StoreApi;
@@ -78,6 +79,8 @@ export function App({ store }: Props) {
       return <DisplayTap {...commonProps} />;
     case "dots":
       return <DisplayDots {...commonProps} />;
+    case "interactive":
+      return <DisplayInteractive {...commonProps} onExit={() => store.getState().requestExit()} />;
     default:
       return <DisplayDefault {...commonProps} />;
   }
