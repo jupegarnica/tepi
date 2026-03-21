@@ -9,7 +9,7 @@ import {
   parseResponseFromText,
 } from "./parser.ts";
 import * as assertions from "@std/assert";
-import type { StoreApi } from "./ui/store.ts";
+import type { BlockState, StoreApi } from "./ui/store.ts";
 import { serializeMeta, serializeRequest, serializeResponse } from "./ui/serialize.ts";
 import { deriveFailureContext } from "./failureContext.ts";
 
@@ -39,7 +39,7 @@ function getThreads(meta: Meta): number {
 function updateBlockFinished(
   store: StoreApi | undefined,
   blockId: string,
-  patch: Parameters<StoreApi["getState"]>[0] extends never ? never : Record<string, unknown>,
+  patch: Partial<BlockState>,
 ) {
   const completedAt = Date.now();
   const startTime = store?.getState().blocks[blockId]?.startTime ?? completedAt;
@@ -181,7 +181,12 @@ async function runBlocksWithScheduler(
     });
 
     const doneBeforeBatch = new Set(state.blocksDone);
-    const batch = (ready.length ? ready : pending).slice(0, threads);
+    // When no block is dependency-ready, run a single pending block and let
+    // runBlock resolve its needs recursively. Scheduling several blocked
+    // blocks at once can start the same dependency path multiple times.
+    const batch = ready.length
+      ? ready.slice(0, threads)
+      : pending.slice(0, 1);
     await Promise.all(
       batch.map((block) => runScheduledBlock(block, globalData, state, store)),
     );

@@ -504,6 +504,7 @@ test("[runner] must fail if no test has been run", async () => {
 test("[runner] threads run ready blocks in parallel", async () => {
   let inFlight = 0;
   let maxInFlight = 0;
+  const requestedUrls: string[] = [];
 
   vi.stubGlobal("fetch", vi.fn(async (request: RequestInfo | URL) => {
     const url = typeof request === "string"
@@ -512,13 +513,13 @@ test("[runner] threads run ready blocks in parallel", async () => {
       ? request.toString()
       : request.url;
 
+    requestedUrls.push(url);
     inFlight++;
     maxInFlight = Math.max(maxInFlight, inFlight);
     await new Promise((resolve) => setTimeout(resolve, 25));
     inFlight--;
 
-    const body = url.endsWith("/one") ? "one" : "two";
-    return new Response(body, {
+    return new Response("ok", {
       status: 200,
       statusText: "",
       headers: {
@@ -537,9 +538,37 @@ test("[runner] threads run ready blocks in parallel", async () => {
 
     assertEquals(exitCode, 0);
     assertEquals(maxInFlight, 2);
-    assertEquals(await files[0].blocks[1].actualResponse?.getBody(), "one");
-    assertEquals(await files[0].blocks[2].actualResponse?.getBody(), "two");
+    assertEquals(requestedUrls.length, 4);
+    assertEquals(requestedUrls.every((url) => url.includes("/pong?delay=100")), true);
+
+    const runnableBlocks = files[0].blocks.filter((block) => !block.meta.ignore && block.request);
+    assertEquals(runnableBlocks.length, 4);
+    for (const block of runnableBlocks) {
+      assertEquals(block.actualResponse?.status, 200);
+      assertEquals(await block.actualResponse?.getBody(), "ok");
+    }
   } finally {
     vi.unstubAllGlobals();
   }
+});
+
+test("[runner] threads do not double-run blocked needs chains", async () => {
+  const { exitCode, blocksDone } = await runner([
+    process.cwd() + "/http/needs.loop.http",
+  ], {
+    display: "none",
+    threads: 2,
+  });
+
+  const blockInOrder = [...blocksDone];
+  const descriptions = blockInOrder.map((block) => block.description);
+
+  assertEquals(exitCode > 0, true);
+  assertEquals(blockInOrder.length, 5);
+  assertEquals(new Set(descriptions).size, 5);
+  assertEquals(descriptions.includes("./http/needs.loop.http:0"), true);
+  assertEquals(descriptions.includes("block_1"), true);
+  assertEquals(descriptions.includes("block_2"), true);
+  assertEquals(descriptions.includes("block_3"), true);
+  assertEquals(descriptions.includes("block_4"), true);
 });
