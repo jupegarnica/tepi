@@ -3,6 +3,22 @@ import { test } from "vitest";
 import { runner } from "../src/runner.ts";
 import { createStore } from "../src/ui/store.ts";
 import { formatTapOutput } from "../src/ui/displays/DisplayTap.tsx";
+import { formatVitestOutput } from "../src/ui/displays/DisplayDefault.tsx";
+import type { VitestFormatState } from "../src/ui/displays/DisplayDefault.tsx";
+
+async function vitestOutput(filePaths: string[]) {
+  const store = createStore();
+  await runner(filePaths, { display: "none" }, false, store);
+  const state = store.getState();
+  return formatVitestOutput({
+    fileOrder: state.fileOrder,
+    files: state.files,
+    blocks: state.blocks,
+    phase: state.phase,
+    startTime: state.startTime,
+    endTime: state.endTime,
+  } satisfies VitestFormatState);
+}
 
 async function tapOutput(filePaths: string[]): Promise<string[]> {
   const store = createStore();
@@ -83,4 +99,64 @@ test("[tap] plan line is absent when phase is not done", () => {
   });
   assertEquals(lines.length, 1); // only "TAP version 14"
   assert(!lines.some((l) => l.startsWith("1..")));
+});
+
+// --- vitest display format tests ---
+
+test("[vitest] passing file shows zero failures", async () => {
+  const result = await vitestOutput(["http/pass.http"]);
+  assert(result.fileStats.length > 0);
+  const file = result.fileStats[0];
+  assertEquals(file.stats.failed, 0);
+  assert(!file.stats.hasFailures);
+});
+
+test("[vitest] failing file shows failure count and hasFailures", async () => {
+  const result = await vitestOutput(["http/failFast.http"]);
+  const failedFile = result.fileStats.find((f) => f.stats.hasFailures);
+  assert(failedFile !== undefined, "expected at least one failed file");
+  assert(failedFile.stats.failed > 0);
+});
+
+test("[vitest] failures array contains error details for failed blocks", async () => {
+  const result = await vitestOutput(["http/failFast.http"]);
+  assert(result.failures.length > 0, "expected failures");
+  for (const f of result.failures) {
+    assert(f.description.length > 0);
+    assert(f.error.message.length > 0);
+  }
+});
+
+test("[vitest] summary counts are consistent", async () => {
+  const result = await vitestOutput(["http/pass.http"]);
+  const { testsPassed, testsFailed, testsIgnored, testsTotal } = result.summary;
+  assertEquals(testsPassed + testsFailed + testsIgnored, testsTotal);
+});
+
+test("[vitest] isFirstBlock entries excluded from counts", async () => {
+  const store = createStore();
+  await runner(["http/pass.http"], { display: "none" }, false, store);
+  const state = store.getState();
+  const firstBlockCount = state.blockOrder.filter(
+    (id) => state.blocks[id]?.isFirstBlock,
+  ).length;
+  const result = formatVitestOutput({
+    fileOrder: state.fileOrder,
+    files: state.files,
+    blocks: state.blocks,
+    phase: state.phase,
+    startTime: state.startTime,
+    endTime: state.endTime,
+  });
+  // If there are first-blocks, total should be less than total block count
+  if (firstBlockCount > 0) {
+    assert(result.summary.testsTotal < state.blockOrder.length);
+  }
+});
+
+test("[vitest] file-level: any failed block marks file as failed", async () => {
+  const result = await vitestOutput(["http/failFast.http"]);
+  const { filesPassed, filesFailed, filesTotal } = result.summary;
+  assertEquals(filesPassed + filesFailed, filesTotal);
+  assert(filesFailed > 0);
 });
