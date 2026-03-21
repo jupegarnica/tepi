@@ -15,6 +15,7 @@ export const DISPLAYS = [
   "full", // 4
   "verbose", // 5
   "tap", // 6
+  "dots", // 7
 ];
 
 export const DISPLAY_INDEX_NONE = 0;
@@ -24,6 +25,7 @@ export const DISPLAY_INDEX_TRUNCATE = 3;
 export const DISPLAY_INDEX_FULL = 4;
 export const DISPLAY_INDEX_VERBOSE = 5;
 export const DISPLAY_INDEX_TAP = 6;
+export const DISPLAY_INDEX_DOTS = 7;
 
 export function getDisplayIndex(displayMode: string): number {
   const index = DISPLAYS.indexOf(displayMode);

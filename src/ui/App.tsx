@@ -4,6 +4,7 @@ import type { CommonDisplayProps } from "./shared/DisplayLayout.tsx";
 import { DisplayNone } from "./displays/DisplayNone.tsx";
 import { DisplayMinimal } from "./displays/DisplayMinimal.tsx";
 import { DisplayDefault } from "./displays/DisplayDefault.tsx";
+import { DisplayDots } from "./displays/DisplayDots.tsx";
 import { DisplayTruncate } from "./displays/DisplayTruncate.tsx";
 import { DisplayFull } from "./displays/DisplayFull.tsx";
 import { DisplayVerbose } from "./displays/DisplayVerbose.tsx";
@@ -75,6 +76,8 @@ export function App({ store }: Props) {
       return <DisplayVerbose {...commonProps} />;
     case "tap":
       return <DisplayTap {...commonProps} />;
+    case "dots":
+      return <DisplayDots {...commonProps} />;
     default:
       return <DisplayDefault {...commonProps} />;
   }

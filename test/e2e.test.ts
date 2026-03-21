@@ -1,5 +1,5 @@
 import { test } from "vitest";
-import { assert, assertEquals } from "@std/assert";
+import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import { installCommand, runRemoteCommand } from "../src/help.ts";
 import { exec as _exec } from "node:child_process";
 import { promisify } from "node:util";
@@ -61,6 +61,32 @@ test("[e2e] display none", async () => {
   assertEquals(success, false);
   assertEquals(err, "");
   assertEquals(out, "");
+});
+
+test("[e2e] display dots prints progress and summary", async () => {
+  const { code, err, out, success } = await run(
+    tepi + "--display dots --no-color --no-animation http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(success, true);
+  assertEquals(err, "");
+  assertStringIncludes(out, ".");
+  assertStringIncludes(out, "Test Files");
+  assertStringIncludes(out, "Tests");
+});
+
+test("[e2e] display dots prints failure details", async () => {
+  const { code, err, out, success } = await run(
+    tepi + "--display dots --no-color --no-animation http/failFast.http"
+  );
+
+  assertEquals(code, 2);
+  assertEquals(success, false);
+  assertEquals(err, "");
+  assertStringIncludes(out, "x");
+  assertStringIncludes(out, "FAIL http/failFast.http");
+  assertStringIncludes(out, "Tests");
 });
 
 test("[e2e] run help", async () => {

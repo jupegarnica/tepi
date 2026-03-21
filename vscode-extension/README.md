@@ -39,7 +39,7 @@ Test your HTTP APIs with standard http syntax
 - ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
 - 🚨  Stop running tests after the first failure.
 - 🔋  Use env files to load environment variables
-- 😎  Fully featured and colorful display modes. (none, minimal, default, full and tap)
+- 😎  Fully featured and colorful display modes. (none, minimal, default, truncate, full, verbose, tap and dots)
 - 👁   Watch files for changes and rerun tests.
 - 🍯  Standard Response and Request with a automatic getBody()
 
@@ -86,7 +86,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * `  ` `--watch-no-clear`  same but without clearing the screen.
 * `-t` `--timeout`         Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * `-f` `--fail-fast`       Stop running tests after the first failure.
-* `-d` `--display`         Set the display mode. (none, minimal, default, truncate, full, verbose and tap)
+* `-d` `--display`         Set the display mode. (none, minimal, default, truncate, full, verbose, tap and dots)
        -  _none_:     display nothing
        -  _minimal_:  display only a minimal summary
        -  _default_:  list results and full error summary
@@ -94,6 +94,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
        -  _full_:     display also all HTTP requests and responses and not truncate data
        -  _verbose_:  display also all metadata
        -  _tap_:      output in TAP (Test Anything Protocol) format for machine consumption
+  -  _dots_:     output compact progress markers and show vitest-style failures and summary at the end
 * `-e` `--env-file`       load environment variables from a .env file
 * `    --no-color`       output without color
 * `    --no-animation`   output without terminal animations
@@ -130,7 +131,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 > Stop running tests after the first failure.
 
 `tepi --display minimal`
-> Set the display mode. (none, minimal, default, full and tap)
+> Set the display mode. (none, minimal, default, truncate, full, verbose, tap and dots)
 
 `tepi --env-file .env --env-file .env.test`
 > Load environment variables from a .env and .env.test

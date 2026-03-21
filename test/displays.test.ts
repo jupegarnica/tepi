@@ -4,6 +4,7 @@ import { runner } from "../src/runner.ts";
 import { createStore } from "../src/ui/store.ts";
 import { formatTapOutput } from "../src/ui/displays/DisplayTap.tsx";
 import { formatVitestOutput } from "../src/ui/displays/DisplayDefault.tsx";
+import { formatDotsProgress } from "../src/ui/displays/DisplayDots.tsx";
 import type { VitestFormatState } from "../src/ui/displays/DisplayDefault.tsx";
 import { formatFailureDetailsText } from "../src/ui/failureDetails.ts";
 
@@ -29,6 +30,17 @@ async function tapOutput(filePaths: string[]): Promise<string[]> {
     blockOrder: state.blockOrder,
     blocks: state.blocks,
     phase: state.phase,
+  });
+}
+
+async function dotsOutput(filePaths: string[]): Promise<string> {
+  const store = createStore();
+  await runner(filePaths, { display: "none" }, false, store);
+  const state = store.getState();
+  return formatDotsProgress({
+    fileOrder: state.fileOrder,
+    files: state.files,
+    blocks: state.blocks,
   });
 }
 
@@ -100,6 +112,110 @@ test("[tap] plan line is absent when phase is not done", () => {
   });
   assertEquals(lines.length, 1); // only "TAP version 14"
   assert(!lines.some((l) => l.startsWith("1..")));
+});
+
+test("[dots] passing tests render dot progress", async () => {
+  const progress = await dotsOutput(["http/pass.http"]);
+  assert(progress.length > 0);
+  assert(!progress.includes("x"));
+  assert(!progress.includes("s"));
+});
+
+test("[dots] failures render x markers and ignored blocks render s markers", async () => {
+  const progress = await dotsOutput(["http/failFast.http"]);
+  assert(progress.includes("x"));
+  assert(progress.includes("s"));
+});
+
+test("[dots] progress excludes first blocks and unfinished blocks", () => {
+  const progress = formatDotsProgress({
+    fileOrder: ["http/example.http"],
+    files: {
+      "http/example.http": {
+        path: "http/example.http",
+        relativePath: "http/example.http",
+        status: "running",
+        blockIds: ["first", "pending", "passed", "running", "ignored", "failed"],
+      },
+    },
+    blocks: {
+      first: {
+        id: "first",
+        description: "first",
+        blockLink: "http/example.http:1",
+        filePath: "http/example.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: true,
+        meta: {},
+      },
+      pending: {
+        id: "pending",
+        description: "pending",
+        blockLink: "http/example.http:2",
+        filePath: "http/example.http",
+        status: "pending",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+      passed: {
+        id: "passed",
+        description: "passed",
+        blockLink: "http/example.http:3",
+        filePath: "http/example.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+      running: {
+        id: "running",
+        description: "running",
+        blockLink: "http/example.http:4",
+        filePath: "http/example.http",
+        status: "running",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+      ignored: {
+        id: "ignored",
+        description: "ignored",
+        blockLink: "http/example.http:5",
+        filePath: "http/example.http",
+        status: "ignored",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+      failed: {
+        id: "failed",
+        description: "failed",
+        blockLink: "http/example.http:6",
+        filePath: "http/example.http",
+        status: "failed",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+        error: { name: "Error", message: "boom" },
+      },
+    },
+  });
+
+  assertEquals(progress, ".sx");
 });
 
 // --- vitest display format tests ---
