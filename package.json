@@ -1,6 +1,6 @@
 {
   "name": "@garndev/tepi",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -43,6 +43,19 @@
     "react": "^19.2.4",
     "zustand": "^4.0.0"
   },
+  "bundleDependencies": [
+    "@std/assert",
+    "@std/async",
+    "@std/cli",
+    "@std/dotenv",
+    "@std/fmt",
+    "@std/front-matter",
+    "@std/fs",
+    "@std/media-types",
+    "@std/path",
+    "@std/testing",
+    "@wilcosp/ms-relative"
+  ],
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
