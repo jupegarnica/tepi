@@ -1,24 +1,18 @@
 import React from "react";
 import { Text } from "ink";
 import type { BlockState } from "./store.ts";
-import {
-  DISPLAY_INDEX_MINIMAL,
-  consoleSize,
-  getDisplayIndex,
-  printTitle,
-} from "./formatters.ts";
+import { consoleSize, printTitle } from "./formatters.ts";
 import * as fmt from "@std/fmt/colors";
 
 type Props = {
   blocks: BlockState[];
-  globalDisplayMode: string;
+  style: "compact" | "expanded";
 };
 
-export function ErrorsSummary({ blocks, globalDisplayMode }: Props) {
+export function ErrorsSummary({ blocks, style }: Props) {
   const failedBlocks = blocks.filter((b) => b.status === "failed" && b.error);
   if (!failedBlocks.length) return null;
 
-  const displayIndex = getDisplayIndex(globalDisplayMode);
   const maximumLength = consoleSize().columns / 2;
 
   return (
@@ -34,7 +28,7 @@ export function ErrorsSummary({ blocks, globalDisplayMode }: Props) {
 
         if (!block.errorDisplayed) {
           const separator = i > 0 ? fmt.dim("------------------") + "\n" : "";
-          if (displayIndex === DISPLAY_INDEX_MINIMAL) {
+          if (style === "compact") {
             const descriptionMaybeTruncated =
               block.description.length > maximumLength - 20
                 ? `${block.description.slice(0, maximumLength - 20)}...`

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Box, Static } from "ink";
-import type { BlockState, FileState, StoreApi, TepiStore } from "./store.ts";
-import { FileRunner } from "./FileRunner.tsx";
-import { ErrorsSummary } from "./ErrorsSummary.tsx";
-import { RunSummary } from "./RunSummary.tsx";
-import { WatchStatus } from "./WatchStatus.tsx";
-import { MessagesPanel } from "./MessagesPanel.tsx";
-import { getDisplayIndex } from "./formatters.ts";
+import type { StoreApi, TepiStore } from "./store.ts";
+import type { CommonDisplayProps } from "./shared/DisplayLayout.tsx";
+import { DisplayNone } from "./displays/DisplayNone.tsx";
+import { DisplayMinimal } from "./displays/DisplayMinimal.tsx";
+import { DisplayDefault } from "./displays/DisplayDefault.tsx";
+import { DisplayTruncate } from "./displays/DisplayTruncate.tsx";
+import { DisplayFull } from "./displays/DisplayFull.tsx";
+import { DisplayVerbose } from "./displays/DisplayVerbose.tsx";
 
 type Props = {
   store: StoreApi;
@@ -41,75 +41,38 @@ export function App({ store }: Props) {
   const watchPaths = useStore(store, (s) => s.watchPaths);
   const watchTriggerPaths = useStore(store, (s) => s.watchTriggerPaths);
 
-  const displayIndex = getDisplayIndex(displayMode);
+  const commonProps: CommonDisplayProps = {
+    files,
+    fileOrder,
+    blocks,
+    phase,
+    messages,
+    successCount,
+    failCount,
+    ignoreCount,
+    startTime,
+    endTime,
+    exitCode,
+    isWatchMode,
+    watchPaths,
+    watchTriggerPaths,
+    noAnimation,
+  };
 
-  if (displayIndex <= 0) return null;
-
-  // Separate completed files (for Static) from currently running
-  const doneFiles = fileOrder
-    .map((id) => files[id])
-    .filter((f): f is FileState => !!f && f.status === "done");
-
-  const activeFiles = fileOrder
-    .map((id) => files[id])
-    .filter((f): f is FileState => !!f && f.status !== "done");
-
-  const allBlocksList = Object.values(blocks) as BlockState[];
-
-  return (
-    <>
-      <MessagesPanel messages={messages} />
-
-      {/* Completed files scroll up into Static */}
-      <Static items={doneFiles}>
-        {(file) => (
-          <Box key={file.relativePath} flexDirection="column">
-            <FileRunner
-              file={file}
-              blocks={blocks}
-              displayMode={displayMode}
-              noAnimation={noAnimation}
-            />
-          </Box>
-        )}
-      </Static>
-
-      {/* Currently running files stay dynamic */}
-      {activeFiles.map((file) => (
-        <FileRunner
-          key={file.relativePath}
-          file={file}
-          blocks={blocks}
-          displayMode={displayMode}
-          noAnimation={noAnimation}
-        />
-      ))}
-
-      {/* Final summary shown when done */}
-      {phase === "done" && (
-        <>
-          <ErrorsSummary
-            blocks={allBlocksList}
-            globalDisplayMode={displayMode}
-          />
-          <RunSummary
-            successCount={successCount}
-            failCount={failCount}
-            ignoreCount={ignoreCount}
-            startTime={startTime}
-            endTime={endTime}
-            exitCode={exitCode}
-          />
-        </>
-      )}
-
-      {/* Watch mode footer */}
-      {isWatchMode && (
-        <WatchStatus
-          watchPaths={watchPaths}
-          watchTriggerPaths={watchTriggerPaths}
-        />
-      )}
-    </>
-  );
+  switch (displayMode) {
+    case "none":
+      return <DisplayNone />;
+    case "minimal":
+      return <DisplayMinimal {...commonProps} />;
+    case "default":
+      return <DisplayDefault {...commonProps} />;
+    case "truncate":
+      return <DisplayTruncate {...commonProps} />;
+    case "full":
+      return <DisplayFull {...commonProps} />;
+    case "verbose":
+      return <DisplayVerbose {...commonProps} />;
+    default:
+      return <DisplayDefault {...commonProps} />;
+  }
 }

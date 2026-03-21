@@ -2,9 +2,6 @@ import React from "react";
 import { Text } from "ink";
 import type { BlockState } from "./store.ts";
 import {
-  DISPLAY_INDEX_FULL,
-  DISPLAY_INDEX_VERBOSE,
-  getDisplayIndex,
   headersToText,
   metaToText,
   printTitle,
@@ -18,17 +15,15 @@ const MAX_BODY_LINES = 40;
 
 type Props = {
   block: BlockState;
-  globalDisplayMode: string;
+  truncateBody: boolean;
+  truncateHeaders: boolean;
+  showErrorDetail: boolean;
 };
 
-export function BlockDetail({ block, globalDisplayMode }: Props) {
-  const displayMode = block.displayMode ?? globalDisplayMode;
-  const displayIndex = getDisplayIndex(displayMode);
-
-  const showBody = displayIndex >= DISPLAY_INDEX_FULL;
-  const truncate = showBody
-    ? (str: string) => str
-    : (str: string) => truncateRows(str, MAX_BODY_LINES);
+export function BlockDetail({ block, truncateBody, truncateHeaders, showErrorDetail }: Props) {
+  const truncate = truncateBody
+    ? (str: string) => truncateRows(str, MAX_BODY_LINES)
+    : (str: string) => str;
 
   const filePath = block.filePath;
   const startLine = block.blockLink.split(":").pop()?.trim();
@@ -53,7 +48,7 @@ export function BlockDetail({ block, globalDisplayMode }: Props) {
           {"\n"}
           {requestToText(block.request)}
           {"\n"}
-          {headersToText(block.request.headers, displayIndex)}
+          {headersToText(block.request.headers, truncateHeaders)}
           {block.request.body && truncate(block.request.body)}
           {"\n"}
         </>
@@ -64,7 +59,7 @@ export function BlockDetail({ block, globalDisplayMode }: Props) {
           {"\n"}
           {responseToText(block.actualResponse)}
           {"\n"}
-          {headersToText(block.actualResponse.headers, displayIndex)}
+          {headersToText(block.actualResponse.headers, truncateHeaders)}
           {block.actualResponse.body && truncate(block.actualResponse.body)}
           {"\n"}
         </>
@@ -75,12 +70,12 @@ export function BlockDetail({ block, globalDisplayMode }: Props) {
           {"\n"}
           {responseToText(block.expectedResponse)}
           {"\n"}
-          {headersToText(block.expectedResponse.headers, displayIndex)}
+          {headersToText(block.expectedResponse.headers, truncateHeaders)}
           {block.expectedResponse.body && truncate(block.expectedResponse.body)}
           {"\n"}
         </>
       )}
-      {block.error && displayIndex >= DISPLAY_INDEX_VERBOSE && (
+      {block.error && showErrorDetail && (
         <>
           {printTitle("⬇   Error    ⬇")}
           {"\n"}

@@ -83,7 +83,7 @@ export function responseToText(response: SerializedResponse): string {
 
 export function headersToText(
   headers: SerializedHeaders,
-  displayIndex: number,
+  truncateHeaders: boolean,
 ): string {
   const halfWidth = -5 + consoleSize().columns / 2;
   let maxLengthKey = 0;
@@ -92,7 +92,7 @@ export function headersToText(
   let result = "";
   let truncate = truncateCols;
 
-  if (displayIndex >= DISPLAY_INDEX_FULL) {
+  if (!truncateHeaders) {
     truncate = (str: string, _: number) => str;
   }
 
