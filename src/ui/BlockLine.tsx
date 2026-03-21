@@ -60,5 +60,15 @@ export function BlockLine({ block, noAnimation }: Props) {
     return <Text>{`${symbol}${text}`}</Text>;
   }
 
+  if (block.status === "pending") {
+    if (block.isFirstBlock) {
+      return null;
+    }
+
+    const symbol = fmt.dim("·");
+    const text = ` ${link} ${fmt.dim(block.description)}   ${fmt.gray("pending...")}${differentFile}`;
+    return <Text>{`${symbol}${text}`}</Text>;
+  }
+
   return null;
 }

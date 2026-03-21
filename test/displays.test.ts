@@ -114,6 +114,75 @@ test("[tap] plan line is absent when phase is not done", () => {
   assert(!lines.some((l) => l.startsWith("1..")));
 });
 
+test("[tap] out-of-order completion keeps unique numbers", () => {
+  const lines = formatTapOutput({
+    blockOrder: ["setup", "first", "second", "third"],
+    blocks: {
+      setup: {
+        id: "setup",
+        description: "setup",
+        blockLink: "http/threads.http:1",
+        filePath: "http/threads.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        completedAt: 1,
+        errorDisplayed: false,
+        isFirstBlock: true,
+        meta: {},
+      },
+      first: {
+        id: "first",
+        description: "first",
+        blockLink: "http/threads.http:2",
+        filePath: "http/threads.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        completedAt: 10,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+      second: {
+        id: "second",
+        description: "second",
+        blockLink: "http/threads.http:3",
+        filePath: "http/threads.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        completedAt: 30,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+      third: {
+        id: "third",
+        description: "third",
+        blockLink: "http/threads.http:4",
+        filePath: "http/threads.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        completedAt: 20,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+    },
+    phase: "done",
+  });
+
+  assertEquals(lines, [
+    "TAP version 14",
+    "ok 1 - first",
+    "ok 3 - third",
+    "ok 2 - second",
+    "1..3",
+  ]);
+});
+
 test("[dots] passing tests render dot progress", async () => {
   const progress = await dotsOutput(["http/pass.http"]);
   assert(progress.length > 0);

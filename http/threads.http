@@ -1,0 +1,36 @@
+---
+delta: 1000
+host:  https://faker.deno.dev/pong
+---
+
+###
+---
+id: first
+---
+GET ?delay=<%=meta.delta%>
+
+###
+---
+id: second
+---
+GET ?delay=<%=meta.delta%>
+
+###
+
+---
+id: third
+---
+GET ?delay=<%=meta.delta%>
+
+###
+---
+id: skipped
+ignore: true
+---
+GET ?delay=<%=meta.delta%>
+
+###
+---
+id: fourth
+---
+GET ?delay=<%=meta.delta%>

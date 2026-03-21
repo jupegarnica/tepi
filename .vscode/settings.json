@@ -21,6 +21,10 @@
   },
   "peacock.color": "#875dec",
   "chat.tools.terminal.autoApprove": {
-    "npx vitest": true
+    "npx vitest": true,
+    "/^dt start http/threads\\.http --threads=4 --display tap$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
   }
 }

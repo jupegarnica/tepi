@@ -327,9 +327,18 @@ export function DisplayDefault(props: CommonDisplayProps) {
           );
         }
 
-        // pending
         return (
-          <Text key={id} dimColor>{` · ${file.relativePath}`}</Text>
+          <Box key={id} flexDirection="column">
+            <Text dimColor>{` · ${file.relativePath}`}</Text>
+            <Box flexDirection="column" marginLeft={4}>
+              {file.blockIds
+                .map((bid) => blocks[bid])
+                .filter((b): b is BlockState => !!b && !b.isFirstBlock)
+                .map((b) => (
+                  <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
+                ))}
+            </Box>
+          </Box>
         );
       })}
 

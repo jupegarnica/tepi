@@ -34,6 +34,7 @@ export type BlockState = {
   status: BlockStatus;
   startTime: number;
   elapsedTime: number;
+  completedAt?: number;
   httpStatus?: number;
   error?: { name: string; message: string; cause?: string };
   failureContext?: FailureContext;

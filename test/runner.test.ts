@@ -500,3 +500,46 @@ test("[runner] must fail if no test has been run", async () => {
   });
   assertEquals(exitCode, 1);
 });
+
+test("[runner] threads run ready blocks in parallel", async () => {
+  let inFlight = 0;
+  let maxInFlight = 0;
+
+  vi.stubGlobal("fetch", vi.fn(async (request: RequestInfo | URL) => {
+    const url = typeof request === "string"
+      ? request
+      : request instanceof URL
+      ? request.toString()
+      : request.url;
+
+    inFlight++;
+    maxInFlight = Math.max(maxInFlight, inFlight);
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    inFlight--;
+
+    const body = url.endsWith("/one") ? "one" : "two";
+    return new Response(body, {
+      status: 200,
+      statusText: "",
+      headers: {
+        "content-type": "text/plain",
+      },
+    });
+  }));
+
+  try {
+    const { exitCode, files } = await runner([
+      process.cwd() + "/http/threads.http",
+    ], {
+      display: "none",
+      threads: 2,
+    });
+
+    assertEquals(exitCode, 0);
+    assertEquals(maxInFlight, 2);
+    assertEquals(await files[0].blocks[1].actualResponse?.getBody(), "one");
+    assertEquals(await files[0].blocks[2].actualResponse?.getBody(), "two");
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});

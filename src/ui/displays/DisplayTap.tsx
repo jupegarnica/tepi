@@ -10,17 +10,69 @@ type TapFormatState = {
   phase: string;
 };
 
-export function formatTapOutput(state: TapFormatState): string[] {
-  const testBlocks = state.blockOrder
-    .map((id) => state.blocks[id])
+type TapStreamItem =
+  | { key: string; type: "header" }
+  | { key: string; type: "test"; block: BlockState; num: number }
+  | { key: string; type: "plan"; total: number };
+
+function getTapTestBlocks(
+  blockOrder: string[],
+  blocks: Record<string, BlockState>,
+): BlockState[] {
+  return blockOrder
+    .map((id) => blocks[id])
     .filter((b): b is BlockState => !!b && !b.isFirstBlock);
+}
+
+function getTapDoneBlocks(testBlocks: BlockState[]): BlockState[] {
+  const testNumberMap = new Map(testBlocks.map((b, i) => [b.id, i + 1]));
+
+  return testBlocks
+    .filter((b) => b.status !== "pending" && b.status !== "running")
+    .sort((left, right) => {
+      const leftCompletedAt = left.completedAt ?? Number.MAX_SAFE_INTEGER;
+      const rightCompletedAt = right.completedAt ?? Number.MAX_SAFE_INTEGER;
+
+      if (leftCompletedAt !== rightCompletedAt) {
+        return leftCompletedAt - rightCompletedAt;
+      }
+
+      return (testNumberMap.get(left.id) ?? 0) - (testNumberMap.get(right.id) ?? 0);
+    });
+}
+
+function getTapStreamItems(
+  testBlocks: BlockState[],
+  phase: string,
+): TapStreamItem[] {
+  const testNumberMap = new Map(testBlocks.map((b, i) => [b.id, i + 1]));
+  const items: TapStreamItem[] = [{ key: "header", type: "header" }];
+
+  for (const block of getTapDoneBlocks(testBlocks)) {
+    items.push({
+      key: `test:${block.id}`,
+      type: "test",
+      block,
+      num: testNumberMap.get(block.id) ?? 0,
+    });
+  }
+
+  if (phase === "done") {
+    items.push({ key: "plan", type: "plan", total: testBlocks.length });
+  }
+
+  return items;
+}
+
+export function formatTapOutput(state: TapFormatState): string[] {
+  const testBlocks = getTapTestBlocks(state.blockOrder, state.blocks);
+  const doneBlocks = getTapDoneBlocks(testBlocks);
+  const testNumberMap = new Map(testBlocks.map((b, i) => [b.id, i + 1]));
 
   const output: string[] = ["TAP version 14"];
 
-  for (let i = 0; i < testBlocks.length; i++) {
-    const b = testBlocks[i];
-    if (b.status === "pending" || b.status === "running") continue;
-    const num = i + 1;
+  for (const b of doneBlocks) {
+    const num = testNumberMap.get(b.id) ?? 0;
     const skip = b.status === "ignored" || b.status === "empty";
     const ok = b.status !== "failed";
     const directive = skip ? " # SKIP" : "";
@@ -79,32 +131,30 @@ export function DisplayTap(props: CommonDisplayProps) {
 
   const blockOrder = fileOrder.flatMap((id) => files[id]?.blockIds ?? []);
 
-  const testBlocks = blockOrder
-    .map((id) => blocks[id])
-    .filter((b): b is BlockState => !!b && !b.isFirstBlock);
-
-  const testNumberMap = new Map(testBlocks.map((b, i) => [b.id, i + 1]));
-
-  const doneBlocks = testBlocks.filter(
-    (b) => b.status !== "pending" && b.status !== "running"
-  );
+  const testBlocks = getTapTestBlocks(blockOrder, blocks);
+  const streamItems = getTapStreamItems(testBlocks, phase);
 
   return (
     <Box flexDirection="column">
-      <Text>TAP version 14</Text>
-      <Static items={doneBlocks}>
-        {(block) => {
-          const num = testNumberMap.get(block.id) ?? 0;
+      <Static items={streamItems}>
+        {(item) => {
+          if (item.type === "header") {
+            return <Text key={item.key}>TAP version 14</Text>;
+          }
+
+          if (item.type === "plan") {
+            return (
+              <Text key={item.key} bold color={colors ? "green" : undefined}>
+                {`1..${item.total}`}
+              </Text>
+            );
+          }
+
           return (
-            <TapTestLine key={block.id} block={block} num={num} />
+            <TapTestLine key={item.key} block={item.block} num={item.num} />
           );
         }}
       </Static>
-      {phase === "done" && (
-        <Text bold color={colors ? "green" : undefined}>
-          {`1..${testBlocks.length}`}
-        </Text>
-      )}
     </Box>
   );
 }

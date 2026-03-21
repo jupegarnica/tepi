@@ -89,6 +89,40 @@ test("[e2e] display dots prints failure details", async () => {
   assertStringIncludes(out, "Tests");
 });
 
+test("[e2e] threads defaults to 1 when omitted", async () => {
+  const withoutThreads = await run(
+    tepi + "--display none http/pass.http"
+  );
+  const withThreads = await run(
+    tepi + "--display none --threads=1 http/pass.http"
+  );
+
+  assertEquals(withoutThreads.code, 0);
+  assertEquals(withThreads.code, 0);
+  assertEquals(withoutThreads.code, withThreads.code);
+  assertEquals(withoutThreads.success, withThreads.success);
+});
+
+test("[e2e] threads accepts values greater than 1", async () => {
+  const { code, err, success } = await run(
+    tepi + "--display none --threads=2 http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(success, true);
+  assertEquals(err, "");
+});
+
+test("[e2e] threads rejects invalid values", async () => {
+  const { code, err, success } = await run(
+    tepi + "--display none --threads=0 http/pass.http"
+  );
+
+  assertEquals(code, 1);
+  assertEquals(success, false);
+  assertStringIncludes(err, "Invalid threads value: 0");
+});
+
 test("[e2e] run help", async () => {
   const { code, err, out, success } = await run(tepi + "--help");
   assertEquals(err, "");

@@ -18,6 +18,15 @@ import chokidar from "chokidar";
 
 const execFile = promisify(_execFile);
 
+function parseThreads(rawValue: unknown): number {
+  const value = rawValue ?? "1";
+  const threads = Number(value);
+  if (!Number.isInteger(threads) || threads < 1) {
+    throw new Error(`Invalid threads value: ${value}. Must be an integer greater than or equal to 1.`);
+  }
+  return threads;
+}
+
 function exit(code: number) {
   !process.env.TEPI_NOT_EXIT && process.exit(code);
 }
@@ -45,6 +54,7 @@ export async function cli() {
     default: {
       display: "default",
       help: false,
+      threads: "1",
     },
     collect: ["watch", "envFile", "watch-no-clear"],
     boolean: [
@@ -55,7 +65,7 @@ export async function cli() {
       "noAnimation",
       "readme",
     ],
-    string: ["display", "envFile"],
+    string: ["display", "envFile", "threads"],
 
     alias: {
       h: "help",
@@ -73,6 +83,15 @@ export async function cli() {
     },
   };
   const args: Args = parseArgs(process.argv.slice(2), options);
+
+  let threads = 1;
+  try {
+    threads = parseThreads(args.threads);
+  } catch (error) {
+    console.error(fmt.brightRed((error as Error).message));
+    exit(1);
+    return;
+  }
 
   store.getState().setDisplayMode(args.display as string || "default");
 
@@ -125,6 +144,7 @@ export async function cli() {
   const defaultMeta: Meta = {
     timeout: 0,
     display: args.display as string,
+    threads,
   };
   if (getDisplayIndex(defaultMeta.display as string) === Infinity) {
     console.error(
