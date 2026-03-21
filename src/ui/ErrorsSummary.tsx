@@ -47,7 +47,7 @@ export function ErrorsSummary({ blocks, style }: Props) {
             const finalMsg = messagePadded.replace(/.+=>/, fmt.red("$&"));
             message = `${separator}${fmt.red("✘")}  ${finalMsg} ${messagePath}`;
           } else {
-            const detail = formatFailureDetailsText(block, { indent: "   " });
+            const detail = formatFailureDetailsText(block, { indent: "\t   " });
             message = `${separator}${fmt.red("✘")} ${fmt.red(block.description + " => ")}\n${detail}`;
           }
         } else {

@@ -315,7 +315,7 @@ export function DisplayDefault(props: CommonDisplayProps) {
           return (
             <Box key={id} flexDirection="column">
               <FileLine file={file} blocks={blocks} noAnimation={noAnimation} />
-              <Box flexDirection="column" marginLeft={2}>
+              <Box flexDirection="column" marginLeft={4}>
                 {file.blockIds
                   .map((bid) => blocks[bid])
                   .filter((b): b is BlockState => !!b && !b.isFirstBlock)

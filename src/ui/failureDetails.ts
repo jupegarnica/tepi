@@ -17,6 +17,8 @@ type Options = {
   sourceRadius?: number;
 };
 
+const DEFAULT_INDENT = "\t   ";
+
 function formatMessageBlock(message: string, indent: string): string[] {
   const [headline, ...rest] = message.split("\n");
   const lines = [headline?.trim() || message.trim()];
@@ -95,7 +97,7 @@ export function formatFailureDetailsText(
 ): string {
   if (!block.error) return "";
 
-  const indent = options.indent ?? "   ";
+  const indent = options.indent ?? DEFAULT_INDENT;
   const sourceRadius = options.sourceRadius ?? 2;
   const locationLine = getFailureLine(block);
   const messageLines = formatMessageBlock(block.error.message, indent);
