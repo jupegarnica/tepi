@@ -16,6 +16,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
        -  _truncate_: list results and full error summary but truncate data
        -  _full_:     display also all HTTP requests and responses and not truncate data
        -  _verbose_:  display also all metadata
+       -  _tap_:      output in TAP (Test Anything Protocol) format for machine consumption
 * `-e` `--env-file`       load environment variables from a .env file
 * `    --no-color`       output without color
 * `    --no-animation`   output without terminal animations

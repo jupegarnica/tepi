@@ -7,6 +7,7 @@ import { DisplayDefault } from "./displays/DisplayDefault.tsx";
 import { DisplayTruncate } from "./displays/DisplayTruncate.tsx";
 import { DisplayFull } from "./displays/DisplayFull.tsx";
 import { DisplayVerbose } from "./displays/DisplayVerbose.tsx";
+import { DisplayTap } from "./displays/DisplayTap.tsx";
 
 type Props = {
   store: StoreApi;
@@ -72,6 +73,8 @@ export function App({ store }: Props) {
       return <DisplayFull {...commonProps} />;
     case "verbose":
       return <DisplayVerbose {...commonProps} />;
+    case "tap":
+      return <DisplayTap {...commonProps} />;
     default:
       return <DisplayDefault {...commonProps} />;
   }
