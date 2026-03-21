@@ -215,19 +215,20 @@ async function runBlock(
     return blocksDone;
   }
   const blockId = block.blockLink || `${block.meta._relativeFilePath}:${block.meta._startLine}`;
-  const isDifferentFile = block.meta._relativeFilePath !== currentFilePath;
+  const sourceFilePath = block.meta._relativeFilePath || currentFilePath;
+  const isDifferentFile = sourceFilePath !== currentFilePath;
   store?.getState().addBlock(blockId, {
     description: block.description,
     blockLink: block.blockLink,
-    filePath: block.meta._relativeFilePath || currentFilePath,
+    filePath: sourceFilePath,
     status: "pending",
     startTime: Date.now(),
     isFirstBlock: !!block.meta._isFirstBlock,
     displayMode: block.meta.display,
-    neededFrom: isDifferentFile ? block.meta._relativeFilePath : undefined,
+    neededFrom: isDifferentFile ? currentFilePath : undefined,
     meta: serializeMeta(block.meta),
   });
-  store?.getState().addFileBlockId(currentFilePath, blockId);
+  store?.getState().addFileBlockId(sourceFilePath, blockId);
   const spinner = { start: () => {}, update: () => {}, pass: () => {}, fail: () => {}, ignore: () => {}, empty: () => {}, clear: () => {} };
 
   try {

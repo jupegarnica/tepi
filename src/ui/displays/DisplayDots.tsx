@@ -93,7 +93,7 @@ function DotsFailures({ failures }: { failures: VitestFailureEntry[] }) {
           <Text>
             {" "}
             <Text bold color={colors ? "red" : undefined}>{"FAIL "}</Text>
-            <Text dimColor>{entry.relativePath}</Text>
+            <Text dimColor>{entry.relativePath.replace(/^\.\//, "")}</Text>
             {" > "}
             <Text bold>{entry.description}</Text>
           </Text>

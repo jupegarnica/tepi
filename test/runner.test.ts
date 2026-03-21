@@ -6,6 +6,7 @@ import {
 
 import { test, vi } from "vitest";
 import { runner } from "../src/runner.ts";
+import { createStore } from "../src/ui/store.ts";
 
 const HOST = process.env.HOST || "https://faker.deno.dev";
 const HOST_HTTPBIN = process.env.HOST_HTTPBIN || "http://httpbin.org";
@@ -327,6 +328,31 @@ test("[runner] needs crossed", async () => {
   assertEquals(blockInOrder[9]?.description, "block_2");
   assertEquals(blockInOrder[10]?.description, "block_3");
   assertEquals(blockInOrder[11]?.description, undefined);
+});
+
+test("[runner] cross-file needs keep blocks in their source file store section", async () => {
+  const store = createStore();
+
+  await runner([
+    "http/needs.http",
+    "http/needs.loop.http",
+  ], {
+    display: "default",
+  }, false, store);
+
+  const state = store.getState();
+  const sourceFile = state.files["./http/needs.http"];
+  const dependentFile = state.files["./http/needs.loop.http"];
+  const crossFileBlockId = "http/needs.http:4    ";
+  const occurrences = Object.values(state.files)
+    .flatMap((file) => file.blockIds)
+    .filter((id) => id === crossFileBlockId).length;
+
+  assert(sourceFile);
+  assert(dependentFile);
+  assertEquals(sourceFile.blockIds.includes(crossFileBlockId), true);
+  assertEquals(dependentFile.blockIds.includes(crossFileBlockId), false);
+  assertEquals(occurrences, 1);
 });
 
 test(
