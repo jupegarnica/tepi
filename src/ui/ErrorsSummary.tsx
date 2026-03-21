@@ -3,6 +3,7 @@ import { Text } from "ink";
 import type { BlockState } from "./store.ts";
 import { consoleSize, printTitle } from "./formatters.ts";
 import * as fmt from "@std/fmt/colors";
+import { formatFailureDetailsText } from "./failureDetails.ts";
 
 type Props = {
   blocks: BlockState[];
@@ -46,9 +47,8 @@ export function ErrorsSummary({ blocks, style }: Props) {
             const finalMsg = messagePadded.replace(/.+=>/, fmt.red("$&"));
             message = `${separator}${fmt.red("✘")}  ${finalMsg} ${messagePath}`;
           } else {
-            message = `${separator}${fmt.red("✘")} ${fmt.red(block.description + " => ")} ${fmt.bold(
-              block.error.name
-            )}\n${fmt.white(block.error.message)} \n${messagePath}`;
+            const detail = formatFailureDetailsText(block, { indent: "   " });
+            message = `${separator}${fmt.red("✘")} ${fmt.red(block.description + " => ")}\n${detail}`;
           }
         } else {
           message = `${fmt.red(block.description + " => ")} ${fmt

@@ -5,6 +5,7 @@ import { createStore } from "../src/ui/store.ts";
 import { formatTapOutput } from "../src/ui/displays/DisplayTap.tsx";
 import { formatVitestOutput } from "../src/ui/displays/DisplayDefault.tsx";
 import type { VitestFormatState } from "../src/ui/displays/DisplayDefault.tsx";
+import { formatFailureDetailsText } from "../src/ui/failureDetails.ts";
 
 async function vitestOutput(filePaths: string[]) {
   const store = createStore();
@@ -124,7 +125,62 @@ test("[vitest] failures array contains error details for failed blocks", async (
   for (const f of result.failures) {
     assert(f.description.length > 0);
     assert(f.error.message.length > 0);
+    assert(f.failureContext !== undefined);
+    assert(f.sourceText !== undefined);
   }
+});
+
+test("[vitest] request failures retain source context and highlighted line", async () => {
+  const result = await vitestOutput(["http/failFast.http"]);
+  const failure = result.failures.find((entry) => entry.description === "invalid url");
+
+  assert(failure !== undefined, "expected invalid url failure");
+  assertEquals(failure.failureContext?.kind, "request");
+  assertEquals(failure.failureContext?.highlightLine, 24);
+  assert(failure.sourceText?.includes("POST https://invalid"));
+});
+
+test("[vitest] formatter shows location, excerpt, and comparison summary", () => {
+  const text = formatFailureDetailsText({
+    filePath: "http/example.http",
+    blockLink: "http/example.http:10",
+    error: {
+      name: "ExpectedResponseError",
+      message: [
+        "Status code mismatch",
+        "",
+        "    [Diff] Actual / Expected",
+        "",
+        "+   404",
+        "-   201",
+      ].join("\n"),
+    },
+    sourceText: [
+      "GET /pong",
+      "",
+      "HTTP/1.1 201 Created",
+      "Content-Type: application/json",
+      "",
+      '{"ok":true}',
+    ].join("\n"),
+    sourceStartLine: 8,
+    failureContext: {
+      kind: "status",
+      highlightLine: 10,
+      comparison: {
+        label: "Status",
+        expected: "201",
+        actual: "404",
+      },
+    },
+  });
+
+  assertStringIncludes(text, "http/example.http:10");
+  assertStringIncludes(text, "[Diff] Actual / Expected");
+  assert(text.indexOf("[Diff] Actual / Expected") < text.indexOf("source:"));
+  assertStringIncludes(text, "HTTP/1.1 201 Created");
+  assertStringIncludes(text, "Status expected:");
+  assertStringIncludes(text, "Status received:");
 });
 
 test("[vitest] summary counts are consistent", async () => {

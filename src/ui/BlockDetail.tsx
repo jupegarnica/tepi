@@ -10,6 +10,7 @@ import {
   truncateRows,
 } from "./formatters.ts";
 import * as fmt from "@std/fmt/colors";
+import { formatFailureDetailsText } from "./failureDetails.ts";
 
 const MAX_BODY_LINES = 40;
 
@@ -81,10 +82,7 @@ export function BlockDetail({ block, truncateBody, truncateHeaders, showErrorDet
           {"\n"}
           {block.description && fmt.brightRed(block.description)}
           {"\n"}
-          {fmt.dim("At:\n")} {fmt.cyan(`${filePath}:${startLine}`)}
-          {"\n"}
-          {fmt.dim("Message:\n")} {fmt.bold(block.error.name)}: {fmt.white(block.error.message)}
-          {block.error.cause && `\n${fmt.dim("Cause:\n")} ${fmt.dim(block.error.cause)}`}
+          {formatFailureDetailsText(block, { indent: "" })}
           {"\n"}
         </>
       )}

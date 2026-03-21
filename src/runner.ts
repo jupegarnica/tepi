@@ -11,6 +11,7 @@ import {
 import * as assertions from "@std/assert";
 import type { StoreApi } from "./ui/store.ts";
 import { serializeMeta, serializeRequest, serializeResponse } from "./ui/serialize.ts";
+import { deriveFailureContext } from "./failureContext.ts";
 
 export async function runner(
   filePaths: string[],
@@ -372,6 +373,10 @@ async function runBlock(
       elapsedTime: Date.now() - (store.getState().blocks[blockId]?.startTime ?? Date.now()),
       httpStatus: block.actualResponse?.status,
       error: { name: err.name, message: err.message, cause: err.cause ? String(err.cause) : undefined },
+      failureContext: deriveFailureContext(block, err),
+      sourceText: block.text,
+      sourceStartLine: (block.meta._startLine ?? 0) + 1,
+      sourceEndLine: (block.meta._endLine ?? 0) + 1,
     });
     addToDone(blocksDone, block);
     return blocksDone;

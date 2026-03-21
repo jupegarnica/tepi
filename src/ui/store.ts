@@ -1,4 +1,5 @@
 import { createStore as _createStore } from "zustand/vanilla";
+import type { FailureContext } from "../failureContext.ts";
 
 export type BlockStatus =
   | "pending"
@@ -35,10 +36,14 @@ export type BlockState = {
   elapsedTime: number;
   httpStatus?: number;
   error?: { name: string; message: string; cause?: string };
+  failureContext?: FailureContext;
   errorDisplayed: boolean;
   neededFrom?: string;
   displayMode?: string;
   meta: Record<string, unknown>;
+  sourceText?: string;
+  sourceStartLine?: number;
+  sourceEndLine?: number;
   request?: SerializedRequest;
   actualResponse?: SerializedResponse;
   expectedResponse?: SerializedResponse;

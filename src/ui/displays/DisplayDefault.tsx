@@ -8,6 +8,7 @@ import { MessagesPanel } from "../MessagesPanel.tsx";
 import { WatchStatus } from "../WatchStatus.tsx";
 import { BlockLine } from "../BlockLine.tsx";
 import { ms } from "../formatters.ts";
+import { formatFailureDetailsText } from "../failureDetails.ts";
 
 type FileStats = {
   passed: number;
@@ -54,7 +55,13 @@ export type VitestFileStatEntry = {
 export type VitestFailureEntry = {
   relativePath: string;
   description: string;
+  filePath: string;
+  blockLink: string;
   error: { name: string; message: string; cause?: string };
+  failureContext?: BlockState["failureContext"];
+  sourceText?: string;
+  sourceStartLine?: number;
+  sourceEndLine?: number;
 };
 
 export type VitestFormatResult = {
@@ -88,7 +95,17 @@ export function formatVitestOutput(state: VitestFormatState): VitestFormatResult
     for (const id of f.blockIds) {
       const b = state.blocks[id];
       if (!b || b.isFirstBlock || b.status !== "failed" || !b.error) continue;
-      failures.push({ relativePath: f.relativePath, description: b.description, error: b.error });
+      failures.push({
+        relativePath: f.relativePath,
+        description: b.description,
+        filePath: b.filePath,
+        blockLink: b.blockLink,
+        error: b.error,
+        failureContext: b.failureContext,
+        sourceText: b.sourceText,
+        sourceStartLine: b.sourceStartLine,
+        sourceEndLine: b.sourceEndLine,
+      });
     }
   }
 
@@ -182,7 +199,17 @@ function VitestFailures({
     for (const bid of file.blockIds) {
       const b = blocks[bid];
       if (!b || b.isFirstBlock || b.status !== "failed" || !b.error) continue;
-      entries.push({ relativePath: file.relativePath, description: b.description, error: b.error });
+      entries.push({
+        relativePath: file.relativePath,
+        description: b.description,
+        filePath: b.filePath,
+        blockLink: b.blockLink,
+        error: b.error,
+        failureContext: b.failureContext,
+        sourceText: b.sourceText,
+        sourceStartLine: b.sourceStartLine,
+        sourceEndLine: b.sourceEndLine,
+      });
     }
   }
 
@@ -199,15 +226,7 @@ function VitestFailures({
             {" > "}
             <Text bold>{entry.description}</Text>
           </Text>
-          <Text>
-            {"   "}
-            <Text color={colors ? "red" : undefined}>{entry.error.name}</Text>
-            {": "}
-            {entry.error.message}
-          </Text>
-          {entry.error.cause && (
-            <Text dimColor>{`   cause: ${entry.error.cause}`}</Text>
-          )}
+          <Text>{formatFailureDetailsText(entry)}</Text>
         </Box>
       ))}
     </Box>

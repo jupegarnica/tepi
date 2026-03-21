@@ -19,5 +19,8 @@
     "titleBar.inactiveBackground": "#875dec99",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#875dec"
+  "peacock.color": "#875dec",
+  "chat.tools.terminal.autoApprove": {
+    "npx vitest": true
+  }
 }
