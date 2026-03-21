@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-import { register } from "node:module";
-import { pathToFileURL } from "node:url";
-register("tsx/esm", pathToFileURL("./"));
-await import("../src/cli.ts");
+#!/usr/bin/env -S node --import tsx/esm
+import { cli } from "../src/cli.ts";
+await cli();

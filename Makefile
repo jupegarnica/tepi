@@ -1,4 +1,4 @@
-.PHONY: test-debug test-docker local compile install-x udd dnt version version-get readme readme-copy release publish-image vhs
+.PHONY: test-debug test-docker local compile install-x udd dnt version version-get readme readme-copy release publish-image vhs publish publish-npm publish-jsr publish-deno
 
 test-debug:
 	NO_LOG=1 npx vitest run -t 'code 0'
@@ -12,8 +12,8 @@ local:
 compile:
 	deno compile --output=dist/tepi -A src/cli.ts
 
-install-x:
-	npm install -g @garn/tepi
+install:
+	npm install -g @garndev/tepi
 
 udd:
 	npx npm-check-updates -u && npm test
@@ -25,7 +25,7 @@ version:
 	deno run --allow-all jsr:@krlwlfrt/version
 
 version-get:
-	@$(MAKE) --silent version | jq '.["@garn/tepi"]' | sed 's/"//g'
+	@$(MAKE) --silent version | jq '.["@garndev/tepi"]' | sed 's/"//g'
 
 readme:
 	cat docs/started.md > README.md
@@ -55,3 +55,17 @@ publish-image:
 
 vhs:
 	cd vhs && vhs < demo.tape && git add ./demo.gif && git commit -m vhs
+
+publish-npm:
+	npm publish --access public
+
+publish-jsr:
+	npx jsr publish
+
+publish-deno:
+	@VERSION=$$(node -p "require('./package.json').version"); \
+	echo "Tagging v$$VERSION for deno.land/x..."; \
+	git tag v$$VERSION 2>/dev/null || echo "Tag v$$VERSION already exists"; \
+	git push origin v$$VERSION
+
+publish: publish-npm publish-jsr publish-deno
