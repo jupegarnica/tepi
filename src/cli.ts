@@ -1,9 +1,9 @@
-import { type Args, parseArgs } from "jsr:@std/cli@0.224.2";
+import { type Args, parseArgs } from "@std/cli";
 import type { Meta } from "./types.ts";
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
-import { relative } from "jsr:@std/path@0.225.1";
+import * as fmt from "@std/fmt/colors";
+import { relative } from "@std/path";
 import { globsToFilePaths } from "./files.ts";
-import { load } from "jsr:@std/dotenv@0.224.0";
+import { load } from "@std/dotenv";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./ui/formatters.ts";
 import { help, readme } from "./help.ts";
@@ -11,21 +11,29 @@ import { render } from "ink";
 import React from "react";
 import { createStore } from "./ui/store.ts";
 import { App } from "./ui/App.tsx";
+import { fileURLToPath } from "node:url";
+import { execFile as _execFile } from "node:child_process";
+import { promisify } from "node:util";
+import chokidar from "chokidar";
 
-const mustExit = !Deno.env.get("TEPI_NOT_EXIT");
+const execFile = promisify(_execFile);
+
 function exit(code: number) {
-  mustExit && Deno.exit(code);
+  !process.env.TEPI_NOT_EXIT && process.exit(code);
 }
 
 let _activeStore: ReturnType<typeof createStore> | undefined;
 
-Deno.addSignalListener("SIGINT", () => {
+process.on("SIGINT", () => {
   _activeStore?.getState().addMessage("error", fmt.yellow("\nForcefully exiting with code 143 (SIGINT)"));
   console.info(fmt.yellow("\nForcefully exiting with code 143 (SIGINT)"));
   exit(143);
 });
 
-if (import.meta.main) {
+const isMain = import.meta.url.startsWith("file:")
+  ? process.argv[1] === fileURLToPath(import.meta.url)
+  : (import.meta as { main?: boolean }).main ?? false;
+if (isMain) {
   await cli();
 }
 
@@ -64,7 +72,7 @@ export async function cli() {
       failFast: "fail-fast",
     },
   };
-  const args: Args = parseArgs(Deno.args, options);
+  const args: Args = parseArgs(process.argv.slice(2), options);
 
   store.getState().setDisplayMode(args.display as string || "default");
 
@@ -77,14 +85,12 @@ export async function cli() {
   // --upgrade
   /////////////
   if (args.upgrade) {
-    const { code } = await new Deno.Command(Deno.execPath(), {
-      args: "install --unstable -A --reload -f -n tepi https://tepi.deno.dev/src/cli.ts?upgrade=true".split(
-        " "
-      ),
-      stdout: "inherit",
-      stderr: "inherit",
-    }).output();
-    exit(code);
+    try {
+      await execFile("npm", ["install", "-g", "@garn/tepi"], { stdio: "inherit" } as any);
+    } catch (e) {
+      console.error((e as Error).message);
+    }
+    exit(0);
   }
 
   // --version
@@ -208,8 +214,8 @@ export async function cli() {
       watch.filter((i: boolean | string) => typeof i === "string")
     );
     const noClear = !!args["watch-no-clear"];
-    const relativeRunPaths = filePathsToRun.map((p) => relative(Deno.cwd(), p));
-    const relativeTriggerPaths = filePathsToJustWatch.map((p) => relative(Deno.cwd(), p));
+    const relativeRunPaths = filePathsToRun.map((p) => relative(process.cwd(), p));
+    const relativeTriggerPaths = filePathsToJustWatch.map((p) => relative(process.cwd(), p));
     store.getState().setWatchMode(relativeRunPaths, relativeTriggerPaths);
     watchAndRun(
       filePathsToRun,
@@ -236,33 +242,34 @@ async function watchAndRun(
   defaultMeta: Meta,
   noClear: boolean,
   store: ReturnType<typeof createStore>,
-  inkInstance: ReturnType<typeof render> | undefined
+  _inkInstance: ReturnType<typeof render> | undefined
 ) {
   const allFilePaths = filePaths.concat(filePathsToJustWatch);
-  const watcher = Deno.watchFs(allFilePaths);
+  const watcher = chokidar.watch(allFilePaths, { ignoreInitial: true });
 
-  for await (const event of watcher) {
-    if (event.kind === "access" || event.kind === "modify") {
+  return new Promise<void>((_resolve, reject) => {
+    watcher.on("error", reject);
+    watcher.on("change", (changedPath: string) => {
       if (!noClear) {
         console.clear();
       }
       // Reset store state for re-run (preserves watch config)
       store.getState().reset();
 
-      if (event.paths.some((path) => filePathsToJustWatch.includes(path))) {
+      if (filePathsToJustWatch.includes(changedPath)) {
         debounceRunner(filePaths, defaultMeta, false, store);
       } else {
-        debounceRunner(event.paths, defaultMeta, false, store);
+        debounceRunner([changedPath], defaultMeta, false, store);
       }
-    }
-  }
+    });
+  });
 }
 const debounceRunner = debounce(runner, 100) as typeof runner;
 
 function debounce(func: Function, wait: number) {
-  let timeout: number | null;
+  let timeout: ReturnType<typeof setTimeout> | null;
   return function (...args: any) {
-    clearTimeout(timeout as number);
+    clearTimeout(timeout as ReturnType<typeof setTimeout>);
     timeout = setTimeout(() => func(...args), wait);
   };
 }

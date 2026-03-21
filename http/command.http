@@ -1,5 +1,5 @@
 ---
-host: <%= Deno.env.get('HOST') || 'https://faker.deno.dev' %>
+host: <%= process.env['HOST'] || 'https://faker.deno.dev' %>
 
 ---
 

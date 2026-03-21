@@ -73,7 +73,8 @@ export function fileTextToBlocks(
   return blocks;
 }
 
-import { expandGlob } from "jsr:@std/fs@0.224.0/expand-glob";
+import fg from "fast-glob";
+import { readFile } from "node:fs/promises";
 
 export const checkGlobHasLineSpec = (glob: string) =>
   new RegExp(":[0-9]+").test(glob);
@@ -87,10 +88,9 @@ export async function globsToFilePaths(globs: string[]): Promise<string[]> {
       [glob, lineSpec] = glob.split(":");
       lineSpec = ":" + lineSpec;
     }
-    for await (const fileFound of expandGlob(glob)) {
-      if (fileFound.isFile) {
-        filePaths.push(fileFound.path + lineSpec);
-      }
+    const found = await fg(glob, { absolute: true, onlyFiles: true });
+    for (const path of found) {
+      filePaths.push(path + lineSpec);
     }
   }
 
@@ -107,7 +107,7 @@ export async function filePathsToFiles(filePaths: string[]): Promise<File[]> {
       [_filePath, lineSpec] = _filePath.split(":");
     }
     try {
-      fileContent = await Deno.readTextFile(_filePath);
+      fileContent = await readFile(_filePath, "utf-8");
     } catch {
       // console.error(error.message);
       throw new Error("File not found: " + _filePath);

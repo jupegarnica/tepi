@@ -12,7 +12,7 @@ import {
   responseToText,
   truncateRows,
 } from "./formatters.ts";
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
+import * as fmt from "@std/fmt/colors";
 
 const MAX_BODY_LINES = 40;
 

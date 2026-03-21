@@ -1,19 +1,23 @@
 import {
   assertEquals,
   assertRejects,
-} from "jsr:@std/assert@0.225.2";
+} from "@std/assert";
 import { consumeBodies, fetchBlock } from "../src/fetchBlock.ts";
-import { stub } from "jsr:@std/testing@0.224.0/mock";
+import { test, vi, beforeAll } from "vitest";
 import { parseBlockText } from "../src/parser.ts";
 import { Block } from "../src/types.ts";
-Deno.env.get("NO_LOG") && stub(console, "info");
 
-const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
-const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
+beforeAll(() => {
+  if (process.env.NO_LOG) {
+    vi.spyOn(console, "info").mockImplementation(() => {});
+  }
+});
 
-Deno.test(
+const HOST = process.env.HOST || "https://faker.deno.dev";
+const HOST_HTTPBIN = process.env.HOST_HTTPBIN || "http://httpbin.org";
+
+test(
   "[fetchBlock] with expectedResponse and actualResponse",
-  // { only: true },
   async () => {
     const block = new Block({
       meta: {},
@@ -31,9 +35,8 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[fetchBlock] with expectedResponse and actualResponse",
-  // { only: true },
   async () => {
     const block = new Block({
       meta: {},
@@ -52,9 +55,8 @@ HTTP/1.1 400 Forbidden
   },
 );
 
-Deno.test(
+test(
   "[fetchBlock] with expectedResponse and actualResponse",
-  // { only: true },
   async () => {
     const block = new Block({
       meta: {},
@@ -73,7 +75,7 @@ HTTP/1.1 400 Forbidden
   },
 );
 
-Deno.test("[fetchBlock] with expectedResponse plain test body", async () => {
+test("[fetchBlock] with expectedResponse plain test body", async () => {
   const block = new Block({
     meta: {},
     text: `
@@ -95,9 +97,8 @@ Deno.test("[fetchBlock] with expectedResponse plain test body", async () => {
   assertEquals(expectedResponse?.status, 200);
 });
 
-Deno.test(
-  "[fetchBlock] with expectedResponse json body", // { only: true },
-  // { ignore: true },
+test(
+  "[fetchBlock] with expectedResponse json body",
   async () => {
     const block = new Block({
       meta: {},
@@ -119,60 +120,14 @@ Deno.test(
     await consumeBodies(block);
     assertEquals(block.expectedResponse?.bodyRaw, '{"foo":"bar"}');
     assertEquals(block.expectedResponse?.status, 200);
-    // assertEquals(block.expectedResponse, block.actualResponse);
   },
 );
 
-Deno.test(
-  "[fetchBlock] run block with request must throw error", // { only: true },
-  // { ignore: true },
+test(
+  "[fetchBlock] run block with request must throw error",
   async () => {
     await assertRejects(async () => {
       await fetchBlock(new Block({ text: "" }));
     });
   },
 );
-
-// TODO rethink this
-
-// Deno.test("[fetchBlock] with response json body contains",
-//     // { only: true },
-//     { ignore: true },
-//     async () => {
-//         const response = await fetchBlock(
-//             `
-// POST ${HOST}/pong?quiet=true
-// Content-Type: application/json
-
-// { "foo":"bar" ,  "bar": "foo" }
-
-// HTTP/1.1 200 OK
-// Content-Type: application/json
-
-// {"foo":"bar"}
-
-// `);
-//         assertEquals(response?.status, 200);
-
-//     })
-
-// Deno.test("[fetchBlock] with response json body contains throws",
-//     // { only: true },
-//     async () => {
-//         await assertRejects(async () => {
-//             await fetchBlock(
-//                 `
-// POST ${HOST}/pong?quiet=true
-// Content-Type: application/json
-
-// { "foo":"bar" ,  "bar": "foo" }
-
-// HTTP/1.1 200 OK
-// Content-Type: application/json
-
-// {"foo":"bar", "b": "f"}
-
-//     `);
-//         });
-
-//     })

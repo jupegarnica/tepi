@@ -2,24 +2,21 @@ import {
   assert,
   assertEquals,
   assertStringIncludes,
-} from "jsr:@std/assert@0.225.2";
+} from "@std/assert";
 
-import { stub } from "jsr:@std/testing@0.224.0/mock";
+import { test, vi } from "vitest";
 import { runner } from "../src/runner.ts";
 
-const HOST = Deno.env.get("HOST") || "https://faker.deno.dev";
-const HOST_HTTPBIN = Deno.env.get("HOST_HTTPBIN") || "http://httpbin.org";
+const HOST = process.env.HOST || "https://faker.deno.dev";
+const HOST_HTTPBIN = process.env.HOST_HTTPBIN || "http://httpbin.org";
 
-// console.debug(`HOST: ${HOST}`);
-// console.debug(`HOST_HTTPBIN: ${HOST_HTTPBIN}`);
-
-Deno.test("[runner] find one file", async () => {
+test("[runner] find one file", async () => {
   const { files } = await runner(["http/test1.http"], { display: "none" });
   assertEquals(files.length, 1);
   assertEquals(files[0].blocks.length, 6);
 });
 
-Deno.test(
+test(
   "[runner] must have found request, expected response, meta and actualResponse",
   async () => {
     const { files } = await runner(["http/test2.http"], {
@@ -36,7 +33,7 @@ Deno.test(
   },
 );
 
-Deno.test("[runner] interpolation", async () => {
+test("[runner] interpolation", async () => {
   const { files } = await runner(["http/interpolate.http"], {
     display: "none",
   });
@@ -82,7 +79,7 @@ Deno.test("[runner] interpolation", async () => {
   assertEquals(await eighthBlock.request?.getBody(), "1");
 });
 
-Deno.test("[runner] asserts ", async () => {
+test("[runner] asserts ", async () => {
   const { files } = await runner(["http/assert.http"], {
     display: "none",
   });
@@ -104,7 +101,7 @@ Deno.test("[runner] asserts ", async () => {
   );
 });
 
-Deno.test("[runner] host meta data", async () => {
+test("[runner] host meta data", async () => {
   const { files } = await runner(["http/host.http"], { display: "none" });
 
   const firstBlock = files[0].blocks[0];
@@ -129,7 +126,7 @@ Deno.test("[runner] host meta data", async () => {
   assertEquals(sixthBlock.request?.url, HOST_HTTPBIN + "/post", "sixthBlock");
 });
 
-Deno.test("[runner] timeout", async () => {
+test("[runner] timeout", async () => {
   const { files } = await runner(["http/timeout.http"], {
     display: "none",
     timeout: 100,
@@ -148,9 +145,8 @@ Deno.test("[runner] timeout", async () => {
   assertEquals(thirdBlock.error?.message, "Timeout of 100ms exceeded");
 });
 
-Deno.test(
+test.skip(
   "[runner] redirect ",
-  { ignore: true },
   async () => {
     const { files } = await runner(["http/redirect.http"], {
       display: "none",
@@ -187,10 +183,10 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] only mode",
   async () => {
-    Deno.env.set("TEST_ONLY", "true");
+    process.env.TEST_ONLY = "true";
     const { files, exitCode, onlyMode } = await runner(["http/only.http"], {
       display: "none",
     });
@@ -206,10 +202,10 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] only mode do not ignore needed blocks",
   async () => {
-    Deno.env.set("TEST_ONLY", "true");
+    process.env.TEST_ONLY = "true";
     const { blocksDone } = await runner(["http/needs.only.http"], {
       display: "none",
     });
@@ -226,16 +222,15 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] only mode do not fail parse request if the block is ignored",
   async () => {
-    Deno.env.set("TEST_ONLY", "true");
+    process.env.TEST_ONLY = "true";
     const { exitCode, blocksDone } = await runner(["http/only.http"], {
       display: "none",
     });
     assertEquals(blocksDone.size, 4);
     const blocks = Array.from(blocksDone);
-    // console.log(blocks.map((b) => b.description));
 
     assertEquals(blocks[3].meta.ignore, true);
     assertEquals(blocks[3].error, undefined);
@@ -243,7 +238,7 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] global vars",
   async () => {
     const { files } = await runner(["http/globalVars.http"], {
@@ -264,7 +259,7 @@ Deno.test(
   },
 );
 
-Deno.test("[runner] needs", async () => {
+test("[runner] needs", async () => {
   const { files, blocksDone } = await runner(["http/needs.http"], {
     display: "none",
   });
@@ -285,7 +280,7 @@ Deno.test("[runner] needs", async () => {
   assertEquals(blockInOrder[5].description, "block5");
 });
 
-Deno.test("[runner] needs loop", async () => {
+test("[runner] needs loop", async () => {
   const { files, blocksDone } = await runner(["http/needs.loop.http"], {
     display: "none",
   });
@@ -303,7 +298,6 @@ Deno.test("[runner] needs loop", async () => {
   assertEquals(secondBlock.request?.headers.get("x-body-block1"), "not found");
 
   const blockInOrder = [...blocksDone];
-  // console.log(blockInOrder.map((b) => b.description));
   assertEquals(blockInOrder[0].description, "./http/needs.loop.http:0");
   assertEquals(blockInOrder[1].description, "block_1");
   assertEquals(blockInOrder[2].description, "block_2");
@@ -312,7 +306,7 @@ Deno.test("[runner] needs loop", async () => {
   assertEquals(blockInOrder[5]?.description, undefined);
 });
 
-Deno.test("[runner] needs crossed", async () => {
+test("[runner] needs crossed", async () => {
   const { blocksDone } = await runner([
     "http/needs.http",
     "http/needs.loop.http",
@@ -321,7 +315,6 @@ Deno.test("[runner] needs crossed", async () => {
   });
 
   const blockInOrder = [...blocksDone];
-  // console.log(blockInOrder.map((b) => b.description));
   assertEquals(blockInOrder[0].description, "./http/needs.http:0");
   assertEquals(blockInOrder[1].description, "block3");
   assertEquals(blockInOrder[2].description, "block2");
@@ -336,11 +329,11 @@ Deno.test("[runner] needs crossed", async () => {
   assertEquals(blockInOrder[11]?.description, undefined);
 });
 
-Deno.test(
+test(
   "[runner] meta.import must import",
   async () => {
     const { files, exitCode } = await runner([
-      Deno.cwd() + "/http/import.http",
+      process.cwd() + "/http/import.http",
     ], {
       display: "none",
     });
@@ -350,12 +343,12 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] meta.import must run imported files before actual file without using needs",
   async () => {
     const { files, exitCode } = await runner([
-      Deno.cwd() + "/http/import.http",
-      Deno.cwd() + "/http/pass.http",
+      process.cwd() + "/http/import.http",
+      process.cwd() + "/http/pass.http",
     ], {
       display: "none",
     });
@@ -365,25 +358,25 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] meta.import must handle infinite loop",
   async () => {
-    const error = stub(console, "error");
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
     const { exitCode } = await runner([
-      Deno.cwd() + "/http/import1.http",
+      process.cwd() + "/http/import1.http",
     ], {
       display: "none",
     });
-    error.restore();
+    error.mockRestore();
     assertEquals(exitCode, 1);
   },
 );
 
-Deno.test(
+test(
   "[runner] timeout",
   async () => {
     const { exitCode } = await runner([
-      Deno.cwd() + "/http/timeout.http",
+      process.cwd() + "/http/timeout.http",
     ], {
       display: "none",
     });
@@ -391,11 +384,11 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] parser",
   async () => {
     const { blocksDone } = await runner([
-      Deno.cwd() + "/http/parseConditional.http",
+      process.cwd() + "/http/parseConditional.http",
     ], {
       display: "none",
     });
@@ -422,11 +415,11 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] run a line than needs another block",
   async () => {
     const { exitCode, blocksDone } = await runner([
-      Deno.cwd() + "/http/line.http:6",
+      process.cwd() + "/http/line.http:6",
     ], {
       display: "none",
     });
@@ -447,11 +440,11 @@ Deno.test(
   },
 );
 
-Deno.test(
+test(
   "[runner] run a line than does not need another block",
   async () => {
     const { exitCode, blocksDone } = await runner([
-      Deno.cwd() + "/http/line.http:30",
+      process.cwd() + "/http/line.http:30",
     ], {
       display: "none",
     });
@@ -473,12 +466,11 @@ Deno.test(
   },
 );
 
-Deno.test("[runner] must fail if no test has been run", async () => {
+test("[runner] must fail if no test has been run", async () => {
   const { exitCode } = await runner([
-    Deno.cwd() + "/http/noTests.http",
+    process.cwd() + "/http/noTests.http",
   ], {
     display: "none",
   });
   assertEquals(exitCode, 1);
-  // console.log([...blocksDone].map((b) => b.meta._isFetchedBlock));
 });

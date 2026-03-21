@@ -1,11 +1,12 @@
-import { extension } from "jsr:@std/media-types@0.224.1/extension";
+import { extension } from "@std/media-types/extension";
+import { inspect } from "node:util";
 
 let supportsLang = (_: string) => true;
 let hl = (code: string, { language: _ }: { language: string }) => code;
 
 try {
   const { highlight, supportsLanguage } = await import(
-    "cli-highlight@2.1.11"
+    "cli-highlight"
   );
   hl = highlight;
   supportsLang = supportsLanguage;
@@ -15,7 +16,7 @@ try {
 
 export function highlight(txt: string, language: string): string {
   if (language === "json") {
-    return Deno.inspect(JSON.parse(txt), { colors: !Deno.noColor, strAbbreviateSize: 2_000, depth: 10  });
+    return inspect(JSON.parse(txt), { colors: !process.env.NO_COLOR, breakLength: 2_000, depth: 10 });
   }
   if (supportsLang(language)) return hl(txt, { language });
   return txt;

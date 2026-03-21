@@ -1,6 +1,6 @@
 import React from "react";
 import { Text } from "ink";
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
+import * as fmt from "@std/fmt/colors";
 
 type Props = {
   watchPaths: string[];

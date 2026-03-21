@@ -1,5 +1,5 @@
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
-import { format } from "jsr:@wilcosp/ms-relative@0.1.4";
+import * as fmt from "@std/fmt/colors";
+import { format } from "@wilcosp/ms-relative";
 import type {
   SerializedHeaders,
   SerializedRequest,
@@ -38,7 +38,8 @@ export function ms(milliseconds: number): string {
 
 export function consoleSize(): { rows: number; columns: number } {
   try {
-    const { columns, rows } = Deno.consoleSize();
+    const columns = process.stdout.columns || 150;
+    const rows = process.stdout.rows || 150;
     return { columns, rows };
   } catch {
     return { columns: 150, rows: 150 };

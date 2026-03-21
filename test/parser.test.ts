@@ -1,15 +1,19 @@
 import {
   assertEquals,
   assertRejects,
-} from "jsr:@std/assert@0.225.2";
+} from "@std/assert";
 import { parseBlockText } from "../src/parser.ts";
-import { stub } from "jsr:@std/testing@0.224.0/mock";
+import { test, vi, beforeAll } from "vitest";
 import { Block } from "../src/types.ts";
 
-Deno.env.get("NO_LOG") && stub(console, "info");
+beforeAll(() => {
+  if (process.env.NO_LOG) {
+    vi.spyOn(console, "info").mockImplementation(() => {});
+  }
+});
 
 // const http = String.raw
-Deno.test("[parseBlockText request]", async () => {
+test("[parseBlockText request]", async () => {
   const block = {
     meta: {},
     text: `
@@ -21,7 +25,7 @@ GET http://faker.deno.dev
   assertEquals(request?.url, "http://faker.deno.dev/");
 });
 
-Deno.test("[parseBlockText request] with headers", async () => {
+test("[parseBlockText request] with headers", async () => {
   const block = {
     meta: {},
     text: `POST http://faker.deno.dev HTTP/1.1
@@ -36,7 +40,7 @@ Deno.test("[parseBlockText request] with headers", async () => {
   assertEquals(request?.headers.get("x-foo"), null);
 });
 
-Deno.test("[parseBlockText request] with headers not body", async () => {
+test("[parseBlockText request] with headers not body", async () => {
   const block = {
     meta: {},
     text: `GET http://faker.deno.dev HTTP/1.1
@@ -47,7 +51,7 @@ Deno.test("[parseBlockText request] with headers not body", async () => {
   assertEquals(request?.headers.get("host"), "http://faker.deno.dev");
 });
 
-Deno.test("[parseBlockText request] with headers and comments", async () => {
+test("[parseBlockText request] with headers and comments", async () => {
   const block = {
     meta: {},
     text: `POST http://faker.deno.dev HTTP/1.1
@@ -63,7 +67,7 @@ x-foo: bar`,
   assertEquals(request?.headers.get("x-foo"), null);
 });
 
-Deno.test("[parseBlockText request] without protocol", async () => {
+test("[parseBlockText request] without protocol", async () => {
   const block = {
     meta: {},
     text: `GET faker.deno.dev`,
@@ -73,7 +77,7 @@ Deno.test("[parseBlockText request] without protocol", async () => {
   assertEquals(request?.url, "http://faker.deno.dev/");
 });
 
-Deno.test("[parseBlockText request] with body", async () => {
+test("[parseBlockText request] with body", async () => {
   const block = {
     meta: {},
     text: `POST faker.deno.dev
@@ -86,7 +90,7 @@ Deno.test("[parseBlockText request] with body", async () => {
   assertEquals(body, "hola mundo");
 });
 
-Deno.test("[parseBlockText request] with body no headers", async () => {
+test("[parseBlockText request] with body no headers", async () => {
   const block = {
     meta: {},
     text: `POST faker.deno.dev
@@ -102,7 +106,7 @@ Deno.test("[parseBlockText request] with body no headers", async () => {
   assertEquals(body, "hola mundo");
 });
 
-Deno.test("[parseBlockText request] with body raw", async () => {
+test("[parseBlockText request] with body raw", async () => {
   const block = {
     meta: {},
     text: `POST faker.deno.dev
@@ -114,8 +118,8 @@ Deno.test("[parseBlockText request] with body raw", async () => {
   assertEquals(body, "hola mundo");
 });
 
-Deno.test(
-  "[parseBlockText request] with comments and body", //
+test(
+  "[parseBlockText request] with comments and body",
   async () => {
     const block = {
       meta: {},
@@ -140,9 +144,8 @@ HTTP/1.1 200 OK
   },
 );
 
-Deno.test(
+test(
   "[parseBlockText request] with comments and body and final separator",
-  //
   async () => {
     const block = {
       meta: {},
@@ -167,8 +170,8 @@ hola
   },
 );
 
-Deno.test(
-  "[parseBlockText expectedResponse] with status", //
+test(
+  "[parseBlockText expectedResponse] with status",
   async () => {
     const block = {
       meta: {},
@@ -190,8 +193,8 @@ Deno.test(
   },
 );
 
-Deno.test(
-  "[parseBlockText expectedResponse] with headers", //
+test(
+  "[parseBlockText expectedResponse] with headers",
   async () => {
     const block = {
       meta: {},
@@ -213,8 +216,8 @@ hola mundo
   },
 );
 
-Deno.test(
-  "[parseBlockText expectedResponse] with statusText", //
+test(
+  "[parseBlockText expectedResponse] with statusText",
   async () => {
     const block = {
       meta: {},
@@ -236,8 +239,8 @@ hola mundo
   },
 );
 
-Deno.test(
-  "[parseBlockText expectedResponse] with body ", //
+test(
+  "[parseBlockText expectedResponse] with body ",
   async () => {
     const block = {
       meta: {},
@@ -259,8 +262,8 @@ Deno.test(
   },
 );
 
-Deno.test(
-  "[parseBlockText expectedResponse] without body ", //
+test(
+  "[parseBlockText expectedResponse] without body ",
   async () => {
     const block = {
       meta: {},
@@ -278,8 +281,8 @@ Deno.test(
   },
 );
 
-Deno.test(
-  "[parseBlockText expectedResponse] with body multiline ", //
+test(
+  "[parseBlockText expectedResponse] with body multiline ",
   async () => {
     const block = {
       meta: {},
@@ -306,7 +309,7 @@ mundo
   },
 );
 
-Deno.test("[parseBlockText meta] with front matter yml ", async () => {
+test("[parseBlockText meta] with front matter yml ", async () => {
   const block = {
     meta: {},
     text: `
@@ -349,7 +352,7 @@ GET faker.deno.dev
   });
 });
 
-Deno.test("[parseBlockText meta] with interpolation", async () => {
+test("[parseBlockText meta] with interpolation", async () => {
   const block = {
     meta: {},
     text: `
@@ -370,7 +373,7 @@ GET faker.deno.dev
   });
 });
 
-Deno.test("[parseBlockText meta] with comments", async () => {
+test("[parseBlockText meta] with comments", async () => {
   const block = {
     meta: {},
     text: `
@@ -392,7 +395,7 @@ GET faker.deno.dev
   });
 });
 
-Deno.test("[parseBlockText meta] fail parsing", async () => {
+test("[parseBlockText meta] fail parsing", async () => {
   const block = {
     meta: {},
     text: `

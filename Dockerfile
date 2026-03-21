@@ -1,9 +1,11 @@
-FROM denoland/deno:alpine-2.1.1
+FROM node:22-alpine
 WORKDIR /app
 COPY ./src ./src
-COPY ./deno.json ./deno.json
-RUN deno task install
-ENTRYPOINT [ "tepi" ]
+COPY ./bin ./bin
+COPY ./package.json ./package.json
+RUN npm install --omit=dev
 COPY ./docs ./docs
+RUN npm link
+ENTRYPOINT [ "tepi" ]
 WORKDIR /app/http
 CMD [ "**/*.http" ]

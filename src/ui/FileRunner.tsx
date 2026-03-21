@@ -11,7 +11,7 @@ import {
   DISPLAY_INDEX_VERBOSE,
   getDisplayIndex,
 } from "./formatters.ts";
-import * as fmt from "jsr:@std/fmt@0.225.1/colors";
+import * as fmt from "@std/fmt/colors";
 
 type Props = {
   file: FileState;

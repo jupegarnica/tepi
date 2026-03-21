@@ -19,12 +19,21 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v1
-      # - uses: satackey/action-docker-layer-caching@v0.0.11
-      #   continue-on-error: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
-      # - run: deno task test
-      - run: deno task test-docker
+      - run: npm ci
+      - run: npm test
 
-      - name: Publish package
-        run: deno publish
+      - name: Publish to npm
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish to JSR
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npx jsr publish

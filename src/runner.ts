@@ -2,18 +2,13 @@ import { filePathsToFiles } from "./files.ts";
 import { Block, File, GlobalData, Meta } from "./types.ts";
 import { consumeBodies, fetchBlock } from "./fetchBlock.ts";
 import { assertResponse } from "./assertResponse.ts";
-import {
-  dirname,
-  isAbsolute,
-  relative,
-  resolve,
-} from "jsr:@std/path@0.225.1/posix";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import {
   parseMetaFromText,
   parseRequestFromText,
   parseResponseFromText,
 } from "./parser.ts";
-import * as assertions from "jsr:@std/assert@0.225.2";
+import * as assertions from "@std/assert";
 import type { StoreApi } from "./ui/store.ts";
 import { serializeMeta, serializeRequest, serializeResponse } from "./ui/serialize.ts";
 
@@ -396,7 +391,7 @@ async function processMetadata(
       // evict infinity loop
       throw new Error(`Infinite loop looking for imports -> ${file.path}`);
     }
-    file.relativePath = "./" + relative(Deno.cwd(), file.path);
+    file.relativePath = "./" + relative(process.cwd(), file.path);
     for (const block of file.blocks) {
       try {
         const meta = await parseMetaFromText(block.text, {
