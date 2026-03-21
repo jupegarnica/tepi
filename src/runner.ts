@@ -112,9 +112,31 @@ export async function runner(
     }
   }
 
+  // Pre-register all files and blocks so the display can show them upfront
   for (const file of files) {
     const relativePath = file.relativePath || "";
     store?.getState().addFile(file.path, relativePath);
+    let preIsFirst = true;
+    for (const block of file.blocks) {
+      block.meta._relativeFilePath = relativePath;
+      block.meta._isFirstBlock = preIsFirst;
+      const blockId = block.blockLink;
+      store?.getState().addBlock(blockId, {
+        description: block.description,
+        blockLink: block.blockLink,
+        filePath: relativePath,
+        status: "pending",
+        startTime: 0,
+        isFirstBlock: preIsFirst,
+        meta: serializeMeta(block.meta),
+      });
+      store?.getState().addFileBlockId(relativePath, blockId);
+      preIsFirst = false;
+    }
+  }
+
+  for (const file of files) {
+    const relativePath = file.relativePath || "";
     store?.getState().setFileStatus(relativePath, "running");
     let _isFirstBlock = true;
     for (const block of file.blocks) {

@@ -213,7 +213,7 @@ export function createStore() {
     addFileBlockId: (relativePath, blockId) =>
       set((state) => {
         const file = state.files[relativePath];
-        if (!file) return state;
+        if (!file || file.blockIds.includes(blockId)) return state;
         return {
           files: {
             ...state.files,

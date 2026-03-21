@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Static, Text } from "ink";
+import { Box, Text } from "ink";
 import Spinner from "ink-spinner";
 import * as fmt from "@std/fmt/colors";
 import type { CommonDisplayProps } from "../shared/DisplayLayout.tsx";
@@ -280,37 +280,39 @@ export function DisplayDefault(props: CommonDisplayProps) {
     noAnimation,
   } = props;
 
-  const doneFiles = fileOrder
-    .map((id) => files[id])
-    .filter((f): f is FileState => !!f && f.status === "done");
-
-  const activeFiles = fileOrder
-    .map((id) => files[id])
-    .filter((f): f is FileState => !!f && f.status !== "done");
-
   return (
     <Box flexDirection="column">
       <MessagesPanel messages={messages} />
 
-      <Static items={doneFiles}>
-        {(file) => (
-          <FileLine key={file.relativePath} file={file} blocks={blocks} />
-        )}
-      </Static>
+      {fileOrder.map((id) => {
+        const file = files[id];
+        if (!file) return null;
 
-      {activeFiles.map((file) => (
-        <Box key={file.relativePath} flexDirection="column">
-          <FileLine file={file} blocks={blocks} noAnimation={noAnimation} />
-          <Box flexDirection="column" marginLeft={2}>
-            {file.blockIds
-              .map((id) => blocks[id])
-              .filter((b): b is BlockState => !!b && !b.isFirstBlock)
-              .map((b) => (
-                <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
-              ))}
-          </Box>
-        </Box>
-      ))}
+        if (file.status === "done") {
+          return <FileLine key={id} file={file} blocks={blocks} />;
+        }
+
+        if (file.status === "running") {
+          return (
+            <Box key={id} flexDirection="column">
+              <FileLine file={file} blocks={blocks} noAnimation={noAnimation} />
+              <Box flexDirection="column" marginLeft={2}>
+                {file.blockIds
+                  .map((bid) => blocks[bid])
+                  .filter((b): b is BlockState => !!b && !b.isFirstBlock)
+                  .map((b) => (
+                    <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
+                  ))}
+              </Box>
+            </Box>
+          );
+        }
+
+        // pending
+        return (
+          <Text key={id} dimColor>{` · ${file.relativePath}`}</Text>
+        );
+      })}
 
       {phase === "done" && (
         <>
