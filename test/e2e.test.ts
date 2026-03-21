@@ -89,6 +89,49 @@ test("[e2e] display dots prints failure details", async () => {
   assertStringIncludes(out, "Tests");
 });
 
+test("[e2e] --no-animation omits running state in default display", async () => {
+  const { code, err, out } = await run(
+    tepi + "--no-animation --no-color http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(err, "");
+  assert(!out.includes("running..."), "output must not contain 'running...'");
+  assertStringIncludes(out, "✓");
+});
+
+test("[e2e] --no-animation omits running state with failures", async () => {
+  const { code, err, out } = await run(
+    tepi + "--no-animation --no-color http/failFast.http"
+  );
+
+  assertEquals(code, 2);
+  assertEquals(err, "");
+  assert(!out.includes("running..."), "output must not contain 'running...'");
+  assertStringIncludes(out, "✗");
+});
+
+test("[e2e] --no-animation works with display truncate", async () => {
+  const { code, err, out } = await run(
+    tepi + "--no-animation --no-color --display truncate http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(err, "");
+  assert(!out.includes("running..."), "output must not contain 'running...'");
+});
+
+test("[e2e] --no-animation works with display dots", async () => {
+  const { code, err, out } = await run(
+    tepi + "--no-animation --no-color --display dots http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(err, "");
+  assert(!out.includes("running..."), "output must not contain 'running...'");
+  assertStringIncludes(out, ".");
+});
+
 test("[e2e] threads defaults to 1 when omitted", async () => {
   const withoutThreads = await run(
     tepi + "--display none http/pass.http"

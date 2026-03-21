@@ -105,7 +105,7 @@ export function DisplayLayout({
         )}
       </Static>
 
-      {activeFiles.map((file) => (
+      {!noAnimation && activeFiles.map((file) => (
         <Box key={file.relativePath} flexDirection="column">
           {renderFileNode(file, blocks, noAnimation, fileSectionConfig)}
         </Box>

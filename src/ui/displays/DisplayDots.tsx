@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Text } from "ink";
+import React, { useEffect, useRef } from "react";
+import { Box, Text, useStdout } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { CommonDisplayProps } from "../shared/DisplayLayout.tsx";
 import type { BlockState, FileState } from "../store.ts";
@@ -81,6 +81,30 @@ function DotsProgress(props: DotsFormatState) {
   );
 }
 
+function DotsProgressStream({ completed, phase }: { completed: BlockState[]; phase: string }) {
+  const { stdout } = useStdout();
+  const prevRef = useRef(0);
+
+  useEffect(() => {
+    const newBlocks = completed.slice(prevRef.current);
+    const colors = fmt.getColorEnabled();
+    for (const block of newBlocks) {
+      const marker = markerForBlock(block);
+      if (colors) {
+        if (block.status === "failed") stdout.write(fmt.red(marker));
+        else if (block.status === "ignored" || block.status === "empty") stdout.write(fmt.yellow(marker));
+        else stdout.write(fmt.green(marker));
+      } else {
+        stdout.write(marker);
+      }
+    }
+    prevRef.current = completed.length;
+    if (phase === "done") stdout.write("\n");
+  }, [completed.length, phase]);
+
+  return null;
+}
+
 function DotsFailures({ failures }: { failures: VitestFailureEntry[] }) {
   const colors = fmt.getColorEnabled();
 
@@ -139,6 +163,7 @@ export function DisplayDots(props: CommonDisplayProps) {
     isWatchMode,
     watchPaths,
     watchTriggerPaths,
+    noAnimation,
   } = props;
 
   const vitestOutput = formatVitestOutput({
@@ -150,10 +175,14 @@ export function DisplayDots(props: CommonDisplayProps) {
     endTime,
   });
 
+  const done = completedBlocks({ fileOrder, files, blocks });
+
   return (
     <Box flexDirection="column">
       <MessagesPanel messages={messages} />
-      <DotsProgress fileOrder={fileOrder} files={files} blocks={blocks} />
+      {noAnimation
+        ? <DotsProgressStream completed={done} phase={phase} />
+        : <DotsProgress fileOrder={fileOrder} files={files} blocks={blocks} />}
       {phase === "done" && (
         <>
           <DotsFailures failures={vitestOutput.failures} />

@@ -32,6 +32,7 @@ Test your HTTP APIs with standard http syntax
 ## Features:
 
 - 📝  Write end to end API REST tests in `.http` files
+- 🔥  Parallel testing with `--threads`
 - 🔎  Validate Response status, headers and/or body.
 - 🔥  Interpolate javascript with [eta](http://eta.js.org/) template `<%= %>` eta url:
 - 🖊   Write metadata as frontmatter yaml

@@ -311,6 +311,8 @@ export function DisplayDefault(props: CommonDisplayProps) {
           return <FileLine key={id} file={file} blocks={blocks} />;
         }
 
+        if (noAnimation) return null;
+
         if (file.status === "running") {
           return (
             <Box key={id} flexDirection="column">

@@ -32,6 +32,7 @@ Test your HTTP APIs with standard http syntax
 ## Features:
 
 - 📝  Write end to end API REST tests in `.http` files
+- 🔥  Parallel testing with `--threads`
 - 🔎  Validate Response status, headers and/or body.
 - 🔥  Interpolate javascript with [eta](http://eta.js.org/) template `<%= %>` eta url:
 - 🖊   Write metadata as frontmatter yaml
@@ -45,26 +46,18 @@ Test your HTTP APIs with standard http syntax
 
 ## Install:
 
-### From npm
 
 ```bash
-npm install -g @garndev/tepi
+deno install --global --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
 ```
 
-
-### In deno
+Or run remotely with:
 
 ```bash
-deno install --global -A -n tepi jsr:@garn/tepi
+deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
 ```
 
-### Run without installing (npx)
-
-```bash
-npx @garndev/tepi [OPTIONS] [FILES|GLOBS...]
-```
-
-### Permissions (Deno only):
+### Permissions:
 
 * `--allow-read`  Needed to read files from the file system.
 * `--allow-net`   Needed to make HTTP requests.
@@ -81,6 +74,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * `  ` `--watch-no-clear`  same but without clearing the screen.
 * `-t` `--timeout`         Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * `-f` `--fail-fast`       Stop running tests after the first failure.
+* `    ` `--threads`       Set the maximum number of test blocks tepi can run at once. Defaults to 1.
 * `-d` `--display`         Set the display mode. (none, minimal, default, truncate, full, verbose, tap and dots)
        -  _none_:     display nothing
        -  _minimal_:  display only a minimal summary
@@ -89,7 +83,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
        -  _full_:     display also all HTTP requests and responses and not truncate data
        -  _verbose_:  display also all metadata
        -  _tap_:      output in TAP (Test Anything Protocol) format for machine consumption
-  -  _dots_:     output compact progress markers and show vitest-style failures and summary at the end
+       -  _dots_:     output compact progress markers and show vitest-style failures and summary at the end
 * `-e` `--env-file`       load environment variables from a .env file
 * `    --no-color`       output without color
 * `    --no-animation`   output without terminal animations
@@ -124,6 +118,9 @@ tepi [OPTIONS] [FILES|GLOBS...]
 
 `tepi --fail-fast`
 > Stop running tests after the first failure.
+
+`tepi --threads 3`
+> Run up to 3 ready test blocks in parallel. If omitted, tepi uses `--threads=1`.
 
 `tepi --display minimal`
 > Set the display mode. (none, minimal, default, truncate, full, verbose, tap and dots)
