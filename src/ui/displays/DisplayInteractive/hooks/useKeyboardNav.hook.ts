@@ -9,7 +9,6 @@ type UseKeyboardNavProps = {
   navItems: NavItem[];
   files: Record<string, FileState>;
   blocks: Record<string, BlockState>;
-  phase: string;
   onExit: () => void;
   expandState: UseExpandStateResult;
 };
@@ -18,7 +17,6 @@ export function useKeyboardNav({
   navItems,
   files,
   blocks,
-  phase,
   onExit,
   expandState,
 }: UseKeyboardNavProps): { selectedIndex: number } {
@@ -39,11 +37,6 @@ export function useKeyboardNav({
       setSelectedIndex(navItems.length - 1);
     }
   }, [navItems.length, selectedIndex]);
-
-  // Reset index when a new run starts
-  useEffect(() => {
-    if (phase !== "done") setSelectedIndex(0);
-  }, [phase]);
 
   useInput(
     (input, key) => {
@@ -106,7 +99,7 @@ export function useKeyboardNav({
         return;
       }
     },
-    { isActive: phase === "done" },
+    { isActive: true },
   );
 
   return { selectedIndex };
