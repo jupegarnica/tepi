@@ -11,7 +11,7 @@ import { InteractiveFileLine } from "./components/InteractiveFileLine.tsx";
 import {
   formatFileLineText,
   formatBlockLineText,
-  formatBlockDetailText,
+  formatDetailLineText,
 } from "./utils/interactiveFormatters.ts";
 
 export function DisplayInteractive(props: InteractiveProps) {
@@ -60,21 +60,17 @@ export function DisplayInteractive(props: InteractiveProps) {
         const file = files[item.id];
         if (!file) continue;
         lines.push(formatFileLineText(file, blocks, isItemSelected, expandedFiles.has(item.id)));
-      } else {
+      } else if (item.type === "block") {
         const block = blocks[item.id];
         if (!block) continue;
         lines.push(formatBlockLineText(block, isItemSelected));
-        if (expandedBlocks.has(item.id)) {
-          const detail = formatBlockDetailText(block);
-          for (const l of detail.split("\n")) {
-            lines.push(`        ${l}`); // extra indent for detail
-          }
-        }
+      } else {
+        lines.push(formatDetailLineText(item.text, isItemSelected));
       }
     }
 
     return { allLines: lines, selectedLineStart: selLine };
-  }, [navItems, selectedIndex, expandedFiles, expandedBlocks, files, blocks]);
+  }, [navItems, selectedIndex, expandedFiles, files, blocks]);
 
   // Line-based viewport: always keep selected line centered
   const terminalRows = stdout?.rows ?? 24;

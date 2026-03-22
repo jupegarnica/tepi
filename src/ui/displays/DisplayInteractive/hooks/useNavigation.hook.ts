@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useInput } from "ink";
 import type { BlockState, FileState } from "../../../store/store.ts";
 import type { NavItem } from "../DisplayInteractive.types.ts";
+import { getBlockDetailLines } from "../utils/interactiveFormatters.ts";
 
 type UseNavigationProps = {
   fileOrder: string[];
@@ -50,11 +51,17 @@ export function useNavigation({
           const block = blocks[blockId];
           if (!block || block.isFirstBlock) continue;
           items.push({ type: "block", id: blockId, fileId });
+          if (expandedBlocks.has(blockId)) {
+            const detailLines = getBlockDetailLines(block);
+            detailLines.forEach((text, lineIndex) => {
+              items.push({ type: "detail", blockId, fileId, lineIndex, text });
+            });
+          }
         }
       }
     }
     return items;
-  }, [fileOrder, files, blocks, expandedFiles]);
+  }, [fileOrder, files, blocks, expandedFiles, expandedBlocks]);
 
   // Clamp selectedIndex when nav list shrinks
   useEffect(() => {
@@ -86,11 +93,21 @@ export function useNavigation({
           } else {
             setExpandedFiles((s) => new Set(s).add(item.id));
           }
-        } else {
+        } else if (item.type === "block") {
           if (expandedBlocks.has(item.id)) {
             setExpandedBlocks((s) => { const n = new Set(s); n.delete(item.id); return n; });
           } else {
             setExpandedBlocks((s) => new Set(s).add(item.id));
+          }
+        } else {
+          // detail: collapse parent block and jump to parent block item
+          setExpandedBlocks((s) => { const n = new Set(s); n.delete(item.blockId); return n; });
+          for (let i = selectedIndex - 1; i >= 0; i--) {
+            const n = navItems[i];
+            if (n && n.type === "block" && n.id === item.blockId) {
+              setSelectedIndex(i);
+              break;
+            }
           }
         }
         return;
@@ -108,9 +125,10 @@ export function useNavigation({
           if (hasChildren) {
             setSelectedIndex(selectedIndex + 1);
           }
-        } else {
+        } else if (item.type === "block") {
           setExpandedBlocks((s) => new Set(s).add(item.id));
         }
+        // detail: no-op
         return;
       }
       if (key.leftArrow) {
@@ -122,7 +140,7 @@ export function useNavigation({
             next.delete(item.id);
             return next;
           });
-        } else {
+        } else if (item.type === "block") {
           setExpandedBlocks((s) => {
             const next = new Set(s);
             next.delete(item.id);
@@ -131,6 +149,20 @@ export function useNavigation({
           for (let i = selectedIndex - 1; i >= 0; i--) {
             const n = navItems[i];
             if (n && n.type === "file" && n.id === item.fileId) {
+              setSelectedIndex(i);
+              break;
+            }
+          }
+        } else {
+          // detail: collapse parent block and jump to parent block item
+          setExpandedBlocks((s) => {
+            const next = new Set(s);
+            next.delete(item.blockId);
+            return next;
+          });
+          for (let i = selectedIndex - 1; i >= 0; i--) {
+            const n = navItems[i];
+            if (n && n.type === "block" && n.id === item.blockId) {
               setSelectedIndex(i);
               break;
             }

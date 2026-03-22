@@ -63,6 +63,15 @@ export function formatBlockLineText(block: BlockState, isSelected: boolean): str
   return `    ${sel} ${inner}`;
 }
 
+export function getBlockDetailLines(block: BlockState): string[] {
+  return formatBlockDetailText(block).split("\n");
+}
+
+export function formatDetailLineText(text: string, isSelected: boolean): string {
+  const sel = selector(isSelected);
+  return `      ${sel} ${text}`;
+}
+
 export function formatBlockDetailText(block: BlockState): string {
   const truncate = (str: string) => truncateRows(str, MAX_BODY_LINES);
   const filePath = block.filePath;
