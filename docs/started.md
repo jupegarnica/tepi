@@ -32,30 +32,38 @@ Test your HTTP APIs with standard http syntax
 ## Features:
 
 - 📝  Write end to end API REST tests in `.http` files
-- 🔥  Parallel testing with `--threads`
+- 🚀  Parallel testing with `--threads`
 - 🔎  Validate Response status, headers and/or body.
 - 🔥  Interpolate javascript with [eta](http://eta.js.org/) template `<%= %>` eta url:
-- 🖊   Write metadata as frontmatter yaml
+- 🖊  Write metadata as frontmatter yaml
 - 📦  Reference by id another test to run them in advance
-- ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
+- ⏱  Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
 - 🚨  Stop running tests after the first failure.
 - 🔋  Use env files to load environment variables
 - 😎  Fully featured and colorful display modes. (none, minimal, default, truncate, full, verbose, tap and dots)
-- 👁   Watch files for changes and rerun tests.
+- 👁  Watch files for changes and rerun tests.
 - 🍯  Standard Response and Request with a automatic getBody()
 
 ## Install:
 
+### From npm
 
 ```bash
-deno install --global --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
+npm install -g @garndev/tepi
 ```
 
-Or run remotely with:
+### In deno
 
 ```bash
-deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
+deno install --global -A -n tepi jsr:@garn/tepi
 ```
+
+### Run without installing (npx)
+
+```bash
+npx @garndev/tepi [OPTIONS] [FILES|GLOBS...]
+```
+
 
 ### Permissions:
 

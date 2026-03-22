@@ -24,4 +24,7 @@ This document describes the Roadmap for the project.
 - [x] Support for the `--watch-no-clear`
 - [x] Better error display.
 - [ ] Support for meta `run:` to run shell commands
-- [ ] Concurrent test execution
+- [x] Concurrent test execution
+- [x] Display intereactive
+- [ ] --allow-only to not fail when run in only mode
+- [ ] --allow-empty to not fail when no tests are found

@@ -32,30 +32,38 @@ Test your HTTP APIs with standard http syntax
 ## Features:
 
 - 📝  Write end to end API REST tests in `.http` files
-- 🔥  Parallel testing with `--threads`
+- 🚀  Parallel testing with `--threads`
 - 🔎  Validate Response status, headers and/or body.
 - 🔥  Interpolate javascript with [eta](http://eta.js.org/) template `<%= %>` eta url:
-- 🖊   Write metadata as frontmatter yaml
+- 🖊  Write metadata as frontmatter yaml
 - 📦  Reference by id another test to run them in advance
-- ⏱   Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
+- ⏱  Set a timeout for each test or globally in milliseconds. After the timeout, the test will fail.
 - 🚨  Stop running tests after the first failure.
 - 🔋  Use env files to load environment variables
 - 😎  Fully featured and colorful display modes. (none, minimal, default, truncate, full, verbose, tap and dots)
-- 👁   Watch files for changes and rerun tests.
+- 👁  Watch files for changes and rerun tests.
 - 🍯  Standard Response and Request with a automatic getBody()
 
 ## Install:
 
+### From npm
 
 ```bash
-deno install --global --reload  --allow-read --allow-env --allow-net --allow-run -f -n tepi https://tepi.deno.dev/src/cli.ts
+npm install -g @garndev/tepi
 ```
 
-Or run remotely with:
+### In deno
 
 ```bash
-deno run --allow-read --allow-env --allow-net --allow-run https://tepi.deno.dev/src/cli.ts
+deno install --global -A -n tepi jsr:@garn/tepi
 ```
+
+### Run without installing (npx)
+
+```bash
+npx @garndev/tepi [OPTIONS] [FILES|GLOBS...]
+```
+
 
 ### Permissions:
 
@@ -75,15 +83,16 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * `-t` `--timeout`         Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * `-f` `--fail-fast`       Stop running tests after the first failure.
 * `    ` `--threads`       Set the maximum number of test blocks tepi can run at once. Defaults to 1.
-* `-d` `--display`         Set the display mode. (none, minimal, default, truncate, full, verbose, tap and dots)
-       -  _none_:     display nothing
-       -  _minimal_:  display only a minimal summary
-       -  _default_:  list results and full error summary
-       -  _truncate_: list results and full error summary but truncate data
-       -  _full_:     display also all HTTP requests and responses and not truncate data
-       -  _verbose_:  display also all metadata
-       -  _tap_:      output in TAP (Test Anything Protocol) format for machine consumption
-       -  _dots_:     output compact progress markers and show vitest-style failures and summary at the end
+* `-d` `--display`         Set the display mode. (none, minimal, default, truncate, full, verbose, tap, dots and interactive)
+       -  _none_:        display nothing
+       -  _minimal_:     display only a minimal summary
+       -  _default_:     list results and full error summary
+       -  _truncate_:    list results and full error summary but truncate data
+       -  _full_:        display also all HTTP requests and responses and not truncate data
+       -  _verbose_:     display also all metadata
+       -  _tap_:         output in TAP (Test Anything Protocol) format for machine consumption
+       -  _dots_:        output compact progress markers and show vitest-style failures and summary at the end
+       -  _interactive_: keyboard-navigable results browser; use ↑↓ to select, →/Enter to expand, ← to collapse, q/Esc to exit
 * `-e` `--env-file`       load environment variables from a .env file
 * `    --no-color`       output without color
 * `    --no-animation`   output without terminal animations
@@ -123,7 +132,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 > Run up to 3 ready test blocks in parallel. If omitted, tepi uses `--threads=1`.
 
 `tepi --display minimal`
-> Set the display mode. (none, minimal, default, truncate, full, verbose, tap and dots)
+> Set the display mode. (none, minimal, default, truncate, full, verbose, tap, dots and interactive)
 
 `tepi --env-file .env --env-file .env.test`
 > Load environment variables from a .env and .env.test
