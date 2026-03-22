@@ -82,7 +82,7 @@ tepi [OPTIONS] [FILES|GLOBS...]
 * `  ` `--watch-no-clear`  same but without clearing the screen.
 * `-t` `--timeout`         Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 * `-f` `--fail-fast`       Stop running tests after the first failure.
-* `    ` `--threads`       Set the maximum number of test blocks tepi can run at once. Defaults to 1.
+* `-p` `--threads` `--parallelization`  Set the maximum number of test blocks tepi can run at once. Defaults to 1.
 * `-d` `--display`         Set the display mode. (none, minimal, default, truncate, full, verbose, tap, dots and interactive)
        -  _none_:        display nothing
        -  _minimal_:     display only a minimal summary
@@ -125,11 +125,17 @@ tepi [OPTIONS] [FILES|GLOBS...]
 `tepi --timeout 10000`
 > Set the timeout for each test in milliseconds. After the timeout, the test will fail.
 
+`tepi -p 3`
+> Run up to 3 ready test blocks in parallel. Same as `tepi --threads 3`.
+
 `tepi --fail-fast`
 > Stop running tests after the first failure.
 
 `tepi --threads 3`
 > Run up to 3 ready test blocks in parallel. If omitted, tepi uses `--threads=1`.
+
+`tepi --parallelization 3`
+> Alias for `--threads 3`.
 
 `tepi --display minimal`
 > Set the display mode. (none, minimal, default, truncate, full, verbose, tap, dots and interactive)
