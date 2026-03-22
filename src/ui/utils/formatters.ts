@@ -140,6 +140,7 @@ export function printTitle(
   const titleStr = fmt[fmtMethod](` ${title} `, undefined) as string;
   let padLength = 2 + Math.floor((consoleWidth - titleStr.length) / 2);
   padLength = padLength < 0 ? 0 : padLength;
-  const separator = fmt.gray("-");
+  // @ts-ignore - fmtMethod is a key of fmt
+  const separator = fmt[fmtMethod]("-", undefined) as string;
   return `${separator.repeat(5)} ${titleStr} ${separator.repeat(padLength)}`;
 }

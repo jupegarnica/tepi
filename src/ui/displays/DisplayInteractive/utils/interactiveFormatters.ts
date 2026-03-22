@@ -81,12 +81,12 @@ export function formatBlockDetailText(block: BlockState): string {
   let result = "\n" + pathInfo + "\n";
 
   if (block.meta && Object.keys(block.meta).length > 0) {
-    result += printTitle("⬇   Meta    ⬇") + "\n";
+    result += printTitle("⬇   Meta    ⬇", "magenta") + "\n";
     result += metaToText(block.meta);
   }
 
   if (block.request) {
-    result += "\n" + printTitle("⬇   Request    ⬇") + "\n";
+    result += "\n" + printTitle("⬇   Request    ⬇", "magenta") + "\n";
     result += requestToText(block.request) + "\n";
     result += headersToText(block.request.headers, true);
     if (block.request.body) result += truncate(block.request.body);
@@ -94,7 +94,7 @@ export function formatBlockDetailText(block: BlockState): string {
   }
 
   if (block.actualResponse) {
-    result += printTitle("⬇   Response   ⬇") + "\n";
+    result += printTitle("⬇   Response   ⬇", "magenta") + "\n";
     result += responseToText(block.actualResponse) + "\n";
     result += headersToText(block.actualResponse.headers, true);
     if (block.actualResponse.body) result += truncate(block.actualResponse.body);
@@ -102,7 +102,7 @@ export function formatBlockDetailText(block: BlockState): string {
   }
 
   if (block.expectedResponse) {
-    result += printTitle("⬇   Expected Response   ⬇") + "\n";
+    result += printTitle("⬇   Expected Response   ⬇", "magenta") + "\n";
     result += responseToText(block.expectedResponse) + "\n";
     result += headersToText(block.expectedResponse.headers, true);
     if (block.expectedResponse.body) result += truncate(block.expectedResponse.body);
@@ -110,7 +110,7 @@ export function formatBlockDetailText(block: BlockState): string {
   }
 
   if (block.error) {
-    result += printTitle("⬇   Error    ⬇") + "\n";
+    result += printTitle("⬇   Error    ⬇", "magenta") + "\n";
     if (block.description) result += fmt.brightRed(block.description) + "\n";
     result += formatFailureDetailsText(block, { indent: "" }) + "\n";
   }
