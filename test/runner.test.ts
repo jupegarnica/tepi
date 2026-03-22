@@ -538,11 +538,11 @@ test("[runner] threads run ready blocks in parallel", async () => {
 
     assertEquals(exitCode, 0);
     assertEquals(maxInFlight, 2);
-    assertEquals(requestedUrls.length, 4);
+    assertEquals(requestedUrls.length, 7);
     assertEquals(requestedUrls.every((url) => url.includes("/pong?delay=100")), true);
 
     const runnableBlocks = files[0].blocks.filter((block) => !block.meta.ignore && block.request);
-    assertEquals(runnableBlocks.length, 4);
+    assertEquals(runnableBlocks.length, 7);
     for (const block of runnableBlocks) {
       assertEquals(block.actualResponse?.status, 200);
       assertEquals(await block.actualResponse?.getBody(), "ok");

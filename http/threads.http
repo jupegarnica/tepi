@@ -1,6 +1,6 @@
 ---
 delta: 100
-host:  https://faker.deno.dev/pong
+host: <%= process.env['HOST'] || 'https://faker.deno.dev/pong' %>
 ---
 
 ###
@@ -30,7 +30,7 @@ ignore: true
 GET ?delay=<%=meta.delta%>
 
 ###
----
-id: fourth
----
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
 GET ?delay=<%=meta.delta%>

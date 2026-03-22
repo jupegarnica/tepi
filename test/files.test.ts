@@ -85,3 +85,58 @@ test("[fileTextToBlocks]", () => {
   assertEquals(blocks[0].meta._startLine, 0);
   assertEquals(blocks[0].meta._endLine, 0);
 });
+
+test("[fileTextToBlocks] implicit split on consecutive method lines", () => {
+  const blocks = fileTextToBlocks(
+    `GET http://example.com/1\nGET http://example.com/2\nGET http://example.com/3`,
+    "test.http",
+  );
+  assertEquals(blocks.length, 3);
+  assertEquals(blocks[0].meta._startLine, 0);
+  assertEquals(blocks[0].meta._endLine, 0);
+  assertEquals(blocks[1].meta._startLine, 1);
+  assertEquals(blocks[1].meta._endLine, 1);
+  assertEquals(blocks[2].meta._startLine, 2);
+  assertEquals(blocks[2].meta._endLine, 2);
+});
+
+test("[fileTextToBlocks] global meta block stays separate from bare requests", () => {
+  const txt = `---\nhost: example.com\n---\n\nGET /url1\nGET /url2\n`;
+  const blocks = fileTextToBlocks(txt, "test.http");
+  assertEquals(blocks.length, 3);
+  // Block 0: global meta (frontmatter, no request)
+  assertEquals(blocks[0].text.includes("host: example.com"), true);
+  assertEquals(blocks[0].text.includes("GET"), false);
+  // Block 1: first GET
+  assertEquals(blocks[1].text.trim(), "GET /url1");
+  // Block 2: second GET
+  assertEquals(blocks[2].text.trim(), "GET /url2");
+});
+
+test("[fileTextToBlocks] frontmatter attaches to following request when splitting", () => {
+  const txt = `GET /url1\n\n---\nid: second\n---\nGET /url2\n`;
+  const blocks = fileTextToBlocks(txt, "test.http");
+  assertEquals(blocks.length, 2);
+  assertEquals(blocks[0].text.trim(), "GET /url1");
+  assertEquals(blocks[1].text.includes("id: second"), true);
+  assertEquals(blocks[1].text.includes("GET /url2"), true);
+});
+
+test("[fileTextToBlocks] Eta conditional GET lines do not trigger implicit split", () => {
+  const txt = [
+    "---",
+    "id: conditional",
+    "---",
+    "<% if (true) { %>",
+    "GET /url1",
+    "<% } else { %>",
+    "GET /url2",
+    "<% } %>",
+    "",
+  ].join("\n");
+  const blocks = fileTextToBlocks(txt, "test.http");
+  // All lines belong to one block — no implicit split inside Eta conditionals
+  assertEquals(blocks.length, 1);
+  assertEquals(blocks[0].text.includes("GET /url1"), true);
+  assertEquals(blocks[0].text.includes("GET /url2"), true);
+});
