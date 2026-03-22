@@ -6,7 +6,7 @@ import {
 
 import { test, vi } from "vitest";
 import { runner } from "../src/runner.ts";
-import { createStore } from "../src/ui/store.ts";
+import { createStore } from "../src/ui/store/index.ts";
 
 const HOST = process.env.HOST || "https://faker.deno.dev";
 const HOST_HTTPBIN = process.env.HOST_HTTPBIN || "http://httpbin.org";
