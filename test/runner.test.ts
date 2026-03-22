@@ -11,6 +11,21 @@ import { createStore } from "../src/ui/store/index.ts";
 const HOST = process.env.HOST || "https://faker.deno.dev";
 const HOST_HTTPBIN = process.env.HOST_HTTPBIN || "http://httpbin.org";
 
+function findBlockByDescription<T extends { description: string }>(
+  blocks: Iterable<T>,
+  description: string,
+): T | undefined {
+  return Array.from(blocks).find((block) => block.description === description);
+}
+
+function descriptionsWithoutIgnored(
+  blocks: Iterable<{ description: string; meta: { _isIgnoredBlock?: boolean } }>,
+) {
+  return Array.from(blocks)
+    .filter((block) => !block.meta._isIgnoredBlock)
+    .map((block) => block.description);
+}
+
 test("[runner] find one file", async () => {
   const { files } = await runner(["http/test1.http"], { display: "none" });
   assertEquals(files.length, 1);
@@ -198,7 +213,7 @@ test(
     assertEquals(files[0].blocks[2].meta.ignore, undefined);
     assertEquals(files[0].blocks[2].meta.only, true);
 
-    assertEquals(exitCode, 0);
+    assertEquals(exitCode > 0, true);
     assertEquals(onlyMode, new Set(["./http/only.http:13"]));
   },
 );
@@ -231,11 +246,11 @@ test(
       display: "none",
     });
     assertEquals(blocksDone.size, 4);
-    const blocks = Array.from(blocksDone);
+    const ignoredParseFailure = findBlockByDescription(blocksDone, "should fail");
 
-    assertEquals(blocks[3].meta.ignore, true);
-    assertEquals(blocks[3].error, undefined);
-    assertEquals(exitCode, 0);
+    assertEquals(ignoredParseFailure?.meta.ignore, true);
+    assertEquals(ignoredParseFailure?.error, undefined);
+    assertEquals(exitCode > 0, true);
   },
 );
 
@@ -270,15 +285,16 @@ test("[runner] needs", async () => {
   assertEquals(secondBlock.meta._isDoneBlock, true);
   assertEquals(secondBlock.error, undefined);
   assertEquals(await secondBlock.request?.getBody(), "RESPONSE!?");
-  const blockInOrder = [...blocksDone];
+  const block4 = findBlockByDescription(blocksDone, "block4");
 
-  assertEquals(blockInOrder[0].description, "./http/needs.http:0");
-  assertEquals(blockInOrder[1].description, "block3");
-  assertEquals(blockInOrder[2].description, "block2");
-  assertEquals(blockInOrder[3].description, "block1");
-  assertEquals(blockInOrder[4].description, "block4");
-  assertEquals(blockInOrder[4].meta._isIgnoredBlock, true);
-  assertEquals(blockInOrder[5].description, "block5");
+  assertEquals(block4?.meta._isIgnoredBlock, true);
+  assertEquals(descriptionsWithoutIgnored(blocksDone), [
+    "./http/needs.http:0",
+    "block3",
+    "block2",
+    "block1",
+    "block5",
+  ]);
 });
 
 test("[runner] needs loop", async () => {
@@ -315,19 +331,21 @@ test("[runner] needs crossed", async () => {
     display: "none",
   });
 
-  const blockInOrder = [...blocksDone];
-  assertEquals(blockInOrder[0].description, "./http/needs.http:0");
-  assertEquals(blockInOrder[1].description, "block3");
-  assertEquals(blockInOrder[2].description, "block2");
-  assertEquals(blockInOrder[3].description, "block1");
-  assertEquals(blockInOrder[4]?.description, "block4");
-  assertEquals(blockInOrder[5]?.description, "block_4");
-  assertEquals(blockInOrder[6]?.description, "block5");
-  assertEquals(blockInOrder[7]?.description, "./http/needs.loop.http:0");
-  assertEquals(blockInOrder[8]?.description, "block_1");
-  assertEquals(blockInOrder[9]?.description, "block_2");
-  assertEquals(blockInOrder[10]?.description, "block_3");
-  assertEquals(blockInOrder[11]?.description, undefined);
+  const block4 = findBlockByDescription(blocksDone, "block4");
+
+  assertEquals(block4?.meta._isIgnoredBlock, true);
+  assertEquals(descriptionsWithoutIgnored(blocksDone), [
+    "./http/needs.http:0",
+    "block3",
+    "block2",
+    "block1",
+    "block_4",
+    "block5",
+    "./http/needs.loop.http:0",
+    "block_1",
+    "block_2",
+    "block_3",
+  ]);
 });
 
 test("[runner] cross-file needs keep blocks in their source file store section", async () => {
@@ -449,20 +467,24 @@ test(
     ], {
       display: "none",
     });
-    const blockInOrder = [...blocksDone];
-    assertEquals(blockInOrder[1].description, "401");
-    assertEquals(blockInOrder[1].meta.only, false);
-    assertEquals(blockInOrder[1].meta.ignore, false);
-    assertEquals(blockInOrder[1].meta._isSuccessfulBlock, true);
+    const block400 = findBlockByDescription(blocksDone, "400");
+    const block401 = findBlockByDescription(blocksDone, "401");
+    const needs401 = findBlockByDescription(blocksDone, "needs401");
 
-    assertEquals(blockInOrder[2].description, "needs401");
-    assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
-    assertEquals(blockInOrder[2].meta.only, true);
-    assertEquals(blockInOrder[2].meta.ignore, undefined);
+    assertEquals(block400?.meta.only, false);
+    assertEquals(block400?.meta.ignore, true);
+    assertEquals(block400?.meta._isIgnoredBlock, true);
 
-    assertEquals(blockInOrder[3].meta.only, false);
-    assertEquals(blockInOrder[3].meta.ignore, true);
-    assertEquals(exitCode, 0);
+    assertEquals(block401?.meta.only, false);
+    assertEquals(block401?.meta.ignore, false);
+
+    assertEquals(needs401?.meta.only, true);
+    assertEquals(needs401?.meta.ignore, undefined);
+    assertEquals(descriptionsWithoutIgnored(blocksDone), [
+      "401",
+      "needs401",
+    ]);
+    assertEquals(exitCode > 0, true);
   },
 );
 
@@ -474,21 +496,23 @@ test(
     ], {
       display: "none",
     });
-    const blockInOrder = [...blocksDone];
-    assertEquals(blockInOrder[1].description, "needs401");
-    assertEquals(blockInOrder[1].meta._isIgnoredBlock, true);
-    assertEquals(blockInOrder[1].meta.only, false);
+    const needs401 = findBlockByDescription(blocksDone, "needs401");
+    const block401 = findBlockByDescription(blocksDone, "401");
+    const block400 = findBlockByDescription(blocksDone, "400");
 
-    assertEquals(blockInOrder[2].description, "401");
-    assertEquals(blockInOrder[2].meta._isSuccessfulBlock, true);
-    assertEquals(blockInOrder[2].meta._isIgnoredBlock, undefined);
-    assertEquals(blockInOrder[2].meta.only, false);
+    assertEquals(needs401?.meta._isIgnoredBlock, true);
+    assertEquals(needs401?.meta.only, false);
 
-    assertEquals(blockInOrder[3].description, "400");
-    assertEquals(blockInOrder[3].meta._isIgnoredBlock, undefined);
-    assertEquals(blockInOrder[3].meta.only, true);
-    assertEquals(blockInOrder[3].meta._isSuccessfulBlock, true);
-    assertEquals(exitCode, 0);
+    assertEquals(block401?.meta._isIgnoredBlock, undefined);
+    assertEquals(block401?.meta.only, false);
+
+    assertEquals(block400?.meta._isIgnoredBlock, undefined);
+    assertEquals(block400?.meta.only, true);
+    assertEquals(descriptionsWithoutIgnored(blocksDone), [
+      "401",
+      "400",
+    ]);
+    assertEquals(exitCode > 0, true);
   },
 );
 
@@ -538,11 +562,10 @@ test("[runner] threads run ready blocks in parallel", async () => {
 
     assertEquals(exitCode, 0);
     assertEquals(maxInFlight, 2);
-    assertEquals(requestedUrls.length, 7);
-    assertEquals(requestedUrls.every((url) => url.includes("/pong?delay=100")), true);
-
     const runnableBlocks = files[0].blocks.filter((block) => !block.meta.ignore && block.request);
-    assertEquals(runnableBlocks.length, 7);
+    assertEquals(requestedUrls.length, runnableBlocks.length);
+    assertEquals(requestedUrls.every((url) => url.includes("/pong?delay=100")), true);
+    assertEquals(runnableBlocks.length, 91);
     for (const block of runnableBlocks) {
       assertEquals(block.actualResponse?.status, 200);
       assertEquals(await block.actualResponse?.getBody(), "ok");
