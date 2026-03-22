@@ -13,12 +13,14 @@ export function InteractiveFileLine({
   isSelected,
   isExpanded,
   noAnimation,
+  anchorPrefix = "",
 }: {
   file: FileState;
   blocks: Record<string, BlockState>;
   isSelected: boolean;
   isExpanded: boolean;
   noAnimation?: boolean;
+  anchorPrefix?: string;
 }) {
   const colors = fmt.getColorEnabled();
   const sel = selector(isSelected);
@@ -27,7 +29,7 @@ export function InteractiveFileLine({
   if (file.status !== "done") {
     return (
       <Text>
-        {`${sel} ${expandIcon} `}
+        {`${anchorPrefix}${sel} ${expandIcon} `}
         {noAnimation
           ? <Text color={colors ? "blue" : undefined}>{"…"}</Text>
           : <Text color={colors ? "blue" : undefined}><Spinner type="dots4" /></Text>}
@@ -45,7 +47,7 @@ export function InteractiveFileLine({
   if (hasFailures) {
     return (
       <Text>
-        {`${sel} ${expandIcon} `}
+        {`${anchorPrefix}${sel} ${expandIcon} `}
         <Text color={colors ? "red" : undefined}>{"✗"}</Text>
         {` ${file.relativePath} `}
         <Text dimColor>{`(${countStr})`}</Text>
@@ -56,7 +58,7 @@ export function InteractiveFileLine({
 
   return (
     <Text>
-      {`${sel} ${expandIcon} `}
+      {`${anchorPrefix}${sel} ${expandIcon} `}
       <Text color={colors ? "green" : undefined}>{"✓"}</Text>
       {` ${file.relativePath} `}
       <Text dimColor>{`(${countStr})`}</Text>

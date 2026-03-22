@@ -1,18 +1,16 @@
 import React, { useMemo } from "react";
-import { Box, Text, Transform, useStdout } from "ink";
+import { Box, Text, useStdout } from "ink";
 import type { BlockState } from "../../store/store.ts";
 import { MessagesPanel } from "../../MessagesPanel/index.ts";
 import { WatchStatus } from "../../WatchStatus/index.ts";
 import { BlockLine } from "../../BlockLine/index.ts";
 import { VitestSummary } from "../DisplayDefault/index.ts";
+import { Scroll, SCROLL_ANCHOR_SENTINEL } from "../../shared/Scroll/index.ts";
 import type { InteractiveProps } from "./DisplayInteractive.types.ts";
 import { useNavigation } from "./hooks/useNavigation.hook.ts";
 import { InteractiveFileLine } from "./components/InteractiveFileLine.tsx";
-import {
-  formatFileLineText,
-  formatBlockLineText,
-  formatDetailLineText,
-} from "./utils/interactiveFormatters.ts";
+import { InteractiveBlockLine } from "./components/InteractiveBlockLine.tsx";
+import { InteractiveDetailLine } from "./components/InteractiveDetailLine.tsx";
 
 export function DisplayInteractive(props: InteractiveProps) {
   const {
@@ -34,7 +32,7 @@ export function DisplayInteractive(props: InteractiveProps) {
 
   const { stdout } = useStdout();
 
-  const { selectedIndex, expandedFiles, expandedBlocks, navItems } = useNavigation({
+  const { selectedIndex, expandedFiles, navItems } = useNavigation({
     fileOrder,
     files,
     blocks,
@@ -42,49 +40,58 @@ export function DisplayInteractive(props: InteractiveProps) {
     onExit,
   });
 
-  // Pre-render all nav items to a flat string-line array.
-  // Tracks which output line the selected item starts on so the viewport
-  // can be centered on it regardless of how tall expanded items are.
-  const { allLines, selectedLineStart } = useMemo(() => {
-    const lines: string[] = [];
-    let selLine = 0;
+  const doneTree = useMemo(() => {
+    const nodes: React.ReactNode[] = [];
 
     for (let idx = 0; idx < navItems.length; idx++) {
       const item = navItems[idx];
       if (!item) continue;
       const isItemSelected = idx === selectedIndex;
-
-      if (idx === selectedIndex) selLine = lines.length;
+      const anchorPrefix = isItemSelected ? SCROLL_ANCHOR_SENTINEL : "";
 
       if (item.type === "file") {
         const file = files[item.id];
         if (!file) continue;
-        lines.push(formatFileLineText(file, blocks, isItemSelected, expandedFiles.has(item.id)));
+        nodes.push(
+          <InteractiveFileLine
+            key={`file:${item.id}`}
+            file={file}
+            blocks={blocks}
+            isSelected={isItemSelected}
+            isExpanded={expandedFiles.has(item.id)}
+            noAnimation
+            anchorPrefix={anchorPrefix}
+          />,
+        );
       } else if (item.type === "block") {
         const block = blocks[item.id];
         if (!block) continue;
-        lines.push(formatBlockLineText(block, isItemSelected));
+        nodes.push(
+          <InteractiveBlockLine
+            key={`block:${item.id}`}
+            block={block}
+            isSelected={isItemSelected}
+            anchorPrefix={anchorPrefix}
+          />,
+        );
       } else {
-        lines.push(formatDetailLineText(item.text, isItemSelected));
+        nodes.push(
+          <InteractiveDetailLine
+            key={`detail:${item.blockId}:${item.lineIndex}`}
+            text={item.text}
+            isSelected={isItemSelected}
+            anchorPrefix={anchorPrefix}
+          />,
+        );
       }
     }
 
-    return { allLines: lines, selectedLineStart: selLine };
+    return <Box flexDirection="column">{nodes}</Box>;
   }, [navItems, selectedIndex, expandedFiles, files, blocks]);
 
-  // Line-based viewport: always keep selected line centered
+  // Reserve room for the summary and help footer below the scrollable region.
   const terminalRows = stdout?.rows ?? 24;
   const viewportHeight = Math.max(5, terminalRows - 8);
-  const viewportStart = Math.max(
-    0,
-    Math.min(
-      selectedLineStart - Math.floor(viewportHeight / 2),
-      Math.max(0, allLines.length - viewportHeight),
-    ),
-  );
-  const visibleLines = allLines.slice(viewportStart, viewportStart + viewportHeight);
-  const aboveCount = viewportStart;
-  const belowCount = Math.max(0, allLines.length - viewportStart - viewportHeight);
 
   return (
     <Box flexDirection="column">
@@ -147,19 +154,11 @@ export function DisplayInteractive(props: InteractiveProps) {
         );
       })}
 
-      {/* After done: line-based viewport via pre-rendered strings + Transform */}
+      {/* After done: render the full line model and let Scroll own viewport slicing. */}
       {phase === "done" && (
-        <>
-          {aboveCount > 0 && (
-            <Text dimColor>{`  ↑ ${aboveCount} more`}</Text>
-          )}
-          <Transform transform={(line) => line}>
-            <Text>{visibleLines.join("\n")}</Text>
-          </Transform>
-          {belowCount > 0 && (
-            <Text dimColor>{`  ↓ ${belowCount} more`}</Text>
-          )}
-        </>
+        <Scroll height={viewportHeight}>
+          {doneTree}
+        </Scroll>
       )}
 
       {phase === "done" && (
