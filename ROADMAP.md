@@ -25,7 +25,7 @@ This document describes the Roadmap for the project.
 - [x] Better error display.
 - [ ] Support for meta `run:` to run shell commands
 - [x] Concurrent test execution
-- [x] Display intereactive
+- [x] Display interactive
 - [ ] --allow-only to not fail when run in only mode
 - [ ] --allow-empty to not fail when no tests are found
-- [ ] fix interacctive display when running in watch mode
+- [ ] fix interactive display when running in watch mode

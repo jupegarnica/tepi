@@ -156,6 +156,26 @@ test("[e2e] threads accepts values greater than 1", async () => {
   assertEquals(err, "");
 });
 
+test("[e2e] threads accepts the -p alias", async () => {
+  const { code, err, success } = await run(
+    tepi + "--display none -p=2 http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(success, true);
+  assertEquals(err, "");
+});
+
+test("[e2e] threads accepts the --parallelization alias", async () => {
+  const { code, err, success } = await run(
+    tepi + "--display none --parallelization=2 http/pass.http"
+  );
+
+  assertEquals(code, 0);
+  assertEquals(success, true);
+  assertEquals(err, "");
+});
+
 test("[e2e] threads rejects invalid values", async () => {
   const { code, err, success } = await run(
     tepi + "--display none --threads=0 http/pass.http"
@@ -164,6 +184,15 @@ test("[e2e] threads rejects invalid values", async () => {
   assertEquals(code, 1);
   assertEquals(success, false);
   assertStringIncludes(err, "Invalid threads value: 0");
+});
+
+test("[e2e] timeout accepts the -t alias", async () => {
+  const { code, success } = await run(
+    tepi + "--display none -t=100 http/timeout.http"
+  );
+
+  assertEquals(code, 2);
+  assertEquals(success, false);
 });
 
 test("[e2e] run help", async () => {

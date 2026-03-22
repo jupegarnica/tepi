@@ -41,7 +41,7 @@ export function formatFileLineText(
 
 export function formatBlockLineText(block: BlockState, isSelected: boolean): string {
   const sel = selector(isSelected);
-  const elapsed = ` ${fmt.gray(ms(block.elapsedTime))}`;
+  const elapsed = block.status === "ignored" ? "" : ` ${fmt.gray(ms(block.elapsedTime))}`;
   const differentFile = block.neededFrom ? fmt.dim(` needed -> ${block.neededFrom}`) : "";
   const httpStatus = block.httpStatus ? ` ${block.httpStatus}` : "";
   const desc = fmt.white(block.description);

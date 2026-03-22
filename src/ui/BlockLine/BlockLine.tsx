@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function BlockLine({ block, noAnimation }: Props) {
-  const elapsed = block.status === "running"
+  const elapsed = block.status === "running" || block.status === "ignored"
     ? ""
     : ` ${fmt.gray(ms(block.elapsedTime))}`;
   const differentFile = block.neededFrom

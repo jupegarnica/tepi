@@ -2,7 +2,7 @@ import { type Args, parseArgs } from "@std/cli";
 import type { Meta } from "./types.ts";
 import * as fmt from "@std/fmt/colors";
 import { relative } from "@std/path";
-import { globsToFilePaths } from "./files.ts";
+import { globsToFilePaths, checkGlobHasLineSpec } from "./files.ts";
 import { load } from "@std/dotenv";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./ui/utils/formatters.ts";
@@ -25,6 +25,15 @@ function parseThreads(rawValue: unknown): number {
     throw new Error(`Invalid threads value: ${value}. Must be an integer greater than or equal to 1.`);
   }
   return threads;
+}
+
+function parseTimeout(rawValue: unknown): number {
+  const value = rawValue ?? "0";
+  const timeout = Number(value);
+  if (!Number.isInteger(timeout) || timeout < 0) {
+    throw new Error(`Invalid timeout value: ${value}. Must be an integer greater than or equal to 0.`);
+  }
+  return timeout;
 }
 
 function exit(code: number) {
@@ -55,6 +64,7 @@ export async function cli() {
       display: "default",
       help: false,
       threads: "1",
+      timeout: "0",
     },
     collect: ["watch", "envFile", "watch-no-clear"],
     boolean: [
@@ -65,16 +75,18 @@ export async function cli() {
       "noAnimation",
       "readme",
     ],
-    string: ["display", "envFile", "threads"],
+    string: ["display", "envFile", "threads", "timeout"],
 
     alias: {
       h: "help",
       w: "watch",
       t: "timeout",
+      p: "threads",
       f: "failFast",
       d: "display",
       e: "envFile",
       r: "readme",
+      parallelization: "threads",
       envFile: "env-file",
       noColor: "no-color",
       watchNoClear: "watch-no-clear",
@@ -87,6 +99,15 @@ export async function cli() {
   let threads = 1;
   try {
     threads = parseThreads(args.threads);
+  } catch (error) {
+    console.error(fmt.brightRed((error as Error).message));
+    exit(1);
+    return;
+  }
+
+  let timeout = 0;
+  try {
+    timeout = parseTimeout(args.timeout);
   } catch (error) {
     console.error(fmt.brightRed((error as Error).message));
     exit(1);
@@ -142,7 +163,7 @@ export async function cli() {
   }
 
   const defaultMeta: Meta = {
-    timeout: 0,
+    timeout,
     display: args.display as string,
     threads,
   };
@@ -244,14 +265,21 @@ export async function cli() {
     const relativeRunPaths = filePathsToRun.map((p) => relative(process.cwd(), p));
     const relativeTriggerPaths = filePathsToJustWatch.map((p) => relative(process.cwd(), p));
     store.getState().setWatchMode(relativeRunPaths, relativeTriggerPaths);
-    watchAndRun(
-      filePathsToRun,
-      filePathsToJustWatch,
-      defaultMeta,
-      noClear,
-      store,
-      inkInstance
-    ).catch(console.error);
+    const { done, stop } = watchAndRun(filePathsToRun, filePathsToJustWatch, defaultMeta, noClear, store);
+
+    if (args.display === "interactive") {
+      // Allow q/Escape to stop the watcher and exit cleanly.
+      const userExit = new Promise<void>((resolve) => {
+        store.getState().setExitResolver(() => { stop(); resolve(); });
+      });
+      await Promise.race([done, userExit]).catch(console.error);
+      await new Promise((r) => setTimeout(r, 50));
+      inkInstance?.unmount();
+      exit(exitCode);
+    } else {
+      done.catch(console.error);
+      // process stays alive via chokidar file handles
+    }
   } else {
     if (inkInstance) {
       if (args.display === "interactive") {
@@ -270,18 +298,21 @@ export async function cli() {
   }
 }
 
-async function watchAndRun(
+function watchAndRun(
   filePaths: string[],
   filePathsToJustWatch: string[],
   defaultMeta: Meta,
   noClear: boolean,
   store: ReturnType<typeof createStore>,
-  _inkInstance: ReturnType<typeof render> | undefined
-) {
-  const allFilePaths = filePaths.concat(filePathsToJustWatch);
-  const watcher = chokidar.watch(allFilePaths, { ignoreInitial: true });
+): { done: Promise<void>; stop: () => void } {
+  // Chokidar needs real FS paths — strip any ":line" specs before watching.
+  const stripLineSpec = (p: string) => checkGlobHasLineSpec(p) ? p.split(":")[0] : p;
+  const watchablePaths = [...new Set([...filePaths, ...filePathsToJustWatch].map(stripLineSpec))];
+  const justWatchFsPaths = new Set(filePathsToJustWatch.map(stripLineSpec));
 
-  return new Promise<void>((_resolve, reject) => {
+  const watcher = chokidar.watch(watchablePaths, { ignoreInitial: true });
+
+  const done = new Promise<void>((_resolve, reject) => {
     watcher.on("error", reject);
     watcher.on("change", (changedPath: string) => {
       if (!noClear) {
@@ -290,13 +321,17 @@ async function watchAndRun(
       // Reset store state for re-run (preserves watch config)
       store.getState().reset();
 
-      if (filePathsToJustWatch.includes(changedPath)) {
+      if (justWatchFsPaths.has(changedPath)) {
         debounceRunner(filePaths, defaultMeta, false, store);
       } else {
-        debounceRunner([changedPath], defaultMeta, false, store);
+        // Re-attach original line specs so the runner targets the right block.
+        const matching = filePaths.filter((p) => stripLineSpec(p) === changedPath);
+        debounceRunner(matching.length ? matching : [changedPath], defaultMeta, false, store);
       }
     });
   });
+
+  return { done, stop: () => watcher.close() };
 }
 const debounceRunner = debounce(runner, 100) as typeof runner;
 

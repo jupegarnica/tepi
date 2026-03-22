@@ -1,5 +1,5 @@
 ---
-delta: 100
+delta: 1000
 host: <%= process.env['HOST'] || 'https://faker.deno.dev/pong' %>
 ---
 
@@ -30,6 +30,93 @@ ignore: true
 GET ?delay=<%=meta.delta%>
 
 ###
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
+GET ?delay=<%=meta.delta%>
 GET ?delay=<%=meta.delta%>
 GET ?delay=<%=meta.delta%>
 GET ?delay=<%=meta.delta%>

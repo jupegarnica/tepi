@@ -179,6 +179,7 @@ export function createStore() {
         isWatchMode: get().isWatchMode,
         watchPaths: get().watchPaths,
         watchTriggerPaths: get().watchTriggerPaths,
+        _exitResolver: get()._exitResolver,
         startTime: Date.now(),
       }),
 

@@ -220,15 +220,20 @@ async function runBlocksSequentially(
 ): Promise<number | undefined> {
   for (const file of files) {
     const relativePath = file.relativePath || "";
-    store?.getState().setFileStatus(relativePath, "running");
-    state.filesMarkedRunning.add(relativePath);
 
     let isFirstBlock = true;
     for (const block of file.blocks) {
+      if (state.blocksDone.has(block)) continue;
+
       block.meta._relativeFilePath = relativePath;
       block.meta._isFirstBlock = isFirstBlock;
       if (isFirstBlock) {
         isFirstBlock = false;
+      }
+
+      if (!state.filesMarkedRunning.has(relativePath)) {
+        state.filesMarkedRunning.add(relativePath);
+        store?.getState().setFileStatus(relativePath, "running");
       }
 
       await runBlock(
@@ -390,6 +395,20 @@ export async function runner(
     fileBlocksDone: new Map<string, number>(),
     filesMarkedRunning: new Set<string>(),
   };
+
+  // Pre-mark all ignored blocks as done before running any other block
+  for (const file of files) {
+    for (const block of file.blocks) {
+      if (block.meta.ignore) {
+        block.meta._isIgnoredBlock = true;
+        addToDone(blocksDone, block);
+        const blockId = block.blockLink;
+        store?.getState().updateBlock(blockId, { status: "ignored", elapsedTime: 0, completedAt: Date.now() });
+        incrementCounters(block, state.counts, store);
+        markFileDoneIfNeeded(block, state, store);
+      }
+    }
+  }
 
   const failFastExitCode = threads === 1
     ? await runBlocksSequentially(
