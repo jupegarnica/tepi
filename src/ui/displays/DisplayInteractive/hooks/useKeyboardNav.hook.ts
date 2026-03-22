@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useInput } from "ink";
 import type { BlockState, FileState } from "../../../store/store.ts";
+import { isCountedBlock } from "../../../utils/blockFilters.ts";
 import type { NavItem } from "../DisplayInteractive.types.ts";
 import { findParentIndex } from "../utils/navigationHelpers.ts";
 import type { UseExpandStateResult } from "./useExpandState.hook.ts";
@@ -74,7 +75,7 @@ export function useKeyboardNav({
           const file = files[item.id];
           const hasChildren = file?.blockIds.some((bid) => {
             const b = blocks[bid];
-            return b && !b.isFirstBlock;
+            return isCountedBlock(b);
           }) ?? false;
           if (hasChildren) setSelectedIndex(selectedIndex + 1);
         } else if (item.type === "block") {

@@ -9,6 +9,7 @@ import {
 } from "../src/ui/displays/DisplayDefault/index.ts";
 import { formatDotsProgress } from "../src/ui/displays/DisplayDots/index.ts";
 import type { VitestFormatState } from "../src/ui/displays/DisplayDefault/index.ts";
+import { isGlobalMetaBlock } from "../src/ui/utils/blockFilters.ts";
 import { formatFailureDetailsText } from "../src/ui/utils/failureDetails.ts";
 
 async function vitestOutput(filePaths: string[]) {
@@ -84,16 +85,16 @@ test("[tap] plan line matches total non-first-block count", async () => {
   });
   const testCount = state.blockOrder
     .map((id) => state.blocks[id])
-    .filter((b) => b && !b.isFirstBlock).length;
+    .filter((b) => b && !isGlobalMetaBlock(b)).length;
   assertEquals(lines[lines.length - 1], `1..${testCount}`);
 });
 
-test("[tap] isFirstBlock entries are excluded from test lines", async () => {
+test("[tap] only global metadata blocks are excluded from test lines", async () => {
   const store = createStore();
   await runner(["http/pass.http"], { display: "none" }, false, store);
   const state = store.getState();
   const firstBlockIds = state.blockOrder.filter(
-    (id) => state.blocks[id]?.isFirstBlock
+    (id) => isGlobalMetaBlock(state.blocks[id])
   );
   const lines = formatTapOutput({
     blockOrder: state.blockOrder,
@@ -127,7 +128,7 @@ test("[tap] out-of-order completion keeps unique numbers", () => {
         description: "setup",
         blockLink: "http/threads.http:1",
         filePath: "http/threads.http",
-        status: "passed",
+        status: "empty",
         startTime: 0,
         elapsedTime: 0,
         completedAt: 1,
@@ -200,7 +201,7 @@ test("[dots] failures render x markers and ignored blocks render s markers", asy
   assert(progress.includes("s"));
 });
 
-test("[dots] progress excludes first blocks and unfinished blocks", () => {
+test("[dots] progress excludes empty metadata blocks and unfinished blocks", () => {
   const progress = formatDotsProgress({
     fileOrder: ["http/example.http"],
     files: {
@@ -217,7 +218,7 @@ test("[dots] progress excludes first blocks and unfinished blocks", () => {
         description: "first",
         blockLink: "http/example.http:1",
         filePath: "http/example.http",
-        status: "passed",
+        status: "empty",
         startTime: 0,
         elapsedTime: 0,
         errorDisplayed: false,
@@ -289,6 +290,60 @@ test("[dots] progress excludes first blocks and unfinished blocks", () => {
   });
 
   assertEquals(progress, ".sx");
+});
+
+test("[dots] progress includes first request blocks and excludes only empty metadata blocks", () => {
+  const progress = formatDotsProgress({
+    fileOrder: ["http/example.http"],
+    files: {
+      "http/example.http": {
+        path: "http/example.http",
+        relativePath: "http/example.http",
+        status: "done",
+        blockIds: ["firstRequest", "firstMeta", "failed"],
+      },
+    },
+    blocks: {
+      firstRequest: {
+        id: "firstRequest",
+        description: "firstRequest",
+        blockLink: "http/example.http:1",
+        filePath: "http/example.http",
+        status: "passed",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: true,
+        meta: {},
+      },
+      firstMeta: {
+        id: "firstMeta",
+        description: "firstMeta",
+        blockLink: "http/example.http:2",
+        filePath: "http/example.http",
+        status: "empty",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: true,
+        meta: {},
+      },
+      failed: {
+        id: "failed",
+        description: "failed",
+        blockLink: "http/example.http:3",
+        filePath: "http/example.http",
+        status: "failed",
+        startTime: 0,
+        elapsedTime: 0,
+        errorDisplayed: false,
+        isFirstBlock: false,
+        meta: {},
+      },
+    },
+  });
+
+  assertEquals(progress, ".x");
 });
 
 // --- vitest display format tests ---
@@ -417,13 +472,10 @@ test("[vitest] threaded runs report peak observed concurrency", async () => {
   }
 });
 
-test("[vitest] isFirstBlock entries excluded from counts", async () => {
+test("[vitest] only empty first blocks are excluded from counts", async () => {
   const store = createStore();
   await runner(["http/pass.http"], { display: "none" }, false, store);
   const state = store.getState();
-  const firstBlockCount = state.blockOrder.filter(
-    (id) => state.blocks[id]?.isFirstBlock,
-  ).length;
   const result = formatVitestOutput({
     fileOrder: state.fileOrder,
     files: state.files,
@@ -432,10 +484,16 @@ test("[vitest] isFirstBlock entries excluded from counts", async () => {
     startTime: state.startTime,
     endTime: state.endTime,
   });
-  // If there are first-blocks, total should be less than total block count
-  if (firstBlockCount > 0) {
-    assert(result.summary.testsTotal < state.blockOrder.length);
-  }
+  const countedBlocks = state.blockOrder
+    .map((id) => state.blocks[id])
+    .filter((block) => block && !isGlobalMetaBlock(block)).length;
+  assertEquals(result.summary.testsTotal, countedBlocks);
+});
+
+test("[vitest] first request-only block is counted as a test", async () => {
+  const result = await vitestOutput(["http/fakerBigResponse.http"]);
+  assertEquals(result.summary.testsTotal, 1);
+  assertEquals(result.summary.testsPassed, 1);
 });
 
 test("[vitest] file-level: any failed block marks file as failed", async () => {

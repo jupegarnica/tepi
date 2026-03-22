@@ -1,4 +1,5 @@
 import type { BlockState } from "../../../store/store.ts";
+import { isCountedBlock } from "../../../utils/blockFilters.ts";
 import type { TapStreamItem } from "../DisplayTap.types.ts";
 
 export function getTapTestBlocks(
@@ -7,7 +8,7 @@ export function getTapTestBlocks(
 ): BlockState[] {
   return blockOrder
     .map((id) => blocks[id])
-    .filter((b): b is BlockState => !!b && !b.isFirstBlock);
+    .filter(isCountedBlock);
 }
 
 export function getTapDoneBlocks(testBlocks: BlockState[]): BlockState[] {

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { BlockState, FileState } from "../../../store/store.ts";
+import { isCountedBlock } from "../../../utils/blockFilters.ts";
 import type { NavItem } from "../DisplayInteractive.types.ts";
 import { getBlockDetailLines } from "../utils/interactiveFormatters.ts";
 
@@ -27,7 +28,7 @@ export function useNavItems({
       if (expandedFiles.has(fileId)) {
         for (const blockId of file.blockIds) {
           const block = blocks[blockId];
-          if (!block || block.isFirstBlock) continue;
+          if (!isCountedBlock(block)) continue;
           items.push({ type: "block", id: blockId, fileId });
           if (expandedBlocks.has(blockId)) {
             const detailLines = getBlockDetailLines(block);

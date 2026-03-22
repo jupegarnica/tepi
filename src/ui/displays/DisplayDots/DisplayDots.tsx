@@ -4,6 +4,7 @@ import type { CommonDisplayProps } from "../../shared/DisplayLayout/index.ts";
 import type { BlockState } from "../../store/store.ts";
 import { MessagesPanel } from "../../MessagesPanel/index.ts";
 import { WatchStatus } from "../../WatchStatus/index.ts";
+import { isCountedBlock } from "../../utils/blockFilters.ts";
 import { formatVitestOutput } from "../DisplayDefault/index.ts";
 import type { DotsFormatState } from "./DisplayDots.types.ts";
 import { completedBlocks } from "./utils/dotsFormatters.ts";
@@ -18,8 +19,7 @@ export function formatDotsProgress(state: DotsFormatState): string {
     .map((id) => state.blocks[id])
     .filter(
       (block): block is BlockState =>
-        !!block &&
-        !block.isFirstBlock &&
+        isCountedBlock(block) &&
         block.status !== "pending" &&
         block.status !== "running",
     )

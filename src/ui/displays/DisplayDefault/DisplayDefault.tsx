@@ -7,7 +7,7 @@ import { MessagesPanel } from "../../MessagesPanel/index.ts";
 import { WatchStatus } from "../../WatchStatus/index.ts";
 import { BlockLine } from "../../BlockLine/index.ts";
 import { ms } from "../../utils/formatters.ts";
-import { formatFailureDetailsText } from "../../utils/failureDetails.ts";
+import { isCountedBlock } from "../../utils/blockFilters.ts";
 import { FileLine } from "./components/FileLine.tsx";
 import { VitestFailures } from "./components/VitestFailures.tsx";
 import type {
@@ -32,7 +32,7 @@ export function computeFileStats(
 ): FileStats {
   const fileBlocks = file.blockIds
     .map((id) => blocks[id])
-    .filter((b): b is BlockState => !!b && !b.isFirstBlock);
+    .filter(isCountedBlock);
 
   let passed = 0, failed = 0, ignored = 0, elapsed = 0;
   for (const b of fileBlocks) {
@@ -64,7 +64,7 @@ export function formatVitestOutput(state: VitestFormatState): VitestFormatResult
   for (const f of orderedFiles) {
     for (const id of f.blockIds) {
       const b = state.blocks[id];
-      if (!b || b.isFirstBlock || b.status !== "failed" || !b.error) continue;
+      if (!isCountedBlock(b) || b.status !== "failed" || !b.error) continue;
       failures.push({
         relativePath: f.relativePath,
         description: b.description,
@@ -190,7 +190,7 @@ export function DisplayDefault(props: CommonDisplayProps) {
               <Box flexDirection="column" marginLeft={4}>
                 {file.blockIds
                   .map((bid) => blocks[bid])
-                  .filter((b): b is BlockState => !!b && !b.isFirstBlock)
+                  .filter(isCountedBlock)
                   .map((b) => (
                     <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
                   ))}
@@ -205,7 +205,7 @@ export function DisplayDefault(props: CommonDisplayProps) {
             <Box flexDirection="column" marginLeft={4}>
               {file.blockIds
                 .map((bid) => blocks[bid])
-                .filter((b): b is BlockState => !!b && !b.isFirstBlock)
+                .filter(isCountedBlock)
                 .map((b) => (
                   <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
                 ))}

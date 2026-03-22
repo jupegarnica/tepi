@@ -1,4 +1,5 @@
 import type { BlockState } from "../../../store/store.ts";
+import { isCountedBlock } from "../../../utils/blockFilters.ts";
 import type { DotsFormatState } from "../DisplayDots.types.ts";
 
 export function completedBlocks(state: DotsFormatState): BlockState[] {
@@ -7,8 +8,7 @@ export function completedBlocks(state: DotsFormatState): BlockState[] {
     .map((id) => state.blocks[id])
     .filter(
       (block): block is BlockState =>
-        !!block &&
-        !block.isFirstBlock &&
+        isCountedBlock(block) &&
         block.status !== "pending" &&
         block.status !== "running",
     );
