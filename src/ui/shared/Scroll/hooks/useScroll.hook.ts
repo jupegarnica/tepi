@@ -168,7 +168,7 @@ function computeDisplayLines(lines: string[], anchorLine: number, height: number
   };
 }
 
-export function useScroll({ children, height, columns }: UseScrollArgs): UseScrollResult {
+export function useScroll({ children, height }: UseScrollArgs): UseScrollResult {
   return useMemo(() => {
     const renderedOutput = renderNodeToString(children);
     const rawLines = normalizeLines(renderedOutput);
@@ -176,5 +176,5 @@ export function useScroll({ children, height, columns }: UseScrollArgs): UseScro
     const sanitizedLines = sanitizeLines(rawLines);
 
     return computeDisplayLines(sanitizedLines, anchorLine, height);
-  }, [children, columns, height]);
+  }, [children, height]);
 }

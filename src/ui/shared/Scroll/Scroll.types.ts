@@ -10,7 +10,6 @@ export type ScrollProps = {
 export type UseScrollArgs = {
   children: ReactNode;
   height: number;
-  columns: number;
 };
 
 export type UseScrollResult = {

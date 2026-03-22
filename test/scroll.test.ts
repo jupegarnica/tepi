@@ -113,6 +113,8 @@ test("[scroll] centers the anchor line and shows a scrollbar when content overfl
   assert(!frame.includes("↑"));
   assert(!frame.includes("↓"));
   assert(!frame.includes(SCROLL_ANCHOR_SENTINEL));
+  // scrollbar thumb character (│ U+2502) must be present when content overflows
+  assert(frame.includes("\u2502"), "scrollbar should be visible when content overflows");
 });
 
 test("[scroll] shows all lines when height equals content height", async () => {
@@ -135,6 +137,8 @@ test("[scroll] shows all lines when height equals content height", async () => {
   assertStringIncludes(frame, "· three");
   assertStringIncludes(frame, "five");
   assert(!frame.includes(SCROLL_ANCHOR_SENTINEL));
+  // no scrollbar when content fits exactly
+  assert(!frame.includes("\u2502"), "scrollbar should not appear when content fits");
 });
 
 function createInteractiveProps(fileCount: number): InteractiveProps {
@@ -182,4 +186,6 @@ test("[interactive] done phase uses Scroll to show overflow content with scrollb
   assertStringIncludes(frame, "↑↓ navigate");
   assert(!frame.includes("__TEPI_SCROLL_ANCHOR__"));
   assert(!frame.includes("↓ 5 more"));
+  // scrollbar thumb character (│ U+2502) must be visible when content overflows
+  assert(frame.includes("\u2502"), "scrollbar should be visible when the file list overflows");
 });
