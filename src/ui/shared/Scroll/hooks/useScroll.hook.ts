@@ -147,91 +147,24 @@ function centerViewport(anchorLine: number, visibleLineCount: number, totalLineC
   );
 }
 
-function formatCombinedMarker(aboveCount: number, belowCount: number): string {
-  if (aboveCount > 0 && belowCount > 0) {
-    return fmt.dim(`  ↑ ${aboveCount} more | ↓ ${belowCount} more`);
-  }
-
-  if (aboveCount > 0) {
-    return fmt.dim(`  ↑ ${aboveCount} more`);
-  }
-
-  return fmt.dim(`  ↓ ${belowCount} more`);
-}
-
 function computeDisplayLines(lines: string[], anchorLine: number, height: number): UseScrollResult {
   const safeHeight = Math.max(0, Math.floor(height));
 
   if (safeHeight === 0 || lines.length === 0) {
-    return { aboveCount: 0, belowCount: 0, displayLines: [] };
-  }
-
-  if (safeHeight === 1) {
-    const selectedLine = lines[Math.min(anchorLine, lines.length - 1)] ?? "";
-    const aboveCount = Math.min(anchorLine, Math.max(0, lines.length - 1));
-    const belowCount = Math.max(0, lines.length - anchorLine - 1);
-
-    if (aboveCount > 0 || belowCount > 0) {
-      return {
-        aboveCount,
-        belowCount,
-        displayLines: [formatCombinedMarker(aboveCount, belowCount)],
-      };
-    }
-
-    return { aboveCount: 0, belowCount: 0, displayLines: [selectedLine] };
+    return { visibleLines: [], aboveCount: 0, totalLines: 0 };
   }
 
   if (lines.length <= safeHeight) {
-    return { aboveCount: 0, belowCount: 0, displayLines: lines };
+    return { visibleLines: lines, aboveCount: 0, totalLines: lines.length };
   }
 
-  let markerRows = safeHeight >= 3 ? 2 : 1;
-  let aboveCount = 0;
-  let belowCount = 0;
-  let visibleLines: string[] = [];
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const visibleLineCount = Math.max(1, safeHeight - markerRows);
-    const viewportStart = centerViewport(anchorLine, visibleLineCount, lines.length);
-    const viewportEnd = viewportStart + visibleLineCount;
-
-    aboveCount = viewportStart;
-    belowCount = Math.max(0, lines.length - viewportEnd);
-    visibleLines = lines.slice(viewportStart, viewportEnd);
-
-    const nextMarkerRows = safeHeight >= 3
-      ? Number(aboveCount > 0) + Number(belowCount > 0)
-      : Number(aboveCount > 0 || belowCount > 0);
-
-    if (nextMarkerRows === markerRows) break;
-    markerRows = nextMarkerRows;
-  }
-
-  if (safeHeight === 2 && aboveCount > 0 && belowCount > 0) {
-    return {
-      aboveCount,
-      belowCount,
-      displayLines: [formatCombinedMarker(aboveCount, belowCount), ...visibleLines.slice(0, 1)],
-    };
-  }
-
-  const displayLines: string[] = [];
-
-  if (aboveCount > 0) {
-    displayLines.push(fmt.dim(`  ↑ ${aboveCount} more`));
-  }
-
-  displayLines.push(...visibleLines);
-
-  if (belowCount > 0) {
-    displayLines.push(fmt.dim(`  ↓ ${belowCount} more`));
-  }
+  const viewportStart = centerViewport(anchorLine, safeHeight, lines.length);
+  const visibleLines = lines.slice(viewportStart, viewportStart + safeHeight);
 
   return {
-    aboveCount,
-    belowCount,
-    displayLines: displayLines.slice(0, safeHeight),
+    visibleLines,
+    aboveCount: viewportStart,
+    totalLines: lines.length,
   };
 }
 

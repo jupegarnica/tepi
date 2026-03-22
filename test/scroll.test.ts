@@ -29,7 +29,7 @@ async function renderRawFrame(node: React.ReactElement) {
   return frame;
 }
 
-test("[scroll] renders arbitrary ReactNode content without markers when it fits", async () => {
+test("[scroll] renders arbitrary ReactNode content without scrollbar when it fits", async () => {
   const frame = await renderFrame(
     React.createElement(
       Scroll,
@@ -93,7 +93,7 @@ test("[scroll] preserves Ink Text colors while serializing component trees", asy
   }
 });
 
-test("[scroll] centers the anchor line and shows both overflow markers", async () => {
+test("[scroll] centers the anchor line and shows a scrollbar when content overflows", async () => {
   const lines = [
     "one",
     "two",
@@ -109,10 +109,13 @@ test("[scroll] centers the anchor line and shows both overflow markers", async (
     ),
   );
 
-  assertEquals(frame, "  ↑ 2 more\n· three\n  ↓ 2 more");
+  assertStringIncludes(frame, "· three");
+  assert(!frame.includes("↑"));
+  assert(!frame.includes("↓"));
+  assert(!frame.includes(SCROLL_ANCHOR_SENTINEL));
 });
 
-test("[scroll] collapses both counts into one marker line when height is two", async () => {
+test("[scroll] shows all lines when height equals content height", async () => {
   const lines = [
     "one",
     "two",
@@ -124,11 +127,14 @@ test("[scroll] collapses both counts into one marker line when height is two", a
   const frame = await renderFrame(
     React.createElement(
       Scroll,
-      { height: 2, children: React.createElement(Text, null, lines) },
+      { height: 5, children: React.createElement(Text, null, lines) },
     ),
   );
 
-  assertEquals(frame, "  ↑ 2 more | ↓ 2 more\n· three");
+  assertStringIncludes(frame, "one");
+  assertStringIncludes(frame, "· three");
+  assertStringIncludes(frame, "five");
+  assert(!frame.includes(SCROLL_ANCHOR_SENTINEL));
 });
 
 function createInteractiveProps(fileCount: number): InteractiveProps {
@@ -167,13 +173,13 @@ function createInteractiveProps(fileCount: number): InteractiveProps {
   };
 }
 
-test("[interactive] done phase uses Scroll to show overflow counts", async () => {
+test("[interactive] done phase uses Scroll to show overflow content with scrollbar", async () => {
   const frame = await renderFrame(
     React.createElement(DisplayInteractive, createInteractiveProps(20)),
   );
 
-  assertStringIncludes(frame, "  ↓ 5 more");
   assertStringIncludes(frame, "http/file-1.http");
   assertStringIncludes(frame, "↑↓ navigate");
   assert(!frame.includes("__TEPI_SCROLL_ANCHOR__"));
+  assert(!frame.includes("↓ 5 more"));
 });

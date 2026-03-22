@@ -14,7 +14,7 @@ export type UseScrollArgs = {
 };
 
 export type UseScrollResult = {
+  visibleLines: string[];
   aboveCount: number;
-  belowCount: number;
-  displayLines: string[];
+  totalLines: number;
 };
