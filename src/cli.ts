@@ -5,12 +5,12 @@ import { relative } from "@std/path";
 import { globsToFilePaths } from "./files.ts";
 import { load } from "@std/dotenv";
 import { runner } from "./runner.ts";
-import { DISPLAYS, getDisplayIndex } from "./ui/formatters.ts";
+import { DISPLAYS, getDisplayIndex } from "./ui/utils/formatters.ts";
 import { help, readme } from "./help.ts";
 import { render } from "ink";
 import React from "react";
-import { createStore } from "./ui/store.ts";
-import { App } from "./ui/App.tsx";
+import { createStore } from "./ui/store/index.ts";
+import { App } from "./ui/App/index.ts";
 import { fileURLToPath } from "node:url";
 import { execFile as _execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -180,7 +180,6 @@ export async function cli() {
     const vars = await load({
       export: true,
       envPath: path,
-      allowEmptyValues: true,
     });
     for (const key in vars) {
       keysLoaded.add(key);

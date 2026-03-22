@@ -9,8 +9,8 @@ import {
   parseResponseFromText,
 } from "./parser.ts";
 import * as assertions from "@std/assert";
-import type { BlockState, StoreApi } from "./ui/store.ts";
-import { serializeMeta, serializeRequest, serializeResponse } from "./ui/serialize.ts";
+import type { BlockState, StoreApi } from "./ui/store/index.ts";
+import { serializeMeta, serializeRequest, serializeResponse } from "./ui/utils/serialize.ts";
 import { deriveFailureContext } from "./failureContext.ts";
 
 type RunCounts = {

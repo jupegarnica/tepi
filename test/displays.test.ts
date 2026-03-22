@@ -1,15 +1,15 @@
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import { test, vi } from "vitest";
 import { runner } from "../src/runner.ts";
-import { createStore } from "../src/ui/store.ts";
-import { formatTapOutput } from "../src/ui/displays/DisplayTap.tsx";
+import { createStore } from "../src/ui/store/index.ts";
+import { formatTapOutput } from "../src/ui/displays/DisplayTap/index.ts";
 import {
   formatDurationSummary,
   formatVitestOutput,
-} from "../src/ui/displays/DisplayDefault.tsx";
-import { formatDotsProgress } from "../src/ui/displays/DisplayDots.tsx";
-import type { VitestFormatState } from "../src/ui/displays/DisplayDefault.tsx";
-import { formatFailureDetailsText } from "../src/ui/failureDetails.ts";
+} from "../src/ui/displays/DisplayDefault/index.ts";
+import { formatDotsProgress } from "../src/ui/displays/DisplayDots/index.ts";
+import type { VitestFormatState } from "../src/ui/displays/DisplayDefault/index.ts";
+import { formatFailureDetailsText } from "../src/ui/utils/failureDetails.ts";
 
 async function vitestOutput(filePaths: string[]) {
   const store = createStore();

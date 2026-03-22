@@ -8,7 +8,8 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "rootDir": "."
   },
   "include": ["src/**/*", "mod.ts"],
