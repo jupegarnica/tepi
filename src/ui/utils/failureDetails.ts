@@ -100,7 +100,10 @@ export function formatFailureDetailsText(
   const indent = options.indent ?? DEFAULT_INDENT;
   const sourceRadius = options.sourceRadius ?? 2;
   const locationLine = getFailureLine(block);
-  const messageLines = formatMessageBlock(block.error.message, indent);
+  const errorMessage = fmt.getColorEnabled()
+    ? block.error.message
+    : fmt.stripAnsiCode(block.error.message);
+  const messageLines = formatMessageBlock(errorMessage, indent);
   const [headline, ...messageBody] = messageLines;
   const lines = [`${indent}${fmt.red(block.error.name)}: ${headline}`];
 
