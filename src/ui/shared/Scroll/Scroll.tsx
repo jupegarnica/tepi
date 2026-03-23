@@ -1,19 +1,18 @@
 import React from "react";
-import { Box, Text, useStdout } from "ink";
+import { Box, Text } from "ink";
 import { ScrollBar } from "@byteland/ink-scroll-bar";
 import type { ScrollProps } from "./Scroll.types.ts";
 import { useScroll } from "./hooks/useScroll.hook.ts";
 
 export function Scroll({ height, children }: ScrollProps) {
-  const { stdout } = useStdout();
-  const columns = stdout?.columns ?? 80;
-  const { visibleLines, aboveCount, totalLines } = useScroll({ children, height, columns });
+  const safeHeight = Math.floor(height);
+  const { visibleLines, aboveCount, totalLines } = useScroll({ children, height: safeHeight });
 
   if (visibleLines.length === 0) {
     return null;
   }
 
-  const needsScrollbar = totalLines > height;
+  const needsScrollbar = totalLines > safeHeight;
 
   return (
     <Box flexDirection="row">
@@ -23,7 +22,7 @@ export function Scroll({ height, children }: ScrollProps) {
           placement="inset"
           style="line"
           contentHeight={totalLines}
-          viewportHeight={height}
+          viewportHeight={safeHeight}
           scrollOffset={aboveCount}
         />
       )}
