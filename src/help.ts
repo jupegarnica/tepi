@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 
 export const installCommand =
-  "npm install -g @garn/tepi";
+  "npm install -g @garndev/tepi";
 
 export const runRemoteCommand =
   "npx @garndev/tepi";
