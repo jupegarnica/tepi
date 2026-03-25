@@ -8,7 +8,7 @@ export const installCommand =
   "npm install -g @garn/tepi";
 
 export const runRemoteCommand =
-  "npx @garn/tepi";
+  "npx @garndev/tepi";
 
 
 async function getFileTextFromRemoteOrLocal(url: URL): Promise<string> {
