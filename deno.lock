@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "npm:@byteland/ink-scroll-bar@1": "1.0.0_ink@6.8.0__@types+react@19.2.14__react@19.2.4_react@19.2.4",
     "npm:@jsr/std__assert@^1.0.19": "1.0.19",
     "npm:@jsr/std__async@^1.2.0": "1.2.0",
     "npm:@jsr/std__cli@^1.0.28": "1.0.28",
@@ -20,6 +21,7 @@
     "npm:eta@^1.14.2": "1.14.2",
     "npm:fast-glob@^3.3.3": "3.3.3",
     "npm:ink-spinner@5": "5.0.0_ink@6.8.0__@types+react@19.2.14__react@19.2.4_react@19.2.4_@types+react@19.2.14",
+    "npm:ink-testing-library@4": "4.0.0_@types+react@19.2.14",
     "npm:ink@^6.8.0": "6.8.0_@types+react@19.2.14_react@19.2.4",
     "npm:marked-terminal@^5.1.1": "5.2.0_marked@4.3.0",
     "npm:marked@^4.2.12": "4.3.0",
@@ -35,6 +37,13 @@
       "dependencies": [
         "ansi-styles@6.2.3",
         "is-fullwidth-code-point@5.1.0"
+      ]
+    },
+    "@byteland/ink-scroll-bar@1.0.0_ink@6.8.0__@types+react@19.2.14__react@19.2.4_react@19.2.4": {
+      "integrity": "sha512-5wfUK9H6iQI3v66uk7nQ3mJIahooA2oYpVKc5PtXMb68+z8EbWFT15wxVSJ9/x8an8oGgeGvdJcLCKdv9bjVdg==",
+      "dependencies": [
+        "ink",
+        "react"
       ]
     },
     "@colors/colors@1.5.0": {
@@ -919,6 +928,15 @@
         "react"
       ]
     },
+    "ink-testing-library@4.0.0_@types+react@19.2.14": {
+      "integrity": "sha512-yF92kj3pmBvk7oKbSq5vEALO//o7Z9Ck/OaLNlkzXNeYdwfpxMQkSowGTFUCS5MSu9bWfSZMewGpp7bFc66D7Q==",
+      "dependencies": [
+        "@types/react"
+      ],
+      "optionalPeers": [
+        "@types/react"
+      ]
+    },
     "ink@6.8.0_@types+react@19.2.14_react@19.2.4": {
       "integrity": "sha512-sbl1RdLOgkO9isK42WCZlJCFN9hb++sX9dsklOvfd1YQ3bQ2AiFu12Q6tFlr0HvEUvzraJntQCCpfEoUe9DSzA==",
       "dependencies": [
@@ -1439,6 +1457,7 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@byteland/ink-scroll-bar@1",
         "npm:@jsr/std__assert@^1.0.19",
         "npm:@jsr/std__async@^1.2.0",
         "npm:@jsr/std__cli@^1.0.28",
