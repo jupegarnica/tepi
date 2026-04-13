@@ -10,11 +10,10 @@ export type ScrollProps = {
 export type UseScrollArgs = {
   children: ReactNode;
   height: number;
-  columns: number;
 };
 
 export type UseScrollResult = {
+  visibleLines: string[];
   aboveCount: number;
-  belowCount: number;
-  displayLines: string[];
+  totalLines: number;
 };

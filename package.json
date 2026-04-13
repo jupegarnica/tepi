@@ -20,6 +20,7 @@
     "install:local": "npm link"
   },
   "dependencies": {
+    "@byteland/ink-scroll-bar": "^1.0.0",
     "@std/assert": "npm:@jsr/std__assert@^1.0.19",
     "@std/async": "npm:@jsr/std__async@^1.2.0",
     "@std/cli": "npm:@jsr/std__cli@^1.0.28",
