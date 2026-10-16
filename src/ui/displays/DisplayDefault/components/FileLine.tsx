@@ -1,6 +1,4 @@
-import React from "react";
-import { Text } from "ink";
-import Spinner from "ink-spinner";
+import { Spinner } from "../../../BlockLine/spinner.ts";
 import * as fmt from "@std/fmt/colors";
 import type { BlockState, FileState } from "../../../store/store.ts";
 import { ms } from "../../../utils/formatters.ts";
@@ -14,20 +12,12 @@ export function FileLine({
   file: FileState;
   blocks: Record<string, BlockState>;
   noAnimation?: boolean;
-}) {
+}): string {
   const colors = fmt.getColorEnabled();
   const stats = computeFileStats(file, blocks);
 
   if (file.status !== "done") {
-    return (
-      <Text>
-        {" "}
-        {noAnimation
-          ? <Text color={colors ? "blue" : undefined}>{"…"}</Text>
-          : <Text color={colors ? "blue" : undefined}><Spinner type="dots4" /></Text>}
-        {` ${file.relativePath}`}
-      </Text>
-    );
+    return ` ${colors ? fmt.blue(noAnimation ? "…" : Spinner()) : (noAnimation ? "…" : Spinner())} ${file.relativePath}`;
   }
 
   const { failed, total, elapsed, hasFailures } = stats;
@@ -36,24 +26,8 @@ export function FileLine({
   if (hasFailures) countStr += ` | ${failed} failed`;
 
   if (hasFailures) {
-    return (
-      <Text>
-        {" "}
-        <Text color={colors ? "red" : undefined}>{"✗"}</Text>
-        {` ${file.relativePath} `}
-        <Text dimColor>{`(${countStr})`}</Text>
-        {elapsedStr}
-      </Text>
-    );
+    return ` ${colors ? fmt.red("✗") : "✗"} ${file.relativePath} ${fmt.dim(`(${countStr})`)}${elapsedStr}`;
   }
 
-  return (
-    <Text>
-      {" "}
-      <Text color={colors ? "green" : undefined}>{"✓"}</Text>
-      {` ${file.relativePath} `}
-      <Text dimColor>{`(${countStr})`}</Text>
-      {elapsedStr}
-    </Text>
-  );
+  return ` ${colors ? fmt.green("✓") : "✓"} ${file.relativePath} ${fmt.dim(`(${countStr})`)}${elapsedStr}`;
 }

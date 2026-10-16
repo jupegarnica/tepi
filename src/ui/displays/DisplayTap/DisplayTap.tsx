@@ -1,10 +1,8 @@
-import React from "react";
-import { Box, Static, Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { CommonDisplayProps } from "../../shared/DisplayLayout/index.ts";
 import type { BlockState } from "../../store/store.ts";
 import type { TapFormatState } from "./DisplayTap.types.ts";
-import { getTapTestBlocks, getTapDoneBlocks, getTapStreamItems } from "./utils/tapFormatters.ts";
+import { getTapTestBlocks, getTapDoneBlocks } from "./utils/tapFormatters.ts";
 
 export function formatTapOutput(state: TapFormatState): string[] {
   const testBlocks = getTapTestBlocks(state.blockOrder, state.blocks);
@@ -34,69 +32,33 @@ export function formatTapOutput(state: TapFormatState): string[] {
   return output;
 }
 
-function TapTestLine({ block, num }: { block: BlockState; num: number }) {
+function TapTestLine({ block, num }: { block: BlockState; num: number }): string {
   const colors = fmt.getColorEnabled();
   const skip = block.status === "ignored" || block.status === "empty";
   const ok = block.status !== "failed";
   const directive = skip ? " # SKIP" : "";
+  const status = colors ? fmt.bold(ok ? fmt.green("ok") : fmt.red("not ok")) : (ok ? "ok" : "not ok");
 
-  return (
-    <Box flexDirection="column">
-      <Text>
-        <Text bold color={colors ? (ok ? "green" : "red") : undefined}>
-          {ok ? "ok" : "not ok"}
-        </Text>
-        {` ${num} - ${block.description}`}
-        {directive && (
-          <Text italic color={colors ? "green" : undefined}>
-            {directive}
-          </Text>
-        )}
-      </Text>
-      {block.status === "failed" && block.error && (
-        <Box flexDirection="column">
-          <Text dimColor>{"  ---"}</Text>
-          <Text dimColor>{`  message: ${block.error.message}`}</Text>
-          {block.error.cause && (
-            <Text dimColor>{`  cause: ${block.error.cause}`}</Text>
-          )}
-          <Text dimColor>{"  ..."}</Text>
-        </Box>
-      )}
-    </Box>
-  );
+  const lines: string[] = [
+    `${status} ${num} - ${block.description}${colors ? fmt.italic(fmt.green(directive)) : directive}`.trimEnd(),
+  ];
+
+  if (block.status === "failed" && block.error) {
+    lines.push(fmt.dim("  ---"));
+    lines.push(fmt.dim(`  message: ${block.error.message}`));
+    if (block.error.cause) lines.push(fmt.dim(`  cause: ${block.error.cause}`));
+    lines.push(fmt.dim("  ..."));
+  }
+
+  return lines.join("\n");
 }
 
-export function DisplayTap(props: CommonDisplayProps) {
-  const { blocks, phase, fileOrder, files } = props;
-  const colors = fmt.getColorEnabled();
+export function DisplayTap(props: CommonDisplayProps): string {
+  const state: TapFormatState = {
+    blockOrder: (props.fileOrder ?? []).flatMap((id) => props.files[id]?.blockIds ?? []),
+    blocks: props.blocks,
+    phase: props.phase,
+  };
 
-  const blockOrder = fileOrder.flatMap((id) => files[id]?.blockIds ?? []);
-
-  const testBlocks = getTapTestBlocks(blockOrder, blocks);
-  const streamItems = getTapStreamItems(testBlocks, phase);
-
-  return (
-    <Box flexDirection="column">
-      <Static items={streamItems}>
-        {(item) => {
-          if (item.type === "header") {
-            return <Text key={item.key}>TAP version 14</Text>;
-          }
-
-          if (item.type === "plan") {
-            return (
-              <Text key={item.key} bold color={colors ? "green" : undefined}>
-                {`1..${item.total}`}
-              </Text>
-            );
-          }
-
-          return (
-            <TapTestLine key={item.key} block={item.block} num={item.num} />
-          );
-        }}
-      </Static>
-    </Box>
-  );
+  return formatTapOutput(state).map((l) => l).join("\n");
 }

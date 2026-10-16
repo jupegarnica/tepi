@@ -1,5 +1,5 @@
-import type { StoreApi } from "../store/store.ts";
+import type { TepiStore } from "../store/store.ts";
 
 export type AppProps = {
-  store: StoreApi;
+  store: TepiStore;
 };

@@ -1,10 +1,8 @@
-import React from "react";
-import { Box, Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import { formatDurationSummary } from "../../DisplayDefault/index.ts";
 import type { VitestFormatResult } from "../../DisplayDefault/index.ts";
 
-export function DotsSummary({ summary }: { summary: VitestFormatResult["summary"] }) {
+export function DotsSummary({ summary }: { summary: VitestFormatResult["summary"] }): string {
   const colors = fmt.getColorEnabled();
 
   const filesLine =
@@ -18,11 +16,14 @@ export function DotsSummary({ summary }: { summary: VitestFormatResult["summary"
     (summary.testsIgnored > 0 ? " | " + fmt.yellow(`${summary.testsIgnored} ignored`) : "") +
     fmt.dim(` (${summary.testsTotal})`);
 
-  return (
-    <Box flexDirection="column" marginTop={1}>
-      <Text>{" " + fmt.bold("Test Files") + "  " + filesLine}</Text>
-      <Text>{" " + fmt.bold("Tests      ") + "  " + testsLine}</Text>
-      <Text>{" " + fmt.bold("Duration   ") + "  " + (colors ? fmt.dim(formatDurationSummary(summary.duration, summary.actualThreadsUsed)) : formatDurationSummary(summary.duration, summary.actualThreadsUsed))}</Text>
-    </Box>
-  );
+  const duration = colors
+    ? fmt.dim(formatDurationSummary(summary.duration, summary.actualThreadsUsed))
+    : formatDurationSummary(summary.duration, summary.actualThreadsUsed);
+
+  return [
+    "",
+    " " + fmt.bold("Test Files") + "  " + filesLine,
+    " " + fmt.bold("Tests      ") + "  " + testsLine,
+    " " + fmt.bold("Duration   ") + "  " + duration,
+  ].join("\n");
 }

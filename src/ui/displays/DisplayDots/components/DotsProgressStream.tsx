@@ -1,29 +1,36 @@
-import React, { useEffect, useRef } from "react";
-import { useStdout } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { BlockState } from "../../../store/store.ts";
 import { markerForBlock } from "../utils/dotsFormatters.ts";
+import { rawWrite } from "../../../term.ts";
 
-export function DotsProgressStream({ completed, phase }: { completed: BlockState[]; phase: string }) {
-  const { stdout } = useStdout();
-  const prevRef = useRef(0);
+let prevCount = 0;
 
-  useEffect(() => {
-    const newBlocks = completed.slice(prevRef.current);
-    const colors = fmt.getColorEnabled();
-    for (const block of newBlocks) {
-      const marker = markerForBlock(block);
-      if (colors) {
-        if (block.status === "failed") stdout.write(fmt.red(marker));
-        else if (block.status === "ignored" || block.status === "empty") stdout.write(fmt.yellow(marker));
-        else stdout.write(fmt.green(marker));
-      } else {
-        stdout.write(marker);
-      }
+/** Call between watch re-runs so the stream starts from zero again. */
+export function resetDotsStream(): void {
+  prevCount = 0;
+}
+
+/**
+ * Streaming progress without spinner animation: completed blocks are written
+ * straight to the output as they finish (ink's old side-effect behavior).
+ */
+export function DotsProgressStream(
+  { completed, phase }: { completed: BlockState[]; phase: string },
+): string {
+  const newBlocks = completed.slice(prevCount);
+  const colors = fmt.getColorEnabled();
+  for (const block of newBlocks) {
+    const marker = markerForBlock(block);
+    if (colors) {
+      if (block.status === "failed") rawWrite(fmt.red(marker));
+      else if (block.status === "ignored" || block.status === "empty") {
+        rawWrite(fmt.yellow(marker));
+      } else rawWrite(fmt.green(marker));
+    } else {
+      rawWrite(marker);
     }
-    prevRef.current = completed.length;
-    if (phase === "done") stdout.write("\n");
-  }, [completed.length, phase]);
-
-  return null;
+  }
+  prevCount = completed.length;
+  if (phase === "done") rawWrite("\n");
+  return "";
 }

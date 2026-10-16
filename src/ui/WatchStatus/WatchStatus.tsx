@@ -1,5 +1,3 @@
-import React from "react";
-import { Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 
 type Props = {
@@ -7,23 +5,13 @@ type Props = {
   watchTriggerPaths: string[];
 };
 
-export function WatchStatus({ watchPaths, watchTriggerPaths }: Props) {
-  return (
-    <Text>
-      {fmt.dim("\nWatching and running tests from:")}
-      {"\n"}
-      {watchPaths.map((p, i) => (
-        <Text key={i}>{fmt.cyan(`  ${p}`)}{"\n"}</Text>
-      ))}
-      {watchTriggerPaths.length > 0 && (
-        <>
-          {fmt.dim("\nRerun when changes from:")}
-          {"\n"}
-          {watchTriggerPaths.map((p, i) => (
-            <Text key={i}>{fmt.cyan(`  ${p}`)}{"\n"}</Text>
-          ))}
-        </>
-      )}
-    </Text>
-  );
+export function WatchStatus({ watchPaths, watchTriggerPaths }: Props): string {
+  const out: string[] = [];
+  out.push(fmt.dim("\nWatching and running tests from:"));
+  out.push(...watchPaths.map((p) => fmt.cyan(`  ${p}`)));
+  if (watchTriggerPaths.length > 0) {
+    out.push(fmt.dim("\nRerun when changes from:"));
+    out.push(...watchTriggerPaths.map((p) => fmt.cyan(`  ${p}`)));
+  }
+  return out.join("\n");
 }

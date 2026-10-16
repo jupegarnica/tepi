@@ -1,23 +1,19 @@
-import React from "react";
-import { Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { DotsFormatState } from "../DisplayDots.types.ts";
 import { completedBlocks, markerForBlock, colorForBlock } from "../utils/dotsFormatters.ts";
+import { colorNameToCode } from "../../../utils/ansi.ts";
 
-export function DotsProgress(props: DotsFormatState) {
+export function DotsProgress(props: DotsFormatState): string {
   const entries = completedBlocks(props);
 
-  if (!entries.length) return null;
+  if (!entries.length) return "";
 
   const colors = fmt.getColorEnabled();
 
-  return (
-    <Text>
-      {entries.map((block) => (
-        <Text key={block.id} color={colors ? colorForBlock(block) : undefined}>
-          {markerForBlock(block)}
-        </Text>
-      ))}
-    </Text>
-  );
+  return entries
+    .map((block) => {
+      const marker = markerForBlock(block);
+      return colors ? colorNameToCode(colorForBlock(block), marker) : marker;
+    })
+    .join("");
 }

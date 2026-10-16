@@ -1,5 +1,3 @@
-import React from "react";
-import { Box, Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { CommonDisplayProps } from "../../shared/DisplayLayout/index.ts";
 import type { BlockState, FileState } from "../../store/store.ts";
@@ -7,7 +5,7 @@ import { MessagesPanel } from "../../MessagesPanel/index.ts";
 import { WatchStatus } from "../../WatchStatus/index.ts";
 import { BlockLine } from "../../BlockLine/index.ts";
 import { ms } from "../../utils/formatters.ts";
-import { isCountedBlock } from "../../utils/blockFilters.ts";
+import { isCountedBlock, isGlobalMetaBlock } from "../../utils/blockFilters.ts";
 import { FileLine } from "./components/FileLine.tsx";
 import { VitestFailures } from "./components/VitestFailures.tsx";
 import type {
@@ -116,10 +114,9 @@ export function VitestSummary({
   endTime?: number;
   actualThreadsUsed: number;
   exitCode?: number;
-}) {
-  if (exitCode === undefined) return null;
+}): string {
+  if (exitCode === undefined) return "";
 
-  const colors = fmt.getColorEnabled();
   const allFiles = fileOrder.map((id) => files[id]).filter(Boolean) as FileState[];
   const allStats = allFiles.map((f) => computeFileStats(f, blocks));
 
@@ -143,16 +140,15 @@ export function VitestSummary({
     (testsIgnored > 0 ? " | " + fmt.yellow(`${testsIgnored} ignored`) : "") +
     fmt.dim(` (${testsTotal})`);
 
-  return (
-    <Box flexDirection="column" marginTop={1}>
-      <Text>{" " + fmt.bold("Test Files") + "  " + filesLine}</Text>
-      <Text>{" " + fmt.bold("Tests      ") + "  " + testsLine}</Text>
-      <Text>{" " + fmt.bold("Duration   ") + "  " + (colors ? fmt.dim(formatDurationSummary(elapsed, actualThreadsUsed)) : formatDurationSummary(elapsed, actualThreadsUsed))}</Text>
-    </Box>
-  );
+  return [
+    "",
+    " " + fmt.bold("Test Files") + "  " + filesLine,
+    " " + fmt.bold("Tests      ") + "  " + testsLine,
+    " " + fmt.bold("Duration   ") + "  " + fmt.dim(formatDurationSummary(elapsed, actualThreadsUsed)),
+  ].join("\n");
 }
 
-export function DisplayDefault(props: CommonDisplayProps) {
+export function DisplayDefault(props: CommonDisplayProps): string {
   const {
     files,
     fileOrder,
@@ -169,69 +165,57 @@ export function DisplayDefault(props: CommonDisplayProps) {
     noAnimation,
   } = props;
 
-  return (
-    <Box flexDirection="column">
-      <MessagesPanel messages={messages} />
+  const parts: string[] = [];
 
-      {fileOrder.map((id) => {
-        const file = files[id];
-        if (!file) return null;
+  const messagesPart = MessagesPanel({ messages });
+  if (messagesPart) parts.push(messagesPart);
 
-        if (file.status === "done") {
-          return <FileLine key={id} file={file} blocks={blocks} />;
-        }
+  for (const id of fileOrder) {
+    const file = files[id];
+    if (!file) continue;
 
-        if (noAnimation) return null;
+    if (file.status === "done") {
+      parts.push(FileLine({ file, blocks }));
+      continue;
+    }
 
-        if (file.status === "running") {
-          return (
-            <Box key={id} flexDirection="column">
-              <FileLine file={file} blocks={blocks} noAnimation={noAnimation} />
-              <Box flexDirection="column" marginLeft={4}>
-                {file.blockIds
-                  .map((bid) => blocks[bid])
-                  .filter(isCountedBlock)
-                  .map((b) => (
-                    <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
-                  ))}
-              </Box>
-            </Box>
-          );
-        }
+    if (noAnimation) continue;
 
-        return (
-          <Box key={id} flexDirection="column">
-            <Text dimColor>{` · ${file.relativePath}`}</Text>
-            <Box flexDirection="column" marginLeft={4}>
-              {file.blockIds
-                .map((bid) => blocks[bid])
-                .filter(isCountedBlock)
-                .map((b) => (
-                  <BlockLine key={b.id} block={b} noAnimation={noAnimation ?? false} />
-                ))}
-            </Box>
-          </Box>
-        );
-      })}
+    if (file.status === "running") {
+      parts.push(FileLine({ file, blocks, noAnimation }));
+      for (const bid of file.blockIds) {
+        const b = blocks[bid];
+        if (b && isCountedBlock(b)) parts.push(BlockLine({ block: b, noAnimation: noAnimation ?? false }));
+      }
+      continue;
+    }
 
-      {phase === "done" && (
-        <>
-          <VitestFailures fileOrder={fileOrder} files={files} blocks={blocks} />
-          <VitestSummary
-            fileOrder={fileOrder}
-            files={files}
-            blocks={blocks}
-            startTime={startTime}
-            endTime={endTime}
-            actualThreadsUsed={actualThreadsUsed}
-            exitCode={exitCode}
-          />
-        </>
-      )}
+    parts.push(`· ${file.relativePath}`);
+    for (const bid of file.blockIds) {
+      const b = blocks[bid];
+      if (b && isCountedBlock(b)) parts.push(BlockLine({ block: b, noAnimation: noAnimation ?? false }));
+    }
+  }
 
-      {isWatchMode && (
-        <WatchStatus watchPaths={watchPaths} watchTriggerPaths={watchTriggerPaths} />
-      )}
-    </Box>
-  );
+  if (phase === "done") {
+    const failures = VitestFailures({ fileOrder, files, blocks });
+    if (failures) parts.push(failures);
+    const summary = VitestSummary({
+      fileOrder,
+      files,
+      blocks,
+      startTime,
+      endTime,
+      actualThreadsUsed,
+      exitCode,
+    });
+    if (summary) parts.push(summary);
+  }
+
+  if (isWatchMode) {
+    const watch = WatchStatus({ watchPaths, watchTriggerPaths });
+    if (watch) parts.push(watch);
+  }
+
+  return parts.filter((s) => s !== "").join("\n");
 }

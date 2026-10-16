@@ -1,5 +1,3 @@
-import React from "react";
-import { Text } from "ink";
 import { ms } from "../utils/formatters.ts";
 import * as fmt from "@std/fmt/colors";
 
@@ -26,8 +24,8 @@ export function RunSummary({
   endTime,
   actualThreadsUsed,
   exitCode,
-}: Props) {
-  if (exitCode === undefined) return null;
+}: Props): string {
+  if (exitCode === undefined) return "";
 
   const totalBlocks = successCount + failCount + ignoreCount;
   const elapsed = endTime ? endTime - startTime : 0;
@@ -42,10 +40,8 @@ export function RunSummary({
     `${fmt.yellow(String(ignoreCount))} ignored ` +
     prettyTime;
 
-  return (
-    <Text>
-      {"\n"}
-      {fmt.bold(statusText)} {summary}
-    </Text>
-  );
+  return [
+    "",
+    `${fmt.bold(statusText)} ${summary}`,
+  ].join("\n");
 }

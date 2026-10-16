@@ -1,11 +1,8 @@
-import React from "react";
-import { Box, Text } from "ink";
 import type { BlockState, FileState } from "../../store/store.ts";
 import { BlockLine } from "../../BlockLine/index.ts";
 import { BlockDetail } from "../../BlockDetail/index.ts";
 import { getDisplayIndex, DISPLAY_INDEX_VERBOSE, DISPLAY_INDEX_TRUNCATE } from "../../utils/formatters.ts";
 import type { BlockDetailConfig } from "./FileSection.types.ts";
-import * as fmt from "@std/fmt/colors";
 
 type Props = {
   file: FileState;
@@ -25,60 +22,58 @@ export function FileSection({
   noAnimation,
   blockDetail,
   globalDisplayIndex,
-}: Props) {
+}: Props): string {
   const fileBlocks = file.blockIds
     .map((id) => blocks[id])
     .filter(Boolean) as BlockState[];
 
-  return (
-    <Box flexDirection="column">
-      {showHeader && (
-        <Text>{fmt.gray(`running ${file.relativePath} `)}</Text>
-      )}
-      {fileBlocks.map((block) => {
-        const effectiveDisplayIndex = block.displayMode
-          ? getDisplayIndex(block.displayMode)
-          : globalDisplayIndex;
+  const lines: string[] = [];
+  if (showHeader) {
+    lines.push(fmt.gray(`running ${file.relativePath} `));
+  }
 
-        if (
-          (block.status === "ignored" || block.status === "empty") &&
-          !showIgnored &&
-          effectiveDisplayIndex < DISPLAY_INDEX_VERBOSE
-        ) {
-          return null;
-        }
+  for (const block of fileBlocks) {
+    const effectiveDisplayIndex = block.displayMode
+      ? getDisplayIndex(block.displayMode)
+      : globalDisplayIndex;
 
-        if (
-          block.status === "empty" &&
-          block.isFirstBlock &&
-          effectiveDisplayIndex < DISPLAY_INDEX_VERBOSE
-        ) {
-          return null;
-        }
+    if (
+      (block.status === "ignored" || block.status === "empty") &&
+      !showIgnored &&
+      effectiveDisplayIndex < DISPLAY_INDEX_VERBOSE
+    ) {
+      continue;
+    }
 
-        const isDone = block.status !== "running" && block.status !== "pending";
-        const canShowDetail =
-          isDone && block.status !== "empty" && block.status !== "ignored";
+    if (
+      block.status === "empty" &&
+      block.isFirstBlock &&
+      effectiveDisplayIndex < DISPLAY_INDEX_VERBOSE
+    ) {
+      continue;
+    }
 
-        const showDetail =
-          canShowDetail &&
-          blockDetail != null &&
-          effectiveDisplayIndex >= DISPLAY_INDEX_TRUNCATE;
+    const isDone = block.status !== "running" && block.status !== "pending";
+    const canShowDetail =
+      isDone && block.status !== "empty" && block.status !== "ignored";
 
-        return (
-          <Box key={block.id} flexDirection="column">
-            <BlockLine block={block} noAnimation={noAnimation} />
-            {showDetail && (
-              <BlockDetail
-                block={block}
-                truncateBody={blockDetail!.truncateBody}
-                truncateHeaders={blockDetail!.truncateHeaders}
-                showErrorDetail={blockDetail!.showErrorDetail}
-              />
-            )}
-          </Box>
-        );
-      })}
-    </Box>
-  );
+    const showDetail =
+      canShowDetail &&
+      blockDetail != null &&
+      effectiveDisplayIndex >= DISPLAY_INDEX_TRUNCATE;
+
+    lines.push(BlockLine({ block, noAnimation }));
+    if (showDetail) {
+      lines.push(BlockDetail({
+        block,
+        truncateBody: blockDetail!.truncateBody,
+        truncateHeaders: blockDetail!.truncateHeaders,
+        showErrorDetail: blockDetail!.showErrorDetail,
+      }));
+    }
+  }
+
+  return lines.filter((s) => s !== "").join("\n");
 }
+
+import * as fmt from "@std/fmt/colors";

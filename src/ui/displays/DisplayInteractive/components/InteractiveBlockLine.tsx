@@ -1,5 +1,3 @@
-import React from "react";
-import { Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { BlockState } from "../../../store/store.ts";
 import { ms } from "../../../utils/formatters.ts";
@@ -15,7 +13,7 @@ export function InteractiveBlockLine({
   block,
   isSelected,
   anchorPrefix = "",
-}: Props) {
+}: Props): string {
   const sel = selector(isSelected);
   const elapsed = block.status === "ignored" ? "" : ` ${fmt.gray(ms(block.elapsedTime))}`;
   const differentFile = block.neededFrom ? fmt.dim(` needed -> ${block.neededFrom}`) : "";
@@ -35,5 +33,5 @@ export function InteractiveBlockLine({
     inner = `${fmt.dim("·")} ${link} ${fmt.dim(block.description)}   ${elapsed}${differentFile}`;
   }
 
-  return <Text>{`${anchorPrefix}    ${sel} ${inner}`}</Text>;
+  return `${anchorPrefix}    ${sel} ${inner}`;
 }

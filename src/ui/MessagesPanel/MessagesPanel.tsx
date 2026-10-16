@@ -1,5 +1,3 @@
-import React from "react";
-import { Text } from "ink";
 import type { Message } from "../store/store.ts";
 import * as fmt from "@std/fmt/colors";
 
@@ -18,13 +16,7 @@ function colorMessage(msg: Message): string {
   }
 }
 
-export function MessagesPanel({ messages }: Props) {
-  if (!messages.length) return null;
-  return (
-    <>
-      {messages.map((msg, i) => (
-        <Text key={i}>{colorMessage(msg)}</Text>
-      ))}
-    </>
-  );
+export function MessagesPanel({ messages }: Props): string {
+  if (!messages.length) return "";
+  return messages.map((msg) => colorMessage(msg)).join("\n");
 }

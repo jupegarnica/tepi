@@ -1,5 +1,3 @@
-import React from "react";
-import { Text } from "ink";
 import { selector } from "../utils/interactiveFormatters.ts";
 
 type Props = {
@@ -12,7 +10,7 @@ export function InteractiveDetailLine({
   text,
   isSelected,
   anchorPrefix = "",
-}: Props) {
+}: Props): string {
   const sel = selector(isSelected);
-  return <Text>{`${anchorPrefix}      ${sel} ${text}`}</Text>;
+  return `${anchorPrefix}      ${sel} ${text}`;
 }

@@ -1,6 +1,4 @@
-import React from "react";
-import { Text } from "ink";
-import Spinner from "ink-spinner";
+import { Spinner } from "./spinner.ts";
 import type { BlockState } from "../store/store.ts";
 import { ms } from "../utils/formatters.ts";
 import * as fmt from "@std/fmt/colors";
@@ -10,7 +8,7 @@ type Props = {
   noAnimation: boolean;
 };
 
-export function BlockLine({ block, noAnimation }: Props) {
+export function BlockLine({ block, noAnimation }: Props): string {
   const elapsed = block.status === "running" || block.status === "ignored"
     ? ""
     : ` ${fmt.gray(ms(block.elapsedTime))}`;
@@ -23,20 +21,15 @@ export function BlockLine({ block, noAnimation }: Props) {
 
   if (block.status === "running") {
     if (noAnimation) {
-      return <Text>{` ${link} ${desc}   ${fmt.gray("running...")}`}</Text>;
+      return ` ${link} ${desc}   ${fmt.gray("running...")}`;
     }
-    return (
-      <Text>
-        <Text color="blue"><Spinner type="dots4" /></Text>
-        {` ${link} ${desc}   ${fmt.gray("running...")}`}
-      </Text>
-    );
+    return `${fmt.blue(Spinner())} ${link} ${desc}   ${fmt.gray("running...")}`;
   }
 
   if (block.status === "passed") {
     const symbol = fmt.green("✓");
     const text = ` ${link} ${desc}${fmt.bold(httpStatus)}${elapsed}${differentFile}`;
-    return <Text>{`${symbol}${text}`}</Text>;
+    return `${symbol}${text}`;
   }
 
   if (block.status === "failed") {
@@ -45,30 +38,30 @@ export function BlockLine({ block, noAnimation }: Props) {
       ? ` ${block.httpStatus}`
       : " ERR";
     const text = ` ${link} ${desc}${fmt.bold(statusText)}${elapsed}${differentFile}`;
-    return <Text>{`${symbol}${text}`}</Text>;
+    return `${symbol}${text}`;
   }
 
   if (block.status === "ignored") {
     const symbol = fmt.yellow("-");
     const text = ` ${link} ${desc}   ${elapsed}${differentFile}`;
-    return <Text>{`${symbol}${text}`}</Text>;
+    return `${symbol}${text}`;
   }
 
   if (block.status === "empty") {
     const symbol = fmt.dim("·");
     const text = ` ${link} ${fmt.dim(block.description)}   ${elapsed}${differentFile}`;
-    return <Text>{`${symbol}${text}`}</Text>;
+    return `${symbol}${text}`;
   }
 
   if (block.status === "pending") {
     if (block.isFirstBlock) {
-      return null;
+      return "";
     }
 
     const symbol = fmt.dim("·");
     const text = ` ${link} ${fmt.dim(block.description)}   ${fmt.gray("pending...")}${differentFile}`;
-    return <Text>{`${symbol}${text}`}</Text>;
+    return `${symbol}${text}`;
   }
 
-  return null;
+  return "";
 }

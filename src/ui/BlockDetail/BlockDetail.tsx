@@ -1,5 +1,3 @@
-import React from "react";
-import { Text } from "ink";
 import type { BlockState } from "../store/store.ts";
 import {
   headersToText,
@@ -21,7 +19,7 @@ type Props = {
   showErrorDetail: boolean;
 };
 
-export function BlockDetail({ block, truncateBody, truncateHeaders, showErrorDetail }: Props) {
+export function BlockDetail({ block, truncateBody, truncateHeaders, showErrorDetail }: Props): string {
   const truncate = truncateBody
     ? (str: string) => truncateRows(str, MAX_BODY_LINES)
     : (str: string) => str;
@@ -30,62 +28,40 @@ export function BlockDetail({ block, truncateBody, truncateHeaders, showErrorDet
   const startLine = block.blockLink.split(":").pop()?.trim();
   const pathInfo = `\n${fmt.dim("Data from:")} ${fmt.cyan(`${filePath}:${startLine}`)}`;
 
-  return (
-    <Text>
-      {"\n"}
-      {pathInfo}
-      {"\n"}
-      {block.meta && Object.keys(block.meta).length > 0 && (
-        <>
-          {printTitle("⬇   Meta    ⬇")}
-          {"\n"}
-          {metaToText(block.meta)}
-        </>
-      )}
-      {block.request && (
-        <>
-          {"\n"}
-          {printTitle("⬇   Request    ⬇")}
-          {"\n"}
-          {requestToText(block.request)}
-          {"\n"}
-          {headersToText(block.request.headers, truncateHeaders)}
-          {block.request.body && truncate(block.request.body)}
-          {"\n"}
-        </>
-      )}
-      {block.actualResponse && (
-        <>
-          {printTitle("⬇   Response   ⬇")}
-          {"\n"}
-          {responseToText(block.actualResponse)}
-          {"\n"}
-          {headersToText(block.actualResponse.headers, truncateHeaders)}
-          {block.actualResponse.body && truncate(block.actualResponse.body)}
-          {"\n"}
-        </>
-      )}
-      {block.expectedResponse && (
-        <>
-          {printTitle("⬇   Expected Response   ⬇")}
-          {"\n"}
-          {responseToText(block.expectedResponse)}
-          {"\n"}
-          {headersToText(block.expectedResponse.headers, truncateHeaders)}
-          {block.expectedResponse.body && truncate(block.expectedResponse.body)}
-          {"\n"}
-        </>
-      )}
-      {block.error && showErrorDetail && (
-        <>
-          {printTitle("⬇   Error    ⬇")}
-          {"\n"}
-          {block.description && fmt.brightRed(block.description)}
-          {"\n"}
-          {formatFailureDetailsText(block, { indent: "" })}
-          {"\n"}
-        </>
-      )}
-    </Text>
-  );
+  const sections: string[] = [pathInfo, ""];
+
+  if (block.meta && Object.keys(block.meta).length > 0) {
+    sections.push(printTitle("⬇   Meta    ⬇"));
+    sections.push(metaToText(block.meta));
+  }
+  if (block.request) {
+    sections.push("");
+    sections.push(printTitle("⬇   Request    ⬇"));
+    sections.push(requestToText(block.request));
+    sections.push(headersToText(block.request.headers, truncateHeaders));
+    if (block.request.body) sections.push(truncate(block.request.body));
+    sections.push("");
+  }
+  if (block.actualResponse) {
+    sections.push(printTitle("⬇   Response   ⬇"));
+    sections.push(responseToText(block.actualResponse));
+    sections.push(headersToText(block.actualResponse.headers, truncateHeaders));
+    if (block.actualResponse.body) sections.push(truncate(block.actualResponse.body));
+    sections.push("");
+  }
+  if (block.expectedResponse) {
+    sections.push(printTitle("⬇   Expected Response   ⬇"));
+    sections.push(responseToText(block.expectedResponse));
+    sections.push(headersToText(block.expectedResponse.headers, truncateHeaders));
+    if (block.expectedResponse.body) sections.push(truncate(block.expectedResponse.body));
+    sections.push("");
+  }
+  if (block.error && showErrorDetail) {
+    sections.push(printTitle("⬇   Error    ⬇"));
+    sections.push(block.description ? fmt.brightRed(block.description) : "");
+    sections.push(formatFailureDetailsText(block, { indent: "" }));
+    sections.push("");
+  }
+
+  return sections.join("\n");
 }

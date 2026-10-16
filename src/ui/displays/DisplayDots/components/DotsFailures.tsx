@@ -1,28 +1,23 @@
-import React from "react";
-import { Box, Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import { formatFailureDetailsText } from "../../../utils/failureDetails.ts";
 import type { VitestFailureEntry } from "../../DisplayDefault/index.ts";
 
-export function DotsFailures({ failures }: { failures: VitestFailureEntry[] }) {
+export function DotsFailures({ failures }: { failures: VitestFailureEntry[] }): string {
   const colors = fmt.getColorEnabled();
 
-  if (!failures.length) return null;
+  if (!failures.length) return "";
 
-  return (
-    <Box flexDirection="column" marginTop={1}>
-      {failures.map((entry, index) => (
-        <Box key={`${entry.blockLink}-${index}`} flexDirection="column" marginBottom={1}>
-          <Text>
-            {" "}
-            <Text bold color={colors ? "red" : undefined}>{"FAIL "}</Text>
-            <Text dimColor>{entry.relativePath.replace(/^\.\//, "")}</Text>
-            {" > "}
-            <Text bold>{entry.description}</Text>
-          </Text>
-          <Text>{formatFailureDetailsText(entry)}</Text>
-        </Box>
-      ))}
-    </Box>
-  );
+  const parts: string[] = [""];
+  for (const entry of failures) {
+    parts.push(
+      ` ${colors ? fmt.red(fmt.bold("FAIL ")) : "FAIL "}` +
+        fmt.dim(entry.relativePath.replace(/^\.\//, "")) +
+        " > " +
+        fmt.bold(entry.description),
+    );
+    parts.push(formatFailureDetailsText(entry));
+    parts.push("");
+  }
+
+  return parts.join("\n");
 }

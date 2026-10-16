@@ -1,5 +1,3 @@
-import React from "react";
-import { Box, Static } from "ink";
 import type { BlockState, FileState } from "../../store/store.ts";
 import { ErrorsSummary } from "../../ErrorsSummary/index.ts";
 import { RunSummary } from "../../RunSummary/index.ts";
@@ -27,7 +25,7 @@ export function DisplayLayout({
   noAnimation,
   fileSectionConfig,
   errorSummaryStyle,
-}: DisplayLayoutProps) {
+}: DisplayLayoutProps): string {
   const doneFiles = fileOrder
     .map((id) => files[id])
     .filter((f): f is FileState => !!f && f.status === "done");
@@ -38,42 +36,42 @@ export function DisplayLayout({
 
   const allBlocks = Object.values(blocks) as BlockState[];
 
-  return (
-    <>
-      <MessagesPanel messages={messages} />
+  const parts: string[] = [];
 
-      <Static items={doneFiles}>
-        {(file) => (
-          <Box key={file.relativePath} flexDirection="column">
-            {renderFileNode(file, blocks, noAnimation, fileSectionConfig)}
-          </Box>
-        )}
-      </Static>
+  const messagesPart = MessagesPanel({ messages });
+  if (messagesPart) parts.push(messagesPart);
 
-      {!noAnimation && activeFiles.map((file) => (
-        <Box key={file.relativePath} flexDirection="column">
-          {renderFileNode(file, blocks, noAnimation, fileSectionConfig)}
-        </Box>
-      ))}
+  for (const file of doneFiles) {
+    const node = renderFileNode(file, blocks, noAnimation, fileSectionConfig);
+    if (node) parts.push(node);
+  }
 
-      {phase === "done" && (
-        <>
-          <ErrorsSummary blocks={allBlocks} style={errorSummaryStyle} />
-          <RunSummary
-            successCount={successCount}
-            failCount={failCount}
-            ignoreCount={ignoreCount}
-            startTime={startTime}
-            endTime={endTime}
-            actualThreadsUsed={actualThreadsUsed}
-            exitCode={exitCode}
-          />
-        </>
-      )}
+  if (!noAnimation) {
+    for (const file of activeFiles) {
+      const node = renderFileNode(file, blocks, noAnimation, fileSectionConfig);
+      if (node) parts.push(node);
+    }
+  }
 
-      {isWatchMode && (
-        <WatchStatus watchPaths={watchPaths} watchTriggerPaths={watchTriggerPaths} />
-      )}
-    </>
-  );
+  if (phase === "done") {
+    const errors = ErrorsSummary({ blocks: allBlocks, style: errorSummaryStyle });
+    if (errors) parts.push(errors);
+    const summary = RunSummary({
+      successCount,
+      failCount,
+      ignoreCount,
+      startTime,
+      endTime,
+      actualThreadsUsed,
+      exitCode,
+    });
+    if (summary) parts.push(summary);
+  }
+
+  if (isWatchMode) {
+    const watch = WatchStatus({ watchPaths, watchTriggerPaths });
+    if (watch) parts.push(watch);
+  }
+
+  return parts.join("\n");
 }

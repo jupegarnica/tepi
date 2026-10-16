@@ -7,10 +7,11 @@ import { load } from "@std/dotenv";
 import { runner } from "./runner.ts";
 import { DISPLAYS, getDisplayIndex } from "./ui/utils/formatters.ts";
 import { help, readme } from "./help.ts";
-import { render } from "ink";
-import React from "react";
 import { createStore } from "./ui/store/index.ts";
-import { App } from "./ui/App/index.ts";
+import { buildApp } from "./ui/App/index.ts";
+import { openPipedTerm, openAttachedTerm, type TermUI } from "./ui/term.ts";
+import { createNavigation } from "./ui/displays/DisplayInteractive/hooks/useNavigation.hook.ts";
+import type { Navigation } from "./ui/displays/DisplayInteractive/hooks/useNavigation.hook.ts";
 import { fileURLToPath } from "node:url";
 import { execFile as _execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -74,6 +75,7 @@ export async function cli() {
       "upgrade",
       "noAnimation",
       "readme",
+      "version",
     ],
     string: ["display", "envFile", "threads", "timeout"],
 
@@ -219,11 +221,44 @@ export async function cli() {
 
   const filePathsToRun = await globsToFilePaths(globs);
 
-  // ink render
+  // term render
   /////////////
-  let inkInstance: ReturnType<typeof render> | undefined;
-  if (getDisplayIndex(defaultMeta.display as string) > 0) {
-    inkInstance = render(React.createElement(App, { store }));
+  let term: TermUI | undefined;
+  let unsubscribe: (() => void) | undefined;
+  let navigation: Navigation | undefined;
+
+  const displayIndex = getDisplayIndex(defaultMeta.display as string);
+  if (displayIndex > 0) {
+    if (process.stdout.isTTY || process.stdin?.isTTY) {
+      term = await openAttachedTerm();
+      term.document.addEventListener("keydown", (event: KeyboardEvent) => {
+        if (!navigation) return;
+        const state = store.getState();
+        navigation.handleKey(event.key, {
+          fileOrder: state.fileOrder,
+          files: state.files,
+          blocks: state.blocks,
+          onExit: () => store.getState().requestExit(),
+        });
+        renderOnce();
+      });
+    } else {
+      term = openPipedTerm();
+    }
+    navigation = createNavigation();
+
+    const renderOnce = () => {
+      if (displayIndex === 0) return;
+      const view = buildApp(store, navigation);
+      if (process.env.TEPI_DEBUG_RENDER) {
+        process.stderr.write(`DEBUG renderOnce phase=${store.getState().phase} lines=${view.split("\n").length}\n`);
+      }
+      term?.render(view);
+    };
+    unsubscribe = store.subscribe(renderOnce);
+    if (process.env.TEPI_DEBUG_RENDER) {
+      process.stderr.write(`DEBUG subscribed\n`);
+    }
   }
 
   // runner
@@ -239,7 +274,7 @@ export async function cli() {
   /////////////
 
   if (onlyMode.size) {
-    if (getDisplayIndex(defaultMeta.display as string) > 0) {
+    if (displayIndex > 0) {
       const onlyMsg = `\n${fmt.bgYellow(fmt.bold(" ONLY MODE "))} ${onlyMode.size} ${
         onlyMode.size === 1 ? "test" : "tests"
       } are in "only" mode.`;
@@ -274,26 +309,26 @@ export async function cli() {
       });
       await Promise.race([done, userExit]).catch(console.error);
       await new Promise((r) => setTimeout(r, 50));
-      inkInstance?.unmount();
+      unsubscribe?.();
+      await term?.close();
       exit(exitCode);
     } else {
       done.catch(console.error);
       // process stays alive via chokidar file handles
     }
   } else {
-    if (inkInstance) {
-      if (args.display === "interactive") {
-        // Keep the process alive so the user can browse results interactively.
-        // Resolves when the user presses q or Escape in DisplayInteractive.
-        await new Promise<void>((resolve) => {
-          store.getState().setExitResolver(resolve);
-        });
-      }
-      // Give React one event-loop turn to render the final "done" state,
-      // then unmount ink cleanly before exiting.
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      inkInstance.unmount();
+    if (args.display === "interactive" && displayIndex > 0) {
+      // Keep the process alive so the user can browse results interactively.
+      // Resolves when the user presses q or Escape in DisplayInteractive.
+      await new Promise<void>((resolve) => {
+        store.getState().setExitResolver(resolve);
+      });
     }
+    // Give the final "done" render one event-loop turn to flush, then close
+    // the term cleanly before exiting.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    unsubscribe?.();
+    await term?.close();
     exit(exitCode);
   }
 }

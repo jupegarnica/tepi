@@ -1,5 +1,3 @@
-import React from "react";
-import { Box, Text } from "ink";
 import * as fmt from "@std/fmt/colors";
 import type { BlockState, FileState } from "../../../store/store.ts";
 import { formatFailureDetailsText } from "../../../utils/failureDetails.ts";
@@ -13,7 +11,7 @@ export function VitestFailures({
   fileOrder: string[];
   files: Record<string, FileState>;
   blocks: Record<string, BlockState>;
-}) {
+}): string {
   const colors = fmt.getColorEnabled();
   const entries: VitestFailureEntry[] = [];
 
@@ -37,22 +35,17 @@ export function VitestFailures({
     }
   }
 
-  if (!entries.length) return null;
+  if (!entries.length) return "";
 
-  return (
-    <Box flexDirection="column" marginTop={1}>
-      {entries.map((entry, i) => (
-        <Box key={i} flexDirection="column" marginBottom={1}>
-          <Text>
-            {" "}
-            <Text bold color={colors ? "red" : undefined}>{"FAIL "}</Text>
-            <Text dimColor>{entry.relativePath}</Text>
-            {" > "}
-            <Text bold>{entry.description}</Text>
-          </Text>
-          <Text>{formatFailureDetailsText(entry)}</Text>
-        </Box>
-      ))}
-    </Box>
-  );
+  const parts: string[] = [];
+  for (const entry of entries) {
+    const header =
+      ` ${colors ? fmt.red(fmt.bold("FAIL ")) : "FAIL "}` +
+      `${fmt.dim(entry.relativePath)} > ` +
+      `${fmt.bold(entry.description)}`;
+    parts.push(header);
+    parts.push(formatFailureDetailsText(entry));
+    parts.push("");
+  }
+  return "\n" + parts.slice(0, -1).join("\n");
 }

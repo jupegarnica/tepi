@@ -1,12 +1,19 @@
-import React from "react";
-import { Box } from "ink";
 import { MessagesPanel } from "../../MessagesPanel/index.ts";
 import { WatchStatus } from "../../WatchStatus/index.ts";
 import type { InteractiveProps } from "./DisplayInteractive.types.ts";
-import { useNavigation } from "./hooks/useNavigation.hook.ts";
+import { getNavItems } from "./hooks/useNavItems.hook.ts";
+import { createNavigation } from "./hooks/useNavigation.hook.ts";
 import { DoneView } from "./components/DoneView/DoneView.tsx";
+import type { Navigation } from "./hooks/useNavigation.hook.ts";
 
-export function DisplayInteractive(props: InteractiveProps) {
+export { createNavigation } from "./hooks/useNavigation.hook.ts";
+
+/**
+ * Renders the interactive display. Without a navigation controller a fresh
+ * default one (nothing expanded, selection at 0) is used — the stateful keys
+ * live outside this render pass and mutate the controller passed by the app.
+ */
+export function DisplayInteractive(props: InteractiveProps): string {
   const {
     files,
     fileOrder,
@@ -19,36 +26,43 @@ export function DisplayInteractive(props: InteractiveProps) {
     isWatchMode,
     watchPaths,
     watchTriggerPaths,
-    onExit,
   } = props;
 
-  const { selectedIndex, expandedFiles, navItems } = useNavigation({
+  const nav: Navigation = props.nav ?? createNavigation();
+  const selectedIndex = nav.getSelectedIndex();
+
+  const navItems = getNavItems({
     fileOrder,
     files,
     blocks,
-    onExit,
+    expandedFiles: nav.expandState.expandedFiles,
+    expandedBlocks: nav.expandState.expandedBlocks,
   });
 
-  return (
-    <Box flexDirection="column">
-      <MessagesPanel messages={messages} />
+  const parts: string[] = [];
 
-      <DoneView
-        navItems={navItems}
-        selectedIndex={selectedIndex}
-        expandedFiles={expandedFiles}
-        files={files}
-        blocks={blocks}
-        fileOrder={fileOrder}
-        startTime={startTime}
-        endTime={endTime}
-        actualThreadsUsed={actualThreadsUsed}
-        exitCode={exitCode}
-      />
+  const messagesPart = MessagesPanel({ messages });
+  if (messagesPart) parts.push(messagesPart);
 
-      {isWatchMode && (
-        <WatchStatus watchPaths={watchPaths} watchTriggerPaths={watchTriggerPaths} />
-      )}
-    </Box>
+  parts.push(
+    DoneView({
+      navItems,
+      selectedIndex,
+      expandedFiles: nav.expandState.expandedFiles,
+      files,
+      blocks,
+      fileOrder,
+      startTime,
+      endTime,
+      actualThreadsUsed,
+      exitCode,
+    }),
   );
+
+  if (isWatchMode) {
+    const watch = WatchStatus({ watchPaths, watchTriggerPaths });
+    if (watch) parts.push(watch);
+  }
+
+  return parts.filter((s) => s !== "").join("\n");
 }

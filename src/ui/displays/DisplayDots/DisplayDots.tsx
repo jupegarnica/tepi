@@ -1,5 +1,3 @@
-import React from "react";
-import { Box } from "ink";
 import type { CommonDisplayProps } from "../../shared/DisplayLayout/index.ts";
 import type { BlockState } from "../../store/store.ts";
 import { MessagesPanel } from "../../MessagesPanel/index.ts";
@@ -9,7 +7,7 @@ import { formatVitestOutput } from "../DisplayDefault/index.ts";
 import type { DotsFormatState } from "./DisplayDots.types.ts";
 import { completedBlocks } from "./utils/dotsFormatters.ts";
 import { DotsProgress } from "./components/DotsProgress.tsx";
-import { DotsProgressStream } from "./components/DotsProgressStream.tsx";
+import { DotsProgressStream, resetDotsStream } from "./components/DotsProgressStream.tsx";
 import { DotsFailures } from "./components/DotsFailures.tsx";
 import { DotsSummary } from "./components/DotsSummary.tsx";
 
@@ -31,7 +29,7 @@ export function formatDotsProgress(state: DotsFormatState): string {
     .join("");
 }
 
-export function DisplayDots(props: CommonDisplayProps) {
+export function DisplayDots(props: CommonDisplayProps): string {
   const {
     files,
     fileOrder,
@@ -58,22 +56,29 @@ export function DisplayDots(props: CommonDisplayProps) {
   });
 
   const done = completedBlocks({ fileOrder, files, blocks });
+  if (done.length === 0 && phase === "running") resetDotsStream();
 
-  return (
-    <Box flexDirection="column">
-      <MessagesPanel messages={messages} />
-      {noAnimation
-        ? <DotsProgressStream completed={done} phase={phase} />
-        : <DotsProgress fileOrder={fileOrder} files={files} blocks={blocks} />}
-      {phase === "done" && (
-        <>
-          <DotsFailures failures={vitestOutput.failures} />
-          <DotsSummary summary={vitestOutput.summary} />
-        </>
-      )}
-      {isWatchMode && (
-        <WatchStatus watchPaths={watchPaths} watchTriggerPaths={watchTriggerPaths} />
-      )}
-    </Box>
+  const parts: string[] = [];
+
+  const messagesPart = MessagesPanel({ messages });
+  if (messagesPart) parts.push(messagesPart);
+
+  parts.push(
+    noAnimation
+      ? DotsProgressStream({ completed: done, phase })
+      : DotsProgress({ fileOrder, files, blocks }),
   );
+
+  if (phase === "done") {
+    const failures = DotsFailures({ failures: vitestOutput.failures });
+    if (failures) parts.push(failures);
+    parts.push(DotsSummary({ summary: vitestOutput.summary }));
+  }
+
+  if (isWatchMode) {
+    const watch = WatchStatus({ watchPaths, watchTriggerPaths });
+    if (watch) parts.push(watch);
+  }
+
+  return parts.filter((s) => s !== "").join("\n");
 }

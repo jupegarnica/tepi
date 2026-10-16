@@ -1,5 +1,3 @@
-import { useCallback, useState } from "react";
-
 export type UseExpandStateResult = {
   expandedFiles: Set<string>;
   expandedBlocks: Set<string>;
@@ -12,56 +10,36 @@ export type UseExpandStateResult = {
   resetAll: () => void;
 };
 
-export function useExpandState(): UseExpandStateResult {
-  const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
-  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
-
-  const toggleFile = useCallback((id: string) => {
-    setExpandedFiles((s) => {
-      const next = new Set(s);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const expandFile = useCallback((id: string) => {
-    setExpandedFiles((s) => new Set(s).add(id));
-  }, []);
-
-  const collapseFile = useCallback((id: string) => {
-    setExpandedFiles((s) => { const n = new Set(s); n.delete(id); return n; });
-  }, []);
-
-  const toggleBlock = useCallback((id: string) => {
-    setExpandedBlocks((s) => {
-      const next = new Set(s);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const expandBlock = useCallback((id: string) => {
-    setExpandedBlocks((s) => new Set(s).add(id));
-  }, []);
-
-  const collapseBlock = useCallback((id: string) => {
-    setExpandedBlocks((s) => { const n = new Set(s); n.delete(id); return n; });
-  }, []);
-
-  const resetAll = useCallback(() => {
-    setExpandedFiles(new Set());
-    setExpandedBlocks(new Set());
-  }, []);
+export function createExpandState(): UseExpandStateResult {
+  const expandedFiles = new Set<string>();
+  const expandedBlocks = new Set<string>();
 
   return {
     expandedFiles,
     expandedBlocks,
-    toggleFile,
-    expandFile,
-    collapseFile,
-    toggleBlock,
-    expandBlock,
-    collapseBlock,
-    resetAll,
+    toggleFile(id: string) {
+      if (expandedFiles.has(id)) expandedFiles.delete(id);
+      else expandedFiles.add(id);
+    },
+    expandFile(id: string) {
+      expandedFiles.add(id);
+    },
+    collapseFile(id: string) {
+      expandedFiles.delete(id);
+    },
+    toggleBlock(id: string) {
+      if (expandedBlocks.has(id)) expandedBlocks.delete(id);
+      else expandedBlocks.add(id);
+    },
+    expandBlock(id: string) {
+      expandedBlocks.add(id);
+    },
+    collapseBlock(id: string) {
+      expandedBlocks.delete(id);
+    },
+    resetAll() {
+      expandedFiles.clear();
+      expandedBlocks.clear();
+    },
   };
 }
