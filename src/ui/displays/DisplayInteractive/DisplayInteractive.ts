@@ -3,7 +3,7 @@ import { WatchStatus } from "../../WatchStatus/index.ts";
 import type { InteractiveProps } from "./DisplayInteractive.types.ts";
 import { getNavItems } from "./hooks/useNavItems.hook.ts";
 import { createNavigation } from "./hooks/useNavigation.hook.ts";
-import { DoneView } from "./components/DoneView/DoneView.tsx";
+import { DoneView } from "./components/DoneView/DoneView.ts";
 import type { Navigation } from "./hooks/useNavigation.hook.ts";
 
 export { createNavigation } from "./hooks/useNavigation.hook.ts";

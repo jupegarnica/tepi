@@ -2,9 +2,9 @@ import type { BlockState, FileState } from "../../../../store/store.ts";
 import { VitestSummary } from "../../../DisplayDefault/index.ts";
 import { Scroll, SCROLL_ANCHOR_SENTINEL } from "../../../../shared/Scroll/index.ts";
 import type { NavItem } from "../../DisplayInteractive.types.ts";
-import { InteractiveFileLine } from "../InteractiveFileLine.tsx";
-import { InteractiveBlockLine } from "../InteractiveBlockLine.tsx";
-import { InteractiveDetailLine } from "../InteractiveDetailLine.tsx";
+import { InteractiveFileLine } from "../InteractiveFileLine.ts";
+import { InteractiveBlockLine } from "../InteractiveBlockLine.ts";
+import { InteractiveDetailLine } from "../InteractiveDetailLine.ts";
 import { getViewportRows } from "../../../../viewport.ts";
 
 

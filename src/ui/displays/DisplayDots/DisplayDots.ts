@@ -6,10 +6,10 @@ import { isCountedBlock } from "../../utils/blockFilters.ts";
 import { formatVitestOutput } from "../DisplayDefault/index.ts";
 import type { DotsFormatState } from "./DisplayDots.types.ts";
 import { completedBlocks } from "./utils/dotsFormatters.ts";
-import { DotsProgress } from "./components/DotsProgress.tsx";
-import { DotsProgressStream, resetDotsStream } from "./components/DotsProgressStream.tsx";
-import { DotsFailures } from "./components/DotsFailures.tsx";
-import { DotsSummary } from "./components/DotsSummary.tsx";
+import { DotsProgress } from "./components/DotsProgress.ts";
+import { DotsProgressStream, resetDotsStream } from "./components/DotsProgressStream.ts";
+import { DotsFailures } from "./components/DotsFailures.ts";
+import { DotsSummary } from "./components/DotsSummary.ts";
 
 export function formatDotsProgress(state: DotsFormatState): string {
   return state.fileOrder

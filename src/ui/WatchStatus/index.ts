@@ -1,1 +1,1 @@
-export { WatchStatus } from "./WatchStatus.tsx";
+export { WatchStatus } from "./WatchStatus.ts";

@@ -1,1 +1,1 @@
-export { ErrorsSummary } from "./ErrorsSummary.tsx";
+export { ErrorsSummary } from "./ErrorsSummary.ts";

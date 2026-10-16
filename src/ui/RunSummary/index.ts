@@ -1,1 +1,1 @@
-export { RunSummary } from "./RunSummary.tsx";
+export { RunSummary } from "./RunSummary.ts";

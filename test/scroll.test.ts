@@ -4,7 +4,7 @@ import { test } from "vitest";
 import { TermDOM } from "@b9g/termdom";
 import { Scroll, SCROLL_ANCHOR_SENTINEL } from "../src/ui/shared/Scroll/index.ts";
 import { ansiToHtml } from "../src/ui/utils/ansi.ts";
-import { DisplayInteractive } from "../src/ui/displays/DisplayInteractive/DisplayInteractive.tsx";
+import { DisplayInteractive } from "../src/ui/displays/DisplayInteractive/DisplayInteractive.ts";
 import type { InteractiveProps } from "../src/ui/displays/DisplayInteractive/DisplayInteractive.types.ts";
 import type { FileState } from "../src/ui/store/store.ts";
 

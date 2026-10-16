@@ -6,8 +6,8 @@ import { WatchStatus } from "../../WatchStatus/index.ts";
 import { BlockLine } from "../../BlockLine/index.ts";
 import { ms } from "../../utils/formatters.ts";
 import { isCountedBlock, isGlobalMetaBlock } from "../../utils/blockFilters.ts";
-import { FileLine } from "./components/FileLine.tsx";
-import { VitestFailures } from "./components/VitestFailures.tsx";
+import { FileLine } from "./components/FileLine.ts";
+import { VitestFailures } from "./components/VitestFailures.ts";
 import type {
   FileStats,
   VitestFormatState,

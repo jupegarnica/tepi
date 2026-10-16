@@ -25,7 +25,7 @@ tepi is a CLI HTTP testing tool. It reads `.http` files, makes real HTTP request
 cli.ts  →  runner.ts  →  parser.ts  →  fetchBlock.ts  →  assertResponse.ts
 ```
 
-1. **`src/cli.ts`** — parses CLI args (`@std/cli`), loads env files, resolves glob patterns to file paths, instantiates the Ink/React UI, calls `runner()`, handles `--watch` via chokidar.
+1. **`src/cli.ts`** — parses CLI args (`@std/cli`), loads env files, resolves glob patterns to file paths, opens the termdom UI, calls `runner()`, handles `--watch` via chokidar.
 2. **`src/runner.ts`** — iterates files and blocks; calls `parseMetaFromText` for all blocks first, then `runBlock` for each. Handles `meta.needs` (run another block first), `meta.only`/`meta.ignore`, `meta.import` (prepend another file). Updates the Zustand store after each block.
 3. **`src/parser.ts`** — parses raw `.http` text into `_Request` / `_Response` objects. Uses Eta as a template engine (`<%= %>` / `<% %>`) so blocks can reference previous results and run arbitrary JS assertions. Front matter YAML (`---`) is extracted via `@std/front-matter/yaml`.
 4. **`src/fetchBlock.ts`** — executes the HTTP request and attaches `block.actualResponse`.
@@ -34,13 +34,17 @@ cli.ts  →  runner.ts  →  parser.ts  →  fetchBlock.ts  →  assertResponse.
 
 ### UI layer (`src/ui/`)
 
-The terminal UI is built with [Ink](https://github.com/vadimdemedes/ink) (React for the terminal) and [Zustand](https://github.com/pmndrs/zustand) for state.
+The terminal UI is built with [termdom](https://github.com/bikeshaving/termdom) (`@b9g/termdom`, a DOM API for the terminal) and [Zustand](https://github.com/pmndrs/zustand) for state.
 
-- **`store.ts`** — Zustand vanilla store; runner pushes block status updates here; React components subscribe.
-- **`App.tsx`** — top-level component; switches on `displayMode` to render one of seven display components.
-- **`displays/`** — one component per display mode: `none`, `minimal`, `default`, `truncate`, `full`, `verbose`, `tap`.
+- **`store.ts`** — Zustand vanilla store; runner pushes block status updates here; the UI renders from it.
+- **`term.ts`** — openTerm layer: TTY sessions get an attached `TermDOM` (mutates `document.body`, termdom repaints); piped sessions print each frame through a static transport. Every display produces plain `"\n"`-joined lines carrying `@std/fmt` ANSI codes; `src/ui/utils/ansi.ts` converts them to inline-style spans for the termdom document (`ansiToHtml`).
+- **`App.tsx`** — `buildApp(store)`: switches on `displayMode` to render one of the display builders as a string.
+- Display components live in `src/ui/displays/Display*/` — each is a plain function returning text; the pure formatters (`formatVitestOutput`, `formatDotsProgress`, `formatTapOutput`, …) are exported from their `index.ts`.
+- **`displays/`** — one builder per display mode: `none`, `minimal`, `default`, `truncate`, `full`, `verbose`, `tap`, `dots`, `interactive`.
+- **`shared/Scroll/`** — pure scrolling/anchoring logic (`useScroll` is now a pure function over the rendered string); used by the interactive display.
 - **`formatters.ts`** — `DISPLAYS` array (index = verbosity level), `getDisplayIndex()`, text formatting helpers.
 - **`serialize.ts`** — converts `_Request`/`_Response` (which hold `ReadableStream` bodies) into plain serializable objects for the store.
+- **Tests against hosts:** the public fixture host `faker.deno.dev` is dead. `test/global-setup.ts` starts a local mirror (`test/faker.mock.mjs`) in `vitest` `globalSetup` and points `HOST`/`HOST_HTTPBIN` at it; fixture defaults still reference the old hosts as fallback.
 
 ### .http file format
 

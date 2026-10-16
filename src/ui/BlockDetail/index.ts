@@ -1,1 +1,1 @@
-export { BlockDetail } from "./BlockDetail.tsx";
+export { BlockDetail } from "./BlockDetail.ts";

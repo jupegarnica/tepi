@@ -1,1 +1,1 @@
-export { BlockLine } from "./BlockLine.tsx";
+export { BlockLine } from "./BlockLine.ts";

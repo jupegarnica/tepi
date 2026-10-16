@@ -52,25 +52,11 @@ Test your HTTP APIs with standard http syntax
 npm install -g @garndev/tepi
 ```
 
-### In deno
-
-```bash
-deno install --global -A -n tepi jsr:@garn/tepi
-```
-
 ### Run without installing (npx)
 
 ```bash
 npx @garndev/tepi [OPTIONS] [FILES|GLOBS...]
 ```
-
-
-### Permissions:
-
-* `--allow-read`  Needed to read files from the file system.
-* `--allow-net`   Needed to make HTTP requests.
-* `--allow-env`   (optional) Needed to load and read environment variables. Required if you use the --env-file option.
-* `--allow-run`   (optional) Required if you use the --upgrade option.
 
 ## Usage:
 
@@ -164,16 +150,13 @@ hola
 
 ## Interpolation:
 
-It's deno 🔥
-
 Uses eta as template engine, see docs:
-https://deno.land/x/eta
+https://eta.js.org
 
 Use `<%= %>` to interpolate values.
 
-All the std assertion module is available:
-https://deno.land/std/testing/asserts.ts
-
+All the @std/assert assertions are available:
+https://jsr.io/@std/assert
 
 Use `<% %>` to run custom assertions or custom JS.
 For example:
@@ -197,7 +180,7 @@ Or:
 
 ### Interpolation scope:
 
-In the Interpolation `<%= %>` or `<% %>` you have access to any Deno API and the following variables:
+In the Interpolation `<%= %>` or `<% %>` you have access to the Node API and the following variables:
 * request: The Request from the actual block.
 * meta: The metadata from the actual block.
 * response: The standard Response object from the fetch API from the actual request. (only available in the expected response, after the request)

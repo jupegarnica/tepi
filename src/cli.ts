@@ -231,10 +231,10 @@ export async function cli() {
   if (displayIndex > 0) {
     if (process.stdout.isTTY || process.stdin?.isTTY) {
       term = await openAttachedTerm();
-      term.document.addEventListener("keydown", (event: KeyboardEvent) => {
+      term.onKey?.((key) => {
         if (!navigation) return;
         const state = store.getState();
-        navigation.handleKey(event.key, {
+        navigation.handleKey(key, {
           fileOrder: state.fileOrder,
           files: state.files,
           blocks: state.blocks,

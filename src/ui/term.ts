@@ -8,6 +8,11 @@ export interface TermUI {
    * the formatting helpers are converted to inline styles for the DOM.
    */
   render(view: string): void;
+  /**
+   * Subscribe to keyboard input (interactive sessions only; no-op for pipes).
+   * Receives KeyboardEvent.key values.
+   */
+  onKey?(handler: (key: string) => void): void;
   /** Hand the terminal back / flush final output. */
   close(): Promise<void>;
 }
@@ -48,9 +53,10 @@ export async function openAttachedTerm(opts?: {
   rows?: number;
   cols?: number;
 }): Promise<TermUI> {
-  const term = new TermDOM({ transport: transportFromProcess() });
+  const transport = transportFromProcess();
+  const term = new TermDOM({ transport });
   await term.attach();
-  setViewport(term.transport.rows ?? 24, term.transport.cols ?? 80);
+  setViewport(transport.rows ?? 24, transport.cols ?? 80);
   registerRawWriter((chunk) => {
     const div = term.document.createElement("div");
     div.setAttribute("style", "white-space:pre");
@@ -60,6 +66,11 @@ export async function openAttachedTerm(opts?: {
   return {
     render(view: string) {
       term.document.body.innerHTML = viewToBodyHtml(view);
+    },
+    onKey(handler: (key: string) => void) {
+      term.document.addEventListener("keydown", (event: KeyboardEvent) => {
+        handler(event.key);
+      });
     },
     async close() {
       await term.dispose();

@@ -25,7 +25,7 @@ services:
       - HOST=http://faker:8000
       - HOST_HTTPBIN=http://httpbin
       - IGNORE_TEST=1
-    entrypoint: deno task test
+    entrypoint: npm test
     depends_on:
       - faker
       - httpbin

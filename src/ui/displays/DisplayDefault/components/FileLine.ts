@@ -2,7 +2,7 @@ import { Spinner } from "../../../BlockLine/spinner.ts";
 import * as fmt from "@std/fmt/colors";
 import type { BlockState, FileState } from "../../../store/store.ts";
 import { ms } from "../../../utils/formatters.ts";
-import { computeFileStats } from "../DisplayDefault.tsx";
+import { computeFileStats } from "../DisplayDefault.ts";
 
 export function FileLine({
   file,

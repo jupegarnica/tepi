@@ -1,2 +1,2 @@
-export { DisplayTap, formatTapOutput } from "./DisplayTap.tsx";
+export { DisplayTap, formatTapOutput } from "./DisplayTap.ts";
 export type { TapFormatState, TapStreamItem } from "./DisplayTap.types.ts";

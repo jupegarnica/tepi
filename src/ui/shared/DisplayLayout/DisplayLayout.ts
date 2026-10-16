@@ -4,7 +4,7 @@ import { RunSummary } from "../../RunSummary/index.ts";
 import { WatchStatus } from "../../WatchStatus/index.ts";
 import { MessagesPanel } from "../../MessagesPanel/index.ts";
 import type { DisplayLayoutProps } from "./DisplayLayout.types.ts";
-import { renderFileNode } from "./utils/renderFileNode.tsx";
+import { renderFileNode } from "./utils/renderFileNode.ts";
 
 export function DisplayLayout({
   files,

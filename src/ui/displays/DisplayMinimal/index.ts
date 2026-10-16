@@ -1,1 +1,1 @@
-export { DisplayMinimal } from "./DisplayMinimal.tsx";
+export { DisplayMinimal } from "./DisplayMinimal.ts";

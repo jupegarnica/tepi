@@ -1,4 +1,4 @@
-import type { Navigation } from "../displays/DisplayInteractive/DisplayInteractive.types.ts";
+import type { Navigation } from "../displays/DisplayInteractive/hooks/useNavigation.hook.ts";
 import type { CommonDisplayProps } from "../shared/DisplayLayout/index.ts";
 import { DisplayNone } from "../displays/DisplayNone/index.ts";
 import { DisplayMinimal } from "../displays/DisplayMinimal/index.ts";
@@ -9,9 +9,9 @@ import { DisplayFull } from "../displays/DisplayFull/index.ts";
 import { DisplayVerbose } from "../displays/DisplayVerbose/index.ts";
 import { DisplayTap } from "../displays/DisplayTap/index.ts";
 import { DisplayInteractive } from "../displays/DisplayInteractive/index.ts";
-import type { TepiStore } from "../store/store.ts";
+import type { StoreApi } from "../store/store.ts";
 
-export function buildApp(store: TepiStore, nav?: Navigation): string {
+export function buildApp(store: StoreApi, nav?: Navigation): string {
   const s = store.getState();
 
   const commonProps: CommonDisplayProps = {

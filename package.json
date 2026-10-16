@@ -37,30 +37,12 @@
     "cli-highlight": "^2.1.11",
     "eta": "^2.2.0",
     "fast-glob": "^3.3.3",
-    "ink": "^6.8.0",
-    "ink-spinner": "^5.0.0",
     "marked": "^4.2.12",
     "marked-terminal": "^5.1.1",
-    "react": "^19.2.4",
     "zustand": "^4.0.0"
   },
-  "bundleDependencies": [
-    "@std/assert",
-    "@std/async",
-    "@std/cli",
-    "@std/dotenv",
-    "@std/fmt",
-    "@std/front-matter",
-    "@std/fs",
-    "@std/media-types",
-    "@std/path",
-    "@std/testing",
-    "@wilcosp/ms-relative"
-  ],
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "ink-testing-library": "^4.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
