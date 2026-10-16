@@ -79,15 +79,22 @@ export async function openAttachedTerm(opts?: {
 }
 
 /**
- * Non-interactive (pipe) rendering: every render prints the current document
- * through the transport, mirroring ink's frame semantics on a redirected
- * stdout. A fresh unattached TermDOM renders synchronously via print().
+ * Non-interactive (pipe) rendering: each render emits the current document as
+ * ANSI through the transport and *overwrites* the previous frame using cursor
+ * controls, mirroring ink/log-update semantics on a redirected stdout. A stray
+ * `rawWrite` (e.g. the dots stream) invalidates the overwrite so streamed
+ * output is never clobbered.
  */
 export function openPipedTerm(opts?: { cols?: number; rows?: number }): TermUI {
   const writes = (chunk: string) => {
     process.stdout.write(chunk);
   };
-  registerRawWriter(writes);
+  // Raw streamed output cannot be overwritten by cursor controls.
+  let streamedSinceFrame = false;
+  registerRawWriter((chunk) => {
+    streamedSinceFrame = true;
+    writes(chunk);
+  });
   const transport = {
     cols: opts?.cols ?? 80,
     rows: opts?.rows ?? 24,
@@ -101,7 +108,7 @@ export function openPipedTerm(opts?: { cols?: number; rows?: number }): TermUI {
     close() {},
   };
   let instance: TermDOM | null = null;
-  let pending: Promise<void> = Promise.resolve();
+  let printedLines = 0;
 
   setViewport(transport.rows, transport.cols);
 
@@ -116,14 +123,23 @@ export function openPipedTerm(opts?: { cols?: number; rows?: number }): TermUI {
     render(view: string) {
       const term = getTerm();
       term.document.body.innerHTML = viewToBodyHtml(view);
-      pending = pending
-        .then(() => term.print())
-        .catch((e) => {
-          console.error(`tepi render error: ${e?.stack ?? e}`);
-        });
+      // renderANSI() ends with "\n": N frame lines == N newlines.
+      const ansi = term.renderANSI();
+      const lines = ansi.split("\n").length - 1;
+
+      let prefix = "";
+      if (streamedSinceFrame) {
+        streamedSinceFrame = false;
+        printedLines = 0;
+      } else if (printedLines > 0) {
+        // Cursor is on the line below the previous frame; move up over every
+        // line, then clear from there down before drawing the new frame.
+        prefix = `\x1b[${printedLines}A\x1b[0J`;
+      }
+      writes(prefix + ansi);
+      printedLines = lines;
     },
     async close() {
-      await pending;
       if (instance) {
         await instance.dispose().catch(() => {});
       }

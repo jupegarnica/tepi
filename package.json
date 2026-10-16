@@ -1,11 +1,33 @@
 {
   "name": "@garndev/tepi",
-  "version": "2.0.5",
+  "version": "3.0.0",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
   "bin": {
     "tepi": "bin/tepi.mjs"
   },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "README.md"
+  ],
+  "bundleDependencies": [
+    "@std/assert",
+    "@std/async",
+    "@std/cli",
+    "@std/dotenv",
+    "@std/fmt",
+    "@std/front-matter",
+    "@std/fs",
+    "@std/media-types",
+    "@std/path",
+    "@std/testing",
+    "@wilcosp/ms-relative"
+  ],
   "exports": {
     ".": "./src/cli.ts"
   },
@@ -39,11 +61,11 @@
     "fast-glob": "^3.3.3",
     "marked": "^4.2.12",
     "marked-terminal": "^5.1.1",
+    "tsx": "^4.0.0",
     "zustand": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "tsx": "^4.0.0",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
   },
