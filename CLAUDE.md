@@ -76,4 +76,20 @@ Resolving `@jsr/*` needs the scoped registry (repo `.npmrc`: `@jsr:registry=http
 - The package ships TypeScript sources (`files`: `bin`, `src`, `docs`, `README.md`) — no build step is published.
 - `bin/tepi.mjs` (`#!/usr/bin/env node`) imports `tsx/esm/api`, calls `register()` and then dynamically imports `../src/cli.ts`. `tsx` is a **runtime dependency** (not dev) and is resolved relative to the bin, so `npx`/global installs work.
 - `help`/`readme` read `../docs/usage.md` and `../README.md`, so `docs/` and `README.md` must stay in `files`.
-- Release: `npm publish --access public` (scoped). The `v*` tag workflow in `.github/workflows/test.yml` calls the same.
+
+### Releasing
+
+Release by tag; CI does the publish.
+
+```
+make release        # vhs + readme + `npm version patch` + make tag + docker image
+# or, when the version is already bumped:
+make tag            # git tag v<package.json version> && git push origin v<version>
+```
+
+Pushing a `v*` tag runs `.github/workflows/test.yml`: it runs `npm ci` + `npm test`, asserts the tag equals `package.json`'s version, and `npm publish --access public` **unless that version is already on npm** (idempotent — re-pushing a tag won't fail). Manual publish is still possible with `make publish-npm`.
+
+Dev notes:
+
+- The lockfile is generated with **npm ≥ 11**. Re-resolving dev deps (e.g. bumping `vitest`) with npm 10.9.0 trips an arborist bug (`Cannot read properties of null (reading 'edgesOut')`) on `vitest@4.1.x`; `npm ci` and `npm install` with the committed lock work fine on npm 10.
+- `braces` (via `fast-glob` → `micromatch`) currently has no patched release, so `npm audit` reports 3 high advisories that cannot be fixed yet — upstream, not shipped code.

@@ -1,4 +1,4 @@
-.PHONY: test-debug test-docker local udd version-get readme readme-copy release publish-image vhs publish publish-npm
+.PHONY: test-debug test-docker local udd version-get readme readme-copy release tag publish-image vhs publish publish-npm
 
 test-debug:
 	NO_LOG=1 npx vitest run -t 'code 0'
@@ -33,8 +33,17 @@ release:
 	$(MAKE) vhs
 	$(MAKE) readme
 	npm version patch
-	git push --tags origin main
+	$(MAKE) tag
 	$(MAKE) publish-image
+
+# Tag the current package.json version and push it. Pushing a `v*` tag runs
+# .github/workflows/test.yml, which tests and then publishes to npm (skipping
+# if that version is already on the registry).
+tag:
+	@VERSION=$$($(MAKE) --silent version-get); \
+	echo "Tagging v$$VERSION"; \
+	git tag v$$VERSION 2>/dev/null || echo "Tag v$$VERSION already exists"; \
+	git push origin v$$VERSION
 
 publish-image:
 	IMAGE_NAME=jupegarnica/tepi; \
@@ -49,11 +58,5 @@ vhs:
 
 publish-npm:
 	npm publish --access public
-
-publish-deno:
-	@VERSION=$$(node -p "require('./package.json').version"); \
-	echo "Tagging v$$VERSION for deno.land/x..."; \
-	git tag v$$VERSION 2>/dev/null || echo "Tag v$$VERSION already exists"; \
-	git push origin v$$VERSION
 
 publish: publish-npm
