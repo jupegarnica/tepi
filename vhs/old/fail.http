@@ -2,7 +2,7 @@
 id: random commit message
 ---
 
-GET https://faker.deno.dev/git/commitMessage
+GET https://faker.garn.dev/git/commitMessage
 
 HTTP/1.1 200 OK
 Content-type: application/json

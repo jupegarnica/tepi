@@ -9,7 +9,7 @@
 For example, validate the headers, status code, status text and body:
 
 ```http
-GET https://faker.deno.dev/?body=hola&status=400
+GET https://faker.garn.dev/?body=hola&status=400
 
 HTTP/1.1 400 Bad Request
 content-type: text/plain; charset=utf-8
@@ -83,14 +83,14 @@ For example:
 ---
 id: hello
 ---
-GET https://faker.deno.dev/?body=hola
+GET https://faker.garn.dev/?body=hola
 
 HTTP/1.1 200
 
 hola
 
 ###
-POST https://faker.deno.dev/
+POST https://faker.garn.dev/
 
 <%= hello.body %>
 
@@ -113,7 +113,7 @@ description: This is a test
 needs: login
 ---
 
-GET https://faker.deno.dev/?body=hola
+GET https://faker.garn.dev/?body=hola
 ```
 
 This metadata is available in the interpolation scope as `meta` and in the `meta` property of the block.

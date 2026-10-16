@@ -13,7 +13,7 @@ beforeAll(() => {
   }
 });
 
-const HOST = process.env.HOST || "https://faker.deno.dev";
+const HOST = process.env.HOST || "https://faker.garn.dev";
 const HOST_HTTPBIN = process.env.HOST_HTTPBIN || "http://httpbin.org";
 
 test(

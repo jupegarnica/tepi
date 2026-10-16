@@ -1,6 +1,6 @@
 ---
 delta: 1000
-host: <%= process.env['HOST'] || 'https://faker.deno.dev/pong' %>
+host: <%= process.env['HOST'] || 'https://faker.garn.dev/pong' %>
 ---
 
 ###

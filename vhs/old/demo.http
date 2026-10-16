@@ -6,7 +6,7 @@ HTTP/1.1 200 OK
 ---
 id: fetch delayed response
 ---
-GET https://faker.deno.dev/git/commitMessage?delay=2000
+GET https://faker.garn.dev/git/commitMessage?delay=2000
 
 HTTP/1.1 200 OK
 Content-type: application/json
