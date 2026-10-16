@@ -20,6 +20,7 @@
     "install:local": "npm link"
   },
   "dependencies": {
+    "@b9g/termdom": "0.2.3",
     "@std/assert": "npm:@jsr/std__assert@^1.0.19",
     "@std/async": "npm:@jsr/std__async@^1.2.0",
     "@std/cli": "npm:@jsr/std__cli@^1.0.28",
@@ -65,6 +66,6 @@
     "vitest": "^2.0.0"
   },
   "overrides": {
-    "esbuild": "^0.25.0"
+    "esbuild": ">=0.25.0"
   }
 }
