@@ -67,7 +67,7 @@ Run `make readme` to regenerate. This also copies the result to `vscode-extensio
 
 ### JSR packages
 
-All `@std/*` packages are JSR packages installed via npm as `@jsr/std__*` (e.g. `@std/assert` → `npm:@jsr/std__assert`). Do not use `@std/fs/expand-glob` (uses Deno internals) — use `fast-glob` instead. Use `node:path` instead of `@std/path/posix` for path resolution.
+All `@std/*` packages are JSR packages installed via npm as `@jsr/std__*` (e.g. `@std/assert` → `npm:@jsr/std__assert`). Do not use `@std/fs/expand-glob` (uses Deno internals) — use `tinyglobby` instead. Use `node:path` instead of `@std/path/posix` for path resolution.
 
 Resolving `@jsr/*` needs the scoped registry (repo `.npmrc`: `@jsr:registry=https://npm.jsr.io`). So consumers never need it, the published package **bundles** the JSR-backed deps (`package.json` `bundleDependencies`), which keeps `npx @garndev/tepi` working on a clean machine.
 
@@ -92,4 +92,5 @@ Pushing a `v*` tag runs `.github/workflows/test.yml`: it runs `npm ci` + `npm te
 Dev notes:
 
 - The lockfile is generated with **npm ≥ 11**. Re-resolving dev deps (e.g. bumping `vitest`) with npm 10.9.0 trips an arborist bug (`Cannot read properties of null (reading 'edgesOut')`) on `vitest@4.1.x`; `npm ci` and `npm install` with the committed lock work fine on npm 10.
-- `braces` (via `fast-glob` → `micromatch`) currently has no patched release, so `npm audit` reports 3 high advisories that cannot be fixed yet — upstream, not shipped code.
+- Globbing uses **`tinyglobby`**, not `fast-glob`: `fast-glob` → `micromatch` → `braces` pulls in CVE-2026-93687 (GHSA-vfj7-8cjw-p6xm, high, no upstream patch), which left `npm audit` with 3 high advisories. `tinyglobby` implements braces/extglob itself, so `braces` is gone from the tree and `npm audit` is clean.
+- `tinyglobby` does not expand a magic segment right after a `..` segment (e.g. `..` + `/` + `*` + `/http/test*.http` → 0 results). `src/files.ts` works around it with `splitLeadingParentSegments()`, which lifts the leading `..` segments into the glob `cwd`. Keep that in mind before changing the glob options: `expandDirectories: false` is there for `fast-glob` parity (a bare directory pattern must not expand to its contents).
