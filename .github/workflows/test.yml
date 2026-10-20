@@ -23,6 +23,12 @@ jobs:
 
       - run: npm ci
       - run: npm test
+        env:
+          # A few e2e tests do a global install/link (`npm install -g`,
+          # `npm link`, `npx`) against the *published* package, not this
+          # build. They are slow, mutate the runner and used to fail CI with
+          # a 5s timeout, so they are always skipped here.
+          IGNORE_TEST: "1"
 
       # A `v*` tag must match package.json, so we never tag the wrong version.
       - name: Validate tag matches package.json version

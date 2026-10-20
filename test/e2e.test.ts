@@ -205,8 +205,10 @@ test("[e2e] run help", async () => {
 
 const mustInstall = !!process.env.IGNORE_TEST || Math.random() < 0.95;
 
+// A global npm install/link takes way more than the default 5s timeout.
 test.skipIf(mustInstall)(
   "[e2e] help commands must work: installCommand",
+  { timeout: 120_000 },
   async () => {
     const { code, out, success } = await run(installCommand);
     assertEquals(code, 0);
@@ -215,16 +217,21 @@ test.skipIf(mustInstall)(
   }
 );
 
-test.skipIf(mustInstall)("[e2e] keep install local", async () => {
-  const { code, out, success } = await run("npm link");
-  assert(out.length > 0);
-  assertEquals(code, 0);
-  assertEquals(success, true);
-});
+test.skipIf(mustInstall)(
+  "[e2e] keep install local",
+  { timeout: 120_000 },
+  async () => {
+    const { code, out, success } = await run("npm link");
+    assert(out.length > 0);
+    assertEquals(code, 0);
+    assertEquals(success, true);
+  }
+);
 
 const ignoreRunRemote = !!process.env.IGNORE_TEST || Math.random() < 0.95;
 test.skipIf(ignoreRunRemote)(
   "[e2e] help commands must work: runRemoteCommand",
+  { timeout: 120_000 },
   async () => {
     const { out, success } = await run(runRemoteCommand);
     assert(out.length > 0);
