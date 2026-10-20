@@ -43,13 +43,28 @@ jobs:
           fi
 
       # Idempotent: publishing an already-published version would fail otherwise.
+      # Runs on a v* tag push, or manually via workflow_dispatch (to publish the
+      # version currently in package.json without re-tagging).
       - name: Publish to npm (skip if already published)
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
         run: |
           PKG="$(node -p "require('./package.json').version")"
           if npm view "@garndev/tepi@$PKG" version >/dev/null 2>&1; then
             echo "@garndev/tepi@$PKG is already published - skipping."
+            exit 0
+          fi
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            # Fail with a clear message instead of npm's cryptic
+            # "404 Not Found - PUT .../@scope%2fpkg" (that is what an
+            # invalid/expired token looks like on a publish).
+            if ! npm whoami >/dev/null 2>&1; then
+              echo "::error::NPM_TOKEN is invalid or expired. Update the repo secret, or delete it and configure a trusted publisher (OIDC) for this repo on npmjs.com."
+              exit 1
+            fi
+            npm publish --access public
           else
+            # No token: npm exchanges the workflow OIDC id-token (trusted
+            # publisher configured on npmjs.com).
             npm publish --access public
           fi
         env:
