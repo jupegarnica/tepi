@@ -42,6 +42,14 @@ jobs:
             exit 1
           fi
 
+      # npm's trusted publishing (OIDC) needs npm >= 11.5.1 to exchange the
+      # workflow id-token; the npm bundled with Node 22 is 10.x, which cannot.
+      - name: Upgrade npm (trusted publishing needs >= 11.5.1)
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: |
+          npm install -g npm@11
+          npm --version
+
       # Idempotent: publishing an already-published version would fail otherwise.
       # Runs on a v* tag push, or manually via workflow_dispatch (to publish the
       # version currently in package.json without re-tagging).
@@ -54,18 +62,13 @@ jobs:
             exit 0
           fi
           if [ -n "$NODE_AUTH_TOKEN" ]; then
-            # Fail with a clear message instead of npm's cryptic
-            # "404 Not Found - PUT .../@scope%2fpkg" (that is what an
-            # invalid/expired token looks like on a publish).
-            if ! npm whoami >/dev/null 2>&1; then
-              echo "::error::NPM_TOKEN is invalid or expired. Update the repo secret, or delete it and configure a trusted publisher (OIDC) for this repo on npmjs.com."
-              exit 1
-            fi
-            npm publish --access public
+            echo "Publishing @garndev/tepi@$PKG (OIDC exchange takes precedence in CI)."
           else
-            # No token: npm exchanges the workflow OIDC id-token (trusted
-            # publisher configured on npmjs.com).
-            npm publish --access public
+            echo "Publishing @garndev/tepi@$PKG with trusted publishing (OIDC): no NPM_TOKEN secret configured."
           fi
+          # Without a token, npm exchanges the workflow OIDC id-token against
+          # the trusted publisher configured on npmjs.com. If that is not set
+          # up, npm fails with ENEEDAUTH instead of npm's cryptic 404.
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
