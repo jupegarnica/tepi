@@ -1,24 +1,20 @@
-## create readme on changes to src/cli.ts
 name: test and publish
+
 on:
   workflow_dispatch:
-
   push:
     tags:
       - 'v*'
-    paths:
-      - src/**
-      - mod.ts
 
 jobs:
-
-  test:
+  test-and-publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -28,12 +24,27 @@ jobs:
       - run: npm ci
       - run: npm test
 
-      - name: Publish to npm
+      # A `v*` tag must match package.json, so we never tag the wrong version.
+      - name: Validate tag matches package.json version
         if: startsWith(github.ref, 'refs/tags/v')
-        run: npm publish --access public
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          echo "tag=$TAG package=$PKG"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::Tag $TAG does not match package.json version $PKG"
+            exit 1
+          fi
+
+      # Idempotent: publishing an already-published version would fail otherwise.
+      - name: Publish to npm (skip if already published)
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          PKG="$(node -p "require('./package.json').version")"
+          if npm view "@garndev/tepi@$PKG" version >/dev/null 2>&1; then
+            echo "@garndev/tepi@$PKG is already published - skipping."
+          else
+            npm publish --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish to JSR
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: npx jsr publish

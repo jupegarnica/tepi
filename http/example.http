@@ -1,5 +1,5 @@
 ---
-host: <%= process.env['HOST'] || 'https://faker.deno.dev' %>
+host: <%= process.env['HOST'] || 'https://faker.garn.dev' %>
 explanation: If the first block does not have a request its metadata will be use globally for all requests.
 ---
 ###
@@ -22,7 +22,7 @@ id: optional name
 timeout: 500 # must respond in less than 500ms
 ---
 GET /?body=hola&status=400
-host: https://faker.deno.dev
+host: https://faker.garn.dev
 quiet: true
 
 ###

@@ -1,1 +1,1 @@
-export { DisplayNone } from "./DisplayNone.tsx";
+export { DisplayNone } from "./DisplayNone.ts";

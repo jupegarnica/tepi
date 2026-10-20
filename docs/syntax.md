@@ -9,7 +9,7 @@
 For example, validate the headers, status code, status text and body:
 
 ```http
-GET https://faker.deno.dev/?body=hola&status=400
+GET https://faker.garn.dev/?body=hola&status=400
 
 HTTP/1.1 400 Bad Request
 content-type: text/plain; charset=utf-8
@@ -20,16 +20,13 @@ hola
 
 ## Interpolation:
 
-It's deno 🔥
-
 Uses eta as template engine, see docs:
-https://deno.land/x/eta
+https://eta.js.org
 
 Use `<%= %>` to interpolate values.
 
-All the std assertion module is available:
-https://deno.land/std/testing/asserts.ts
-
+All the @std/assert assertions are available:
+https://jsr.io/@std/assert
 
 Use `<% %>` to run custom assertions or custom JS.
 For example:
@@ -53,7 +50,7 @@ Or:
 
 ### Interpolation scope:
 
-In the Interpolation `<%= %>` or `<% %>` you have access to any Deno API and the following variables:
+In the Interpolation `<%= %>` or `<% %>` you have access to the Node API and the following variables:
 * request: The Request from the actual block.
 * meta: The metadata from the actual block.
 * response: The standard Response object from the fetch API from the actual request. (only available in the expected response, after the request)
@@ -86,14 +83,14 @@ For example:
 ---
 id: hello
 ---
-GET https://faker.deno.dev/?body=hola
+GET https://faker.garn.dev/?body=hola
 
 HTTP/1.1 200
 
 hola
 
 ###
-POST https://faker.deno.dev/
+POST https://faker.garn.dev/
 
 <%= hello.body %>
 
@@ -116,7 +113,7 @@ description: This is a test
 needs: login
 ---
 
-GET https://faker.deno.dev/?body=hola
+GET https://faker.garn.dev/?body=hola
 ```
 
 This metadata is available in the interpolation scope as `meta` and in the `meta` property of the block.

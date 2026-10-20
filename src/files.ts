@@ -167,11 +167,33 @@ export function fileTextToBlocks(
   return blocks;
 }
 
-import fg from "fast-glob";
+import { glob as globFiles } from "tinyglobby";
 import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 
 export const checkGlobHasLineSpec = (glob: string) =>
   new RegExp(":[0-9]+").test(glob);
+
+/**
+ * `tinyglobby` does not expand a magic segment that follows a `..` segment
+ * (e.g. `..` + `/` + `*` + `/http/test*.http` yields nothing), while
+ * `fast-glob` did. Split the leading `..` segments off and glob the remainder
+ * from that directory.
+ */
+const splitLeadingParentSegments = (
+  pattern: string,
+): { cwd: string; pattern: string } => {
+  const segments = pattern.split("/");
+  let parentCount = 0;
+  while (parentCount < segments.length && segments[parentCount] === "..") {
+    parentCount++;
+  }
+  if (parentCount === 0) return { cwd: process.cwd(), pattern };
+  return {
+    cwd: resolve(process.cwd(), ...segments.slice(0, parentCount)),
+    pattern: segments.slice(parentCount).join("/"),
+  };
+};
 
 export async function globsToFilePaths(globs: string[]): Promise<string[]> {
   const filePaths: string[] = [];
@@ -182,7 +204,17 @@ export async function globsToFilePaths(globs: string[]): Promise<string[]> {
       [glob, lineSpec] = glob.split(":");
       lineSpec = ":" + lineSpec;
     }
-    const found = await fg(glob, { absolute: true, onlyFiles: true });
+    const { cwd, pattern } = splitLeadingParentSegments(glob);
+    const found = pattern
+      ? await globFiles(pattern, {
+        cwd,
+        absolute: true,
+        onlyFiles: true,
+        // fast-glob parity: a bare directory pattern must not expand to its
+        // contents (tinyglobby defaults to expanding it).
+        expandDirectories: false,
+      })
+      : [];
     for (const path of found) {
       filePaths.push(path + lineSpec);
     }

@@ -1,16 +1,15 @@
-import type { ReactNode } from "react";
-
 export const SCROLL_ANCHOR_SENTINEL = "__TEPI_SCROLL_ANCHOR__";
 
 export type ScrollProps = {
   height: number;
-  children: ReactNode;
+  /** Pre-rendered view (lines joined with "\n"), possibly carrying ANSI styles. */
+  children: string;
 };
 
 export type UseScrollArgs = {
-  children: ReactNode;
+  children: string;
   height: number;
-  columns: number;
+  columns?: number;
 };
 
 export type UseScrollResult = {

@@ -1,1 +1,1 @@
-export { DisplayVerbose } from "./DisplayVerbose.tsx";
+export { DisplayVerbose } from "./DisplayVerbose.ts";

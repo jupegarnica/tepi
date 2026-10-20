@@ -1,1 +1,1 @@
-export { DisplayTruncate } from "./DisplayTruncate.tsx";
+export { DisplayTruncate } from "./DisplayTruncate.ts";

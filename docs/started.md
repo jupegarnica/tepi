@@ -52,22 +52,8 @@ Test your HTTP APIs with standard http syntax
 npm install -g @garndev/tepi
 ```
 
-### In deno
-
-```bash
-deno install --global -A -n tepi jsr:@garn/tepi
-```
-
 ### Run without installing (npx)
 
 ```bash
 npx @garndev/tepi [OPTIONS] [FILES|GLOBS...]
 ```
-
-
-### Permissions:
-
-* `--allow-read`  Needed to read files from the file system.
-* `--allow-net`   Needed to make HTTP requests.
-* `--allow-env`   (optional) Needed to load and read environment variables. Required if you use the --env-file option.
-* `--allow-run`   (optional) Required if you use the --upgrade option.

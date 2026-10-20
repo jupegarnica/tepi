@@ -1,4 +1,4 @@
-.PHONY: test-debug test-docker local compile install-x udd dnt version version-get readme readme-copy release publish-image vhs publish publish-npm publish-jsr publish-deno
+.PHONY: test-debug test-docker local udd version-get readme readme-copy release tag publish-image vhs publish publish-npm
 
 test-debug:
 	NO_LOG=1 npx vitest run -t 'code 0'
@@ -9,23 +9,14 @@ test-docker:
 local:
 	HOST=http://localhost HOST_HTTPBIN=http://localhost:81 npm run test:watch
 
-compile:
-	deno compile --output=dist/tepi -A src/cli.ts
-
 install:
 	npm install -g @garndev/tepi
 
 udd:
 	npx npm-check-updates -u && npm test
 
-dnt:
-	deno run -A https://deno.land/x/dnt_prompt/main.ts
-
-version:
-	deno run --allow-all jsr:@krlwlfrt/version
-
 version-get:
-	@$(MAKE) --silent version | jq '.["@garndev/tepi"]' | sed 's/"//g'
+	@node -p "require('./package.json').version"
 
 readme:
 	cat docs/started.md > README.md
@@ -41,9 +32,18 @@ readme-copy:
 release:
 	$(MAKE) vhs
 	$(MAKE) readme
-	deno run --allow-all jsr:@krlwlfrt/version patch
-	git push --tags origin main
+	npm version patch
+	$(MAKE) tag
 	$(MAKE) publish-image
+
+# Tag the current package.json version and push it. Pushing a `v*` tag runs
+# .github/workflows/test.yml, which tests and then publishes to npm (skipping
+# if that version is already on the registry).
+tag:
+	@VERSION=$$($(MAKE) --silent version-get); \
+	echo "Tagging v$$VERSION"; \
+	git tag v$$VERSION 2>/dev/null || echo "Tag v$$VERSION already exists"; \
+	git push origin v$$VERSION
 
 publish-image:
 	IMAGE_NAME=jupegarnica/tepi; \
@@ -59,13 +59,4 @@ vhs:
 publish-npm:
 	npm publish --access public
 
-publish-jsr:
-	npx jsr publish
-
-publish-deno:
-	@VERSION=$$(node -p "require('./package.json').version"); \
-	echo "Tagging v$$VERSION for deno.land/x..."; \
-	git tag v$$VERSION 2>/dev/null || echo "Tag v$$VERSION already exists"; \
-	git push origin v$$VERSION
-
-publish: publish-npm publish-jsr publish-deno
+publish: publish-npm

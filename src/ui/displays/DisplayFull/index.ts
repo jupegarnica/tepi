@@ -1,1 +1,1 @@
-export { DisplayFull } from "./DisplayFull.tsx";
+export { DisplayFull } from "./DisplayFull.ts";

@@ -1,1 +1,1 @@
-export { MessagesPanel } from "./MessagesPanel.tsx";
+export { MessagesPanel } from "./MessagesPanel.ts";
